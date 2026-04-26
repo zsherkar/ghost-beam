@@ -1,0 +1,8 @@
+timestamp,step,quad_1,quad_2,steer_x,steer_y,rf_phase,rf_amplitude,bpm_x_1,bpm_y_1,bpm_x_2,bpm_y_2,charge,temperature,rf_readback,beam_current_proxy,beam_quality_observed_optional,event_type,note
+2026-04-26T12:00:00Z,0,1.02,0.98,0.00,0.00,0.00,1.00,0.02,-0.01,0.03,-0.02,1.00,23.2,0.01,0.99,0.91,nominal_baseline,Green baseline before drift is visible.
+2026-04-26T12:00:20Z,1,1.02,0.98,0.04,-0.02,0.32,0.99,0.13,-0.07,0.28,-0.13,0.96,23.5,0.34,0.94,0.70,drift_appears,Beam becomes diffuse and slightly off center.
+2026-04-26T12:00:40Z,2,1.02,1.04,0.05,-0.02,0.38,0.99,0.16,-0.08,0.34,-0.16,0.95,23.8,0.39,0.91,0.63,naive_proposal,Naive optimizer proposes more quadrupole focusing.
+2026-04-26T12:01:00Z,3,1.02,1.04,0.05,-0.02,0.42,0.98,0.18,-0.09,0.38,-0.18,0.93,24.0,0.43,0.88,0.58,gate_evaluation,Gate should request calibration because the twin is outside trust envelope.
+2026-04-26T12:01:20Z,4,1.02,1.04,0.05,-0.02,0.42,0.98,0.18,-0.09,0.38,-0.18,0.93,24.0,0.43,0.88,0.58,calibration_measurement,Destructive diagnostic screen confirms RF phase drift.
+2026-04-26T12:01:40Z,5,1.02,1.04,0.03,-0.01,0.08,1.00,0.08,-0.04,0.12,-0.06,0.98,23.6,0.09,0.97,0.84,safer_correction,Safer RF correction plus small trim improves quality.
+2026-04-26T12:02:00Z,6,1.03,1.05,0.02,-0.01,0.04,1.00,0.04,-0.02,0.07,-0.03,0.99,23.4,0.04,0.99,0.89,export_artifact,Audit artifact exported after safe correction.

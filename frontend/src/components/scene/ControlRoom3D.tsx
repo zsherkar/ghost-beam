@@ -22,6 +22,7 @@ interface Props {
   currentEvent?: ExperimentEventState
   twinLightingMode: TwinLightingMode
   onTwinLightingModeChange: (mode: TwinLightingMode) => void
+  onResetTwinAppearance: () => void
   appTheme: 'dark' | 'light'
   busy?: boolean
   judgeMode?: boolean
@@ -39,7 +40,8 @@ const fallbackDevices: ExperimentDevice[] = [
 type ViewPreset = 'isometric' | 'top' | 'side' | 'diagnostic' | 'selected'
 type LabelMode = 'minimal' | 'active' | 'full'
 type TwinMode = 'physical' | 'twin' | 'diagnostics' | 'policy'
-type TwinLightingMode = 'control-room' | 'inspection' | 'presentation'
+type PhysicalTwinLightingMode = 'control-room' | 'inspection' | 'presentation'
+type TwinLightingMode = 'auto' | PhysicalTwinLightingMode
 type ExperimentEventState = 'evaluating' | 'calibrating' | 'applying' | 'blocked' | null
 type CameraCommand = { kind: 'reset' | 'zoom-in' | 'zoom-out'; nonce: number } | null
 
@@ -59,7 +61,7 @@ function safeLocalStorageSet(key: string, value: string) {
   }
 }
 
-const lightingConfigs: Record<TwinLightingMode, {
+const lightingConfigs: Record<PhysicalTwinLightingMode, {
   background: string
   fogColor: string
   fogNear: number
@@ -117,7 +119,7 @@ const lightingConfigs: Record<TwinLightingMode, {
   },
 }
 
-const lightLightingConfigs: Record<TwinLightingMode, typeof lightingConfigs[TwinLightingMode]> = {
+const lightLightingConfigs: Record<PhysicalTwinLightingMode, typeof lightingConfigs[PhysicalTwinLightingMode]> = {
   'control-room': {
     background: '#182027',
     fogColor: '#182027',
@@ -133,32 +135,32 @@ const lightLightingConfigs: Record<TwinLightingMode, typeof lightingConfigs[Twin
     gridSub: '#32424a',
   },
   inspection: {
-    background: '#dfe6eb',
-    fogColor: '#dfe6eb',
+    background: '#f0f4f6',
+    fogColor: '#f0f4f6',
     fogNear: 26,
     fogFar: 48,
-    ambient: 1.25,
-    hemi: 1.35,
-    directional: 3.8,
-    spot: 3.5,
-    rim: 1.8,
-    floor: '#c7d0d7',
-    gridMain: '#8aa0aa',
-    gridSub: '#d8e0e5',
+    ambient: 1.42,
+    hemi: 1.48,
+    directional: 4.05,
+    spot: 3.8,
+    rim: 1.95,
+    floor: '#e0e7ec',
+    gridMain: '#8fa2ac',
+    gridSub: '#c8d4db',
   },
   presentation: {
-    background: '#eef3f5',
-    fogColor: '#eef3f5',
+    background: '#f6f8f9',
+    fogColor: '#f6f8f9',
     fogNear: 23,
     fogFar: 42,
-    ambient: 1.16,
-    hemi: 1.25,
-    directional: 3.45,
-    spot: 3.15,
-    rim: 2.2,
-    floor: '#d5dde3',
-    gridMain: '#7c929c',
-    gridSub: '#c6d0d6',
+    ambient: 1.32,
+    hemi: 1.38,
+    directional: 3.75,
+    spot: 3.35,
+    rim: 2.35,
+    floor: '#e7edf1',
+    gridMain: '#8297a0',
+    gridSub: '#cad5dc',
   },
 }
 
@@ -194,16 +196,34 @@ function BeamPath({
   const group = useRef<THREE.Group>(null)
   const pulseRef = useRef<THREE.Mesh>(null)
   const color = tone === 'beam-green' ? '#65ff9d' : tone === 'beam-red' ? '#ff445e' : '#ff9c48'
+  const decision = record?.gate_decision.decision
   const policyOutline = record?.gate_decision.decision === 'REQUIRE_HUMAN_REVIEW' && record.virtual_diagnostic.trust_state === 'GREEN'
   const envelopeColor = policyOutline ? '#ffbc5e' : color
   const halo = record?.vision_diagnostic.labels.some((label) => label === 'HALO' || label === 'DIFFUSE') ?? false
   const envelopeOpacity = twinMode === 'twin' || twinMode === 'policy' ? 0.16 : halo ? 0.13 : 0.08
+  const stabilized = (decision === 'APPROVE' || decision === 'APPROVE_SMALL_STEP') && (experiment?.calibration_freshness ?? 0) > 0.5
+  const calibrationRequired = decision === 'REQUEST_CALIBRATION'
+  const showNaiveProjection = decision === 'BLOCK' || decision === 'REQUEST_CALIBRATION' || decision === 'REQUIRE_HUMAN_REVIEW'
   const points = useMemo(() => {
     const trajectory = experiment?.trajectory?.length
       ? experiment.trajectory
       : [[0, 0, -4.8], [0, 0, -2.4], [0, 0, 0], [0, 0, 2.4], [0, 0, 4.8]]
-    return trajectory.map((point) => new THREE.Vector3(point[2], point[1] * 4.5, point[0] * 4.5))
+    return trajectory.map((point) => new THREE.Vector3(
+      point[2],
+      THREE.MathUtils.clamp(point[1] * 1.45, -0.095, 0.095),
+      THREE.MathUtils.clamp(point[0] * 1.45, -0.095, 0.095),
+    ))
   }, [experiment?.trajectory])
+  const naiveProjectionPoints = useMemo(() => {
+    if (!showNaiveProjection || points.length < 2) return []
+    const severity = decision === 'BLOCK' ? 0.4 : decision === 'REQUEST_CALIBRATION' ? 0.28 : 0.22
+    return points.map((point, index) => {
+      const fraction = points.length <= 1 ? 0 : index / (points.length - 1)
+      const lateral = severity * Math.sin(fraction * Math.PI * 0.9)
+      const vertical = severity * 0.42 * fraction
+      return new THREE.Vector3(point.x, point.y + vertical, point.z + lateral)
+    })
+  }, [decision, points, showNaiveProjection])
 
   useFrame(({ clock }) => {
     if (!group.current) return
@@ -232,6 +252,14 @@ function BeamPath({
           <meshBasicMaterial color="#ffbc5e" transparent opacity={0.09} side={THREE.DoubleSide} />
         </mesh>
       )}
+      {showNaiveProjection && naiveProjectionPoints.length > 1 && (
+        <>
+          <Line points={naiveProjectionPoints} color={decision === 'BLOCK' ? '#ff4d5e' : '#ffbc5e'} lineWidth={2} transparent opacity={0.46} dashed dashSize={0.18} gapSize={0.12} />
+          <Html position={[naiveProjectionPoints[Math.floor(naiveProjectionPoints.length * 0.68)].x, 0.48, 0.34]} center className="beam-outcome-label beam-outcome-naive">
+            Naive projected path
+          </Html>
+        </>
+      )}
       <Line points={points} color={color} lineWidth={9} transparent opacity={0.24} />
       <Line points={points} color={color} lineWidth={4} transparent opacity={0.95} />
       <Line points={points} color="#ffffff" lineWidth={1} transparent opacity={0.35} />
@@ -249,6 +277,16 @@ function BeamPath({
           emissiveIntensity={2.4}
         />
       </mesh>
+      {calibrationRequired && (
+        <Html position={[2.4, 0.42, -0.28]} center className="beam-outcome-label beam-outcome-calibration">
+          Calibration required before write
+        </Html>
+      )}
+      {stabilized && (
+        <Html position={[2.15, 0.34, 0.24]} center className="beam-outcome-label beam-outcome-stable">
+          Post-intervention stabilized
+        </Html>
+      )}
     </group>
   )
 }
@@ -444,7 +482,10 @@ function TwinScene({
   onHoverDevice: (deviceId: string | null) => void
 }) {
   const tone = beamTone(record)
-  const lighting = (appTheme === 'light' ? lightLightingConfigs : lightingConfigs)[twinLightingMode] ?? lightingConfigs['control-room']
+  const resolvedLightingMode: PhysicalTwinLightingMode = twinLightingMode === 'auto'
+    ? (appTheme === 'light' ? 'inspection' : 'control-room')
+    : twinLightingMode
+  const lighting = (appTheme === 'light' ? lightLightingConfigs : lightingConfigs)[resolvedLightingMode] ?? lightingConfigs['control-room']
   const devices = experiment?.device_registry?.length ? experiment.device_registry : fallbackDevices
   const proposedDevices = new Set(
     Object.entries(draftAction.delta_settings)
@@ -635,8 +676,9 @@ function ControlRoom3D({
   onCalibrate,
   onReset,
   currentEvent = null,
-  twinLightingMode = 'control-room',
+  twinLightingMode = 'auto',
   onTwinLightingModeChange,
+  onResetTwinAppearance,
   appTheme,
   busy = false,
   judgeMode = false,
@@ -657,6 +699,9 @@ function ControlRoom3D({
   const [inspectorOpen, setInspectorOpen] = useState(false)
   const [inspectorPinned, setInspectorPinned] = useState(false)
   const trustStatus = record?.virtual_diagnostic.trust_state ?? 'PENDING'
+  const resolvedLightingMode: PhysicalTwinLightingMode = twinLightingMode === 'auto'
+    ? (appTheme === 'light' ? 'inspection' : 'control-room')
+    : twinLightingMode
 
   useEffect(() => {
     if (judgeMode) {
@@ -697,7 +742,7 @@ function ControlRoom3D({
   }
 
   return (
-    <section ref={sectionRef} className={`beamline-card ${tone} scene-theme-${appTheme} twin-lighting-${twinLightingMode} ${currentEvent ? `scene-event-${currentEvent}` : ''} ${judgeMode ? 'judge-scene' : ''}`}>
+    <section ref={sectionRef} className={`beamline-card ${tone} scene-theme-${appTheme} twin-lighting-${resolvedLightingMode} ${twinLightingMode === 'auto' ? 'twin-lighting-auto' : ''} ${currentEvent ? `scene-event-${currentEvent}` : ''} ${judgeMode ? 'judge-scene' : ''}`}>
       <img className="beamline-image beamline-backdrop" src="/images/beamline-viewport.png" alt="" />
       <div className="beamline-vignette" />
       <div className="r3f-stage">
@@ -731,7 +776,7 @@ function ControlRoom3D({
           <strong>{viewPreset === 'selected' ? 'Selected' : viewPreset === 'diagnostic' ? 'Diag' : viewPreset === 'isometric' ? 'Iso' : viewPreset}</strong>
           <em>{labelMode === 'minimal' ? 'Min' : labelMode === 'active' ? 'Act' : 'Full'}</em>
           <em>{twinMode === 'physical' ? 'Phys' : twinMode === 'diagnostics' ? 'Diag' : twinMode === 'policy' ? 'Policy' : 'Twin'}</em>
-          <em>{twinLightingMode === 'control-room' ? 'Ctrl' : twinLightingMode === 'inspection' ? 'Inspect' : 'Present'}</em>
+          <em>{twinLightingMode === 'auto' ? `Auto/${resolvedLightingMode === 'inspection' ? 'Inspect' : resolvedLightingMode === 'presentation' ? 'Present' : 'Ctrl'}` : twinLightingMode === 'control-room' ? 'Ctrl' : twinLightingMode === 'inspection' ? 'Inspect' : 'Present'}</em>
           {viewExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
         </button>
         {viewExpanded && (
@@ -763,13 +808,14 @@ function ControlRoom3D({
                 </button>
               ))}
             </div>
-            <span>Twin Lighting</span>
+            <span>Scene Appearance</span>
             <div className="view-preset-buttons twin-mode-buttons">
-              {(['control-room', 'inspection', 'presentation'] as TwinLightingMode[]).map((mode) => (
+              {(['auto', 'control-room', 'inspection', 'presentation'] as TwinLightingMode[]).map((mode) => (
                 <button key={mode} className={twinLightingMode === mode ? 'active' : ''} type="button" disabled={busy} onClick={() => onTwinLightingModeChange(mode)}>
-                  {mode === 'control-room' ? 'Ctrl' : mode === 'inspection' ? 'Inspect' : 'Present'}
+                  {mode === 'auto' ? 'Auto' : mode === 'control-room' ? 'Ctrl' : mode === 'inspection' ? 'Inspect' : 'Present'}
                 </button>
               ))}
+              <button className="reset-appearance-button" type="button" disabled={busy} onClick={onResetTwinAppearance}>Reset</button>
             </div>
           </div>
         )}

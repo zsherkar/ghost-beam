@@ -37,7 +37,7 @@ export function decisionReason(record: DecisionRecord | null) {
   const decision = record?.gate_decision.decision
   const trust = record?.virtual_diagnostic.trust_state
   const reasons = record?.gate_decision.reasons ?? []
-  if (!record) return 'Waiting for live DecisionRecord.'
+  if (!record) return 'Waiting for live Decision Record.'
   if (decision === 'BLOCK') {
     if (reasons.some((reason) => reason.toLowerCase().includes('hard limit'))) return 'Action violates hard PV limit.'
     return 'Safety policy blocks this action.'

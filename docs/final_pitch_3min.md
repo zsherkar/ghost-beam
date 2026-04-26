@@ -31,9 +31,9 @@ Apply **Calibration**, then **Safer Correction**.
 
 ## 2:15 - 2:40
 
-Generate **Mission Report** and open **DecisionRecord JSON**.
+Generate **Mission Report** and open **Decision Record**.
 
-"The decision is machine-readable, auditable, and locally persisted. This is not an LLM vibe check; the gate is deterministic."
+"The Diagnosis tab explains what happened in plain English, the JSON tab is machine-readable, and both are locally persisted or exportable. This is not an LLM vibe check; the gate is deterministic."
 
 ## 2:40 - 3:00
 

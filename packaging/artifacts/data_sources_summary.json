@@ -1,0 +1,42 @@
+{
+  "core_demo_sources": [
+    "synthetic_jax_twin",
+    "synthetic_recorded_fixture"
+  ],
+  "public_dataset_adapters": [
+    "boostr",
+    "fermilab_bpm_ipm"
+  ],
+  "facility_connector_stubs": [
+    "epics_archiver_stub",
+    "pyarchappl_compatible"
+  ],
+  "artifact_standards": [
+    "openpmd",
+    "ro_crate"
+  ],
+  "validation_standards": [
+    "frictionless"
+  ],
+  "future_extensions": [
+    "workflowhub",
+    "materials_project"
+  ],
+  "active_sources": [
+    "synthetic_jax_twin",
+    "synthetic_recorded_fixture",
+    "ro_crate"
+  ],
+  "counts_by_category": {
+    "core_demo": 2,
+    "public_dataset": 2,
+    "facility_connector": 2,
+    "artifact_standard": 2,
+    "validation_standard": 1,
+    "future_extension": 2
+  },
+  "no_real_hardware": true,
+  "no_runtime_downloads": true,
+  "no_external_runtime_calls": true,
+  "evidence_bundle_includes_registry": true
+}

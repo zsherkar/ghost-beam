@@ -19,6 +19,8 @@ Runs local readiness checks:
 - runs the non-mutating dry-run health check
 - runs benchmark
 - generates an evidence bundle
+- verifies the BOOSTR public-data source registry
+- verifies the federated `/data-sources` registry and missing-slice handling
 - prints pass/fail summary
 
 ```powershell
@@ -31,4 +33,20 @@ Clears only generated demo artifacts inside project-owned artifact folders. It d
 
 ```powershell
 .\scripts\reset_demo.ps1
+```
+
+## `capture_visual_qa.ps1`
+
+Creates `docs/screenshots/` if needed. If Playwright CLI is available in `frontend/node_modules`, it captures baseline 1920x1080 and 1440x900 screenshots. Otherwise it prints the manual external-browser checklist and exits successfully.
+
+```powershell
+.\scripts\capture_visual_qa.ps1
+```
+
+## `backend/scripts/create_boostr_shaped_sample.py`
+
+Generates a tiny BOOSTR-shaped synthetic CSV for testing the local public-data importer UI. It is not actual BOOSTR data and should not be described as public facility data.
+
+```powershell
+python backend/scripts/create_boostr_shaped_sample.py
 ```

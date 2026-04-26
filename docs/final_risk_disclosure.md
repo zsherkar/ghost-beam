@@ -8,6 +8,9 @@ Ghost Beam is a local simulated MVP.
 - No real ALS, SLAC, Fermilab, Jefferson Lab, or facility eLog data are included.
 - No paid APIs or external AI services are used.
 - No public tunnels or deployments are created.
+- Public/external data sources are read-only local importers, manifests, validation layers, or future connector stubs.
+- No public datasets are auto-downloaded or required at runtime.
+- EPICS Archiver and pyarchappl-compatible connectors are disabled stubs only.
 - No personal operator data, credentials, secrets, telemetry, browser history, or private files are used.
 - The policy gate is deterministic and does not depend on an LLM.
 - Ghost Beam is not a replacement for operators or machine-protection systems.

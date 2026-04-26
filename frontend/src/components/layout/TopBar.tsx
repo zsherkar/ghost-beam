@@ -51,27 +51,26 @@ function TopBar({
 
   return (
     <header className="topbar">
-      <div className="brand-lockup">
+      <div className="topbar-product">
         <h1>Ghost Beam</h1>
         <p>Accelerator trust agent.</p>
       </div>
 
-      <div className={`system-card ${trustTone(trust)}`}>
-        <span className="system-led" />
-        <div>
-          <small>System</small>
-          <strong>{backendConnected ? decisionLabel(decision) : 'Backend Disconnected'}</strong>
-        </div>
-      </div>
-
       <div className="topbar-controls">
-        <div className="select-card clock-card" aria-label="Local time clock">
+        <div className={`topbar-card system-status-card system-card ${trustTone(trust)}`}>
+          <span className="system-led" />
+          <div>
+            <small>System</small>
+            <strong>{backendConnected ? decisionLabel(decision) : 'Backend Disconnected'}</strong>
+          </div>
+        </div>
+        <div className="topbar-card local-time-card select-card clock-card" aria-label="Local time clock">
           <span>
             <small>Local Time</small>
             <strong>{clock}</strong>
           </span>
         </div>
-        <label className="select-card scenario-select-card">
+        <label className="topbar-card scenario-card select-card scenario-select-card">
           <span>
             <small>Scenario</small>
             <strong>{scenarioLabel(selectedScenarioId)}</strong>
@@ -91,7 +90,7 @@ function TopBar({
           <ChevronDown size={15} />
         </label>
         <button
-          className="select-card theme-select-card"
+          className="topbar-card theme-card select-card theme-select-card"
           type="button"
           onClick={() => onThemeModeChange(nextTheme)}
           aria-label={`Theme ${themeMode}. Click to switch to ${nextTheme}.`}
@@ -103,33 +102,35 @@ function TopBar({
           </span>
           <ThemeIcon size={15} />
         </button>
-        <button className="icon-button guided-top-button" type="button" aria-label="Run Guided Demo" onClick={onRunGuidedDemo}>
-          <Play size={16} />
-        </button>
-        <button
-          className={`icon-button judge-mode-button ${judgeMode ? 'active' : ''}`}
-          type="button"
-          aria-label="Judge Demo Mode"
-          title="Judge Demo Mode"
-          onClick={onJudgeDemoMode}
-        >
-          <Presentation size={16} />
-        </button>
-        <button className="icon-button health-check-button" type="button" aria-label="Demo Health Check" title="Demo Health Check" onClick={onRunHealthCheck}>
-          <Stethoscope size={16} />
-        </button>
-        <button className="icon-button secondary-topbar-icon" type="button" aria-label="Activity">
-          <Activity size={18} />
-        </button>
-        <button className="icon-button secondary-topbar-icon" type="button" aria-label="Alerts">
-          <Bell size={17} />
-        </button>
-        <button className="icon-button secondary-topbar-icon" type="button" aria-label="Network">
-          <Network size={17} />
-        </button>
-        <button className="icon-button secondary-topbar-icon" type="button" aria-label="List">
-          <List size={18} />
-        </button>
+        <div className="icon-toolbar" aria-label="Topbar actions">
+          <button className="icon-button guided-top-button" type="button" aria-label="Guided: Drifted Twin Test" title="Guided: Drifted Twin Test" onClick={onRunGuidedDemo}>
+            <Play size={16} />
+          </button>
+          <button
+            className={`icon-button judge-mode-button ${judgeMode ? 'active' : ''}`}
+            type="button"
+            aria-label="Judge Demo Mode"
+            title="Judge Demo Mode"
+            onClick={onJudgeDemoMode}
+          >
+            <Presentation size={16} />
+          </button>
+          <button className="icon-button health-check-button" type="button" aria-label="Demo Health Check" title="Demo Health Check" onClick={onRunHealthCheck}>
+            <Stethoscope size={16} />
+          </button>
+          <button className="icon-button secondary-topbar-icon" type="button" aria-label="Activity">
+            <Activity size={18} />
+          </button>
+          <button className="icon-button secondary-topbar-icon" type="button" aria-label="Alerts">
+            <Bell size={17} />
+          </button>
+          <button className="icon-button secondary-topbar-icon" type="button" aria-label="Network">
+            <Network size={17} />
+          </button>
+          <button className="icon-button secondary-topbar-icon" type="button" aria-label="List">
+            <List size={18} />
+          </button>
+        </div>
       </div>
     </header>
   )

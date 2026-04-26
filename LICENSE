@@ -1,0 +1,21 @@
+Copyright © 2026 Ziauddin Sherkar. All rights reserved.
+
+This repository and all associated source code, documentation, designs, user interfaces, diagrams, generated artifacts, screenshots, text, names, concepts, architecture, and other materials (collectively, the "Materials") are proprietary to Ziauddin Sherkar.
+
+No license, permission, or rights are granted to any person or entity to use, copy, reproduce, modify, merge, publish, distribute, sublicense, sell, host, deploy, train on, benchmark, reverse engineer, create derivative works from, commercialize, or otherwise exploit the Materials, in whole or in part, without the prior express written consent of Ziauddin Sherkar.
+
+This repository may be viewed only for evaluation and review through GitHub's interface and only to the extent permitted by GitHub's Terms of Service for operation of the GitHub service. That viewing access does not grant any additional license, permission, ownership interest, or right to copy, use, modify, distribute, publish, host, deploy, benchmark, reverse engineer, train on, scrape, index, or create derivative works from the Materials.
+
+No patent license is granted. No trademark or branding license is granted. No right to use the name "Ghost Beam" or any related mark, product name, project name, trade dress, user interface, design, concept, or branding is granted.
+
+No AI/ML training, scraping, dataset creation, model distillation, embedding-index generation, or other machine-learning ingestion or transformation of the Materials is permitted except where legally unavoidable and not restricted by applicable law.
+
+The Materials are provided only as a local hackathon prototype and demo for review and evaluation. They are not safety-certified and must not be used to operate, control, supervise, inform, or influence any real accelerator, laboratory instrument, industrial system, medical system, energy system, semiconductor tool, transportation system, public infrastructure, or other safety-critical system.
+
+THE MATERIALS ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, TITLE, NON-INFRINGEMENT, ACCURACY, RELIABILITY, AVAILABILITY, SECURITY, OR SAFETY. IN NO EVENT SHALL ZIAUDDIN SHERKAR BE LIABLE FOR ANY CLAIM, DAMAGES, LOSSES, OR OTHER LIABILITY ARISING FROM OR RELATED TO THE MATERIALS OR ANY USE OF THEM.
+
+Third-party libraries, tools, frameworks, public dataset names, standards, and references remain subject to their respective owners' terms and licenses. Public dataset references and adapters are references/manifests only and do not grant rights to those datasets.
+
+No affiliation, sponsorship, approval, or endorsement by the U.S. Department of Energy, Lawrence Berkeley National Laboratory, Berkeley Lab, Advanced Light Source, ALS-U, Genesis Mission, Fermilab, SLAC, EPICS, Osprey, Materials Project, or any other third-party organization is claimed or implied.
+
+Any use beyond viewing and evaluation through GitHub's interface requires prior express written permission from Ziauddin Sherkar.

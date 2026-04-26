@@ -1,0 +1,18 @@
+{
+  "source_id": "materials_project",
+  "name": "Materials Project",
+  "category": "future_extension",
+  "status": "manifest_ready",
+  "role": "future materials context for Genesis-style workflows",
+  "active_in_accelerator_control_demo": false,
+  "runtime_api_call_required": false,
+  "api_key_required_for_mvp": false,
+  "potential_use": "Connect material sample or candidate metadata to accelerator/beamline characterization records in a future workflow.",
+  "separation_notice": "This is not used by Ghost Beam's live accelerator-control loop and cannot influence policy-gate decisions in the MVP.",
+  "safety_disclosure": [
+    "future context adapter only",
+    "no runtime API calls",
+    "no accelerator hardware writes",
+    "no paid service dependency"
+  ]
+}

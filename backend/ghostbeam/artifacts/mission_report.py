@@ -109,6 +109,7 @@ def build_report_payload(
         }),
         "transcript": transcript,
         "frontend_metadata": frontend_metadata or {},
+        "human_diagnosis": (frontend_metadata or {}).get("human_diagnosis"),
         "report_source": "backend artifact",
         "disclosures": {
             "real_epics": False,
@@ -123,6 +124,7 @@ def build_report_payload(
 def report_to_markdown(report: dict[str, Any]) -> str:
     top = report.get("top_elog_match") or {}
     final = report.get("final_decision") or {}
+    diagnosis = report.get("human_diagnosis") or {}
     lines = [
         f"# Ghost Beam Mission Report: {report['demo_title']}",
         "",
@@ -147,9 +149,22 @@ def report_to_markdown(report: dict[str, Any]) -> str:
         f"- Safer action: {_format_delta(report.get('safer_action'))}",
         f"- Final decision: {final.get('decision', 'not recorded')}",
         "",
-        "## Guided Transcript",
+        "## Ghost Beam Diagnosis",
+        "",
+        diagnosis.get("summary", "Diagnosis summary was not provided."),
+        "",
+        "### What Ghost Beam Did",
         "",
     ]
+    for index, item in enumerate(diagnosis.get("timeline") or [], start=1):
+        lines.append(f"{index}. **{item.get('title', 'Step')}** - {item.get('detail', '')}")
+    lines.extend(
+        [
+            "",
+            "## Guided Transcript",
+            "",
+        ]
+    )
     for entry in report.get("transcript") or []:
         lines.extend(
             [

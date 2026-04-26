@@ -1,0 +1,52 @@
+{
+  "adapter_mode": "simulated",
+  "real_hardware_writes_enabled": false,
+  "capabilities": {
+    "jax_transfer_matrix_twin": true,
+    "virtual_diagnostic": true,
+    "uncertainty": true,
+    "ood_detection": true,
+    "beam_profile_vision": true,
+    "elog_memory": true,
+    "policy_gate": true,
+    "calibration_sim": true,
+    "mission_report": true,
+    "decision_record_schema": true,
+    "recorded_run_ingestion": true,
+    "public_data_adapters": "boostr",
+    "public_data_boostr": true,
+    "public_data_fermilab_bpm_ipm_manifest": true,
+    "data_source_registry": true,
+    "epics_stub": true,
+    "epics_archiver_stub": true,
+    "pyarchappl_compatible_stub": true,
+    "real_epics": false,
+    "ro_crate_evidence_bundle": true,
+    "frictionless_validation_status": true,
+    "openpmd_compatibility_manifest": true,
+    "workflowhub_compatibility_manifest": true,
+    "materials_project_future_context": true
+  },
+  "public_data_adapters": [
+    "boostr",
+    "fermilab_bpm_ipm"
+  ],
+  "public_data_status": {
+    "adapters_enabled": true,
+    "sources": [
+      {
+        "dataset_id": "boostr",
+        "name": "BOOSTR: A Dataset for Accelerator Control Systems",
+        "facility": "Fermilab Booster",
+        "doi": "10.5281/zenodo.4382663",
+        "license": "CC BY 4.0",
+        "status": "not_installed",
+        "default_local_path": "backend/data/public_datasets/boostr/local_sample.csv",
+        "local_slices": [],
+        "disclosure": "Public data mode is read-only analysis. No real-time hardware, live ACNET/EPICS, facility eLogs, or machine writes are used."
+      }
+    ],
+    "latest_public_data_artifact": null
+  },
+  "safety_notice": "Ghost Beam MVP is local-only and simulated. Real EPICS reads/writes are disabled."
+}

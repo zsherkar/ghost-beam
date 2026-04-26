@@ -1,0 +1,113 @@
+{
+  "scenario_id": "drifted_twin",
+  "current_settings": {
+    "quad_1": 0.35,
+    "quad_2": -0.25,
+    "steer_x": 0.0,
+    "steer_y": 0.0,
+    "rf_phase": 0.4,
+    "rf_amplitude": 1.0
+  },
+  "safe_signals": {
+    "bpm_x_1": 0.030869773903489113,
+    "bpm_y_1": -0.03293182127922774,
+    "bpm_x_2": 0.02449049800634384,
+    "bpm_y_2": -0.03351240232586861,
+    "charge": 0.7767918080091477,
+    "temperature": 34.065,
+    "rf_readback": 1.02095,
+    "beam_current_proxy": 0.761216200152806
+  },
+  "proposed_action": {
+    "intent": "naive quadrupole correction for diffuse beam",
+    "delta_settings": {
+      "quad_2": 0.24
+    },
+    "source": "optimizer"
+  },
+  "virtual_diagnostic": {
+    "predicted_quality": 0.9335349817292273,
+    "predicted_size_x": 0.13540405045500237,
+    "predicted_size_y": 0.13606587390089236,
+    "predicted_beam_loss": 0.020122050288867106,
+    "uncertainty": 0.045951046921340256,
+    "ood_score": 10.73643403044133,
+    "trust_state": "RED",
+    "reasons": [
+      "model uncertainty is low",
+      "machine state is outside the training envelope",
+      "predicted beam loss is low"
+    ]
+  },
+  "vision_diagnostic": {
+    "centroid_x": 0.11503701980225751,
+    "centroid_y": -0.1581016289384931,
+    "sigma_x": 0.22453442133755766,
+    "sigma_y": 0.23130402909263834,
+    "ellipticity": 1.030149532150812,
+    "halo_score": 0.06222081350714459,
+    "clipping_score": 0.009331580124616889,
+    "labels": [
+      "CENTERED"
+    ]
+  },
+  "elog_hits": [
+    {
+      "date": "2018-07-13",
+      "title": "Diffuse beam spot after quad_2 drift",
+      "text": "Beam spot became diffuse after quad_2 drift during warm injector shift. Increasing quad_2 worsened halo. Operators restored quad_2 baseline and checked RF phase readback. Beam recovered after RF correction",
+      "recommended_action": "Do not increase quad_2 until RF phase readback is verified. Take a calibration screen if uncertainty remains high",
+      "similarity": 0.26947793996103264,
+      "risk_tags": [
+        "quad_conflict",
+        "rf_phase_check",
+        "halo"
+      ]
+    },
+    {
+      "date": "2018-09-05",
+      "title": "High beam loss after aggressive quadrupole tuning",
+      "text": "A large simultaneous quad_1 and quad_2 move improved predicted size but caused measured beam loss. Operators reverted to smaller steps",
+      "recommended_action": "Clip quadrupole moves and require approval for aggressive focusing",
+      "similarity": 0.19796662702590098,
+      "risk_tags": [
+        "quad_conflict",
+        "beam_loss"
+      ]
+    },
+    {
+      "date": "2015-06-23",
+      "title": "Night shift recovery from diffuse beam",
+      "text": "Night shift recovered diffuse beam by checking RF phase before touching quad_2. Increasing quad_2 first made the halo worse",
+      "recommended_action": "Check RF phase and take a screen before increasing quad_2",
+      "similarity": 0.17778266484117106,
+      "risk_tags": [
+        "quad_conflict",
+        "rf_phase_check",
+        "halo"
+      ]
+    }
+  ],
+  "gate_decision": {
+    "decision": "REQUEST_CALIBRATION",
+    "reasons": [
+      "virtual diagnostic trust state is RED",
+      "model uncertainty is low",
+      "machine state is outside the training envelope",
+      "predicted beam loss is low"
+    ],
+    "safe_next_step": "Take a calibration screen or equivalent verification measurement before any write.",
+    "human_approval_required": true,
+    "approved_delta_settings": {},
+    "blocked_delta_settings": {
+      "quad_2": 0.24
+    }
+  },
+  "simulated_outcome_if_applied": {
+    "beam_quality": 0.4242045283317566,
+    "beam_size_x": 0.16423647105693817,
+    "beam_size_y": 0.18706925213336945,
+    "beam_loss": 0.020051199942827225,
+    "emittance_proxy": 0.17879608273506165
+  }
+}

@@ -54,7 +54,7 @@ function EvidenceDrawer({ open, record, experiment, onClose, onOpenDecisionRecor
               : record.gate_decision.decision === 'REQUIRE_HUMAN_REVIEW'
                 ? 'human_review' as Filter
                 : 'info' as Filter,
-          title: `DecisionRecord: ${decisionLabel(record.gate_decision.decision)}`,
+          title: `Decision Record: ${decisionLabel(record.gate_decision.decision)}`,
           meta: `${record.scenario_id} | ${record.proposed_action.source}`,
           detail: record.gate_decision.safe_next_step,
           source: 'Decision Records',
@@ -99,7 +99,7 @@ function EvidenceDrawer({ open, record, experiment, onClose, onOpenDecisionRecor
         <div className="drawer-header">
           <div>
             <h2>Evidence & eLog</h2>
-            <p>Session history, retrieved operator memory, and DecisionRecord artifacts.</p>
+            <p>Session history, retrieved operator memory, and Decision Record artifacts.</p>
           </div>
           <button type="button" onClick={onClose} aria-label="Close evidence drawer">
             <X size={18} />
@@ -121,7 +121,7 @@ function EvidenceDrawer({ open, record, experiment, onClose, onOpenDecisionRecor
         </div>
 
         <div className="evidence-drawer-actions">
-          <button type="button" onClick={onOpenDecisionRecord}>Open DecisionRecord</button>
+          <button type="button" onClick={onOpenDecisionRecord}>Open Decision Record</button>
           <button type="button" onClick={() => void copyEvidence()}><Copy size={14} /> {copied ? 'Copied' : 'Copy Evidence JSON'}</button>
           <button type="button" onClick={downloadEvidence}><Download size={14} /> Download Evidence</button>
         </div>

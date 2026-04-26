@@ -45,6 +45,7 @@ Save screenshots to `docs/screenshots/`:
 - `external_1920_mission_report.png`
 - `external_1920_benchmark.png`
 - `external_1920_evidence_bundle.png`
+- `external_1920_recorded_fixture.png`
 
 ## Checks
 
@@ -84,17 +85,36 @@ Save screenshots to `docs/screenshots/`:
    - Confirm Active Adapter is Simulated JAX Twin.
    - Confirm real hardware writes are disabled.
    - Confirm data manifest/provenance is visible.
+   - Confirm recorded-run ingestion is enabled.
 
-7. Risk scenarios
+7. Recorded-run fixture
+   - In Settings, click `Load Recorded Fixture`.
+   - Verify the data source changes to `Recorded Run Fixture`.
+   - Evaluate steps 2, 3, and 5.
+   - Confirm the 3D scene and Decision Summary update.
+   - Confirm the disclosure says the trace is generated synthetic data, not facility data.
+
+8. Risk scenarios
    - Select `unsafe_write`; evaluate/apply path must remain blocked.
    - Select `elog_conflict`; Gate Evidence should explain human review.
 
-8. Benchmark and evidence bundle
+9. Public data adapter
+   - Open Settings and find `Data Sources & Provenance`.
+   - Confirm Active Demo Sources, Public Dataset Adapters, Facility Connector Stubs, Artifact & Validation Standards, and Future Genesis Extensions render.
+   - Confirm BOOSTR, Fermilab BPM/IPM, EPICS Archiver, Frictionless, RO-Crate, openPMD, WorkflowHub, and Materials Project appear in the expected groups.
+   - Open Settings and find `Public Dataset: BOOSTR`.
+   - Confirm DOI `10.5281/zenodo.4382663` and license `CC BY 4.0` render.
+   - If no local slice is installed, confirm the UI says so without showing an error.
+   - Click `Check Local Slice`; missing BOOSTR data should remain a calm optional state.
+   - Confirm the disclosure says public data mode is read-only and no hardware writes are available.
+
+10. Benchmark and evidence bundle
    - Open the guided panel and click `Benchmark`.
    - Run the benchmark and verify summary metrics render.
    - Export Benchmark JSON.
    - Click `Evidence Bundle`.
    - Verify export confirmation appears.
+   - Confirm the bundle records `data_source`, includes `recorded_run_manifest` when available, and includes the BOOSTR public dataset manifest/status.
 
 ## Pass Criteria
 

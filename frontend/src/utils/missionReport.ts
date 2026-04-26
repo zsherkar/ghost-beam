@@ -49,6 +49,11 @@ export interface GuidedDemoReport {
     beam_size_y?: number
     beam_loss?: number
   } | null
+  human_diagnosis?: {
+    summary?: string
+    timeline?: { title?: string; detail?: string }[]
+    markdown?: string
+  } | null
   decision_record_ids: string[]
   transcript: GuidedTranscriptEntry[]
 }
@@ -106,6 +111,7 @@ export function buildGuidedDemoReport(
   transcript: GuidedTranscriptEntry[],
   latestRecord: DecisionRecord | null,
   latestState: ExperimentState | null,
+  humanDiagnosis?: GuidedDemoReport['human_diagnosis'],
 ): GuidedDemoReport {
   const scenarioIds = Array.from(new Set(transcript.map((entry) => entry.scenario_id).filter(Boolean))) as string[]
   const naive = transcript.find((entry) => entry.step_index === 2)
@@ -125,7 +131,7 @@ export function buildGuidedDemoReport(
   const decisionIds = Array.from(new Set(transcript.map((entry) => entry.decision_record_id).filter(Boolean))) as string[]
   const executiveSummary = [
     'Ghost Beam blocked or held the naive quadrupole correction because the virtual diagnostic was outside its trusted envelope or operator memory warned against that action class.',
-    'After one synthetic calibration measurement, Ghost Beam evaluated a smaller RF correction and preserved the audit trail as a DecisionRecord/session artifact.',
+    'After one synthetic calibration measurement, Ghost Beam evaluated a smaller RF correction and preserved the audit trail as a Decision Record/session artifact.',
   ].join(' ')
 
   return {
@@ -154,6 +160,7 @@ export function buildGuidedDemoReport(
       beam_size_y: latestState.beam_truth.beam_size_y,
       beam_loss: latestState.beam_truth.beam_loss,
     } : null,
+    human_diagnosis: humanDiagnosis ?? null,
     decision_record_ids: decisionIds,
     transcript,
   }
@@ -187,6 +194,16 @@ export function missionReportToMarkdown(report: GuidedDemoReport) {
     `- Final decision: ${final?.decision ?? 'not recorded'}`,
     `- Final trust: ${final?.trust_state ?? 'not recorded'} (${formatOptional(final?.trust_score, 2)})`,
     `- Final beam quality: ${formatOptional(report.final_beam_metrics?.beam_quality, 3)}`,
+    '',
+    '## Ghost Beam Diagnosis',
+    '',
+    report.human_diagnosis?.summary ?? 'Diagnosis summary was not recorded in this frontend fallback report.',
+    '',
+    '## What Ghost Beam Did',
+    '',
+    ...(report.human_diagnosis?.timeline?.length
+      ? report.human_diagnosis.timeline.map((item, index) => `${index + 1}. **${item.title ?? 'Step'}** - ${item.detail ?? ''}`)
+      : ['1. Diagnosis timeline was not recorded in this frontend fallback report.']),
     '',
     '## Guided Transcript',
     '',

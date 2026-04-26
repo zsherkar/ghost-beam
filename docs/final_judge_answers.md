@@ -4,6 +4,10 @@
 
 No. The MVP uses synthetic accelerator-control data generated from Ghost Beam's local JAX digital twin. This is intentional: no real facility logs, live EPICS data, cameras, or hardware writes are included.
 
+## Are you using actual public data?
+
+The live control demo uses synthetic JAX-twin data for safety and repeatability. Ghost Beam also includes read-only adapters/manifests for BOOSTR, Fermilab BPM/IPM, EPICS Archiver, openPMD, Frictionless, RO-Crate, WorkflowHub, and a future Materials Project context adapter. Public datasets are local-import only and never write to hardware. We do not auto-download the full datasets during the hackathon because they are large and should stay optional.
+
 ## Why synthetic?
 
 The goal is to demonstrate the architecture safely without touching real hardware or exposing facility/operator data. The simulator is explicitly swappable for a facility-approved adapter later.
@@ -22,7 +26,15 @@ No. eLog retrieval is one evidence source. The decision also uses virtual diagno
 
 ## What is novel?
 
-Ghost Beam combines digital twin trust, operator memory, calibration awareness, and machine-action policy into a structured DecisionRecord before an autonomous action reaches the accelerator.
+Ghost Beam combines digital twin trust, operator memory, calibration awareness, and machine-action policy into a structured Decision Record before an autonomous action reaches the accelerator.
+
+## Is Ghost Beam only stopping actions?
+
+No. It gates actions. Depending on evidence, it may approve, approve a smaller step, request calibration, require human review, or block. In the Drifted Twin Test it requests calibration first, then approves a safer RF correction after trust improves.
+
+## Why does the guided demo always use Drifted Twin?
+
+Guided Demo is a fixed judging story. It intentionally switches to Drifted Twin Test so the evaluator sees diagnosis, calibration, safer correction, and artifact export in sequence. The Scenario selector is separate and still supports Green Zone, Unsafe Write, eLog Conflict, Calibration Recovery, and recorded fixture evaluation.
 
 ## What is the national impact?
 

@@ -1,0 +1,15 @@
+{
+  "standard_id": "workflowhub",
+  "name": "WorkflowHub / Workflow RO-Crate compatibility",
+  "status": "manifest_ready",
+  "role": "future workflow publication and provenance registry compatibility",
+  "active_in_mvp": false,
+  "expected_artifacts": [
+    "workflow RO-Crate metadata",
+    "evidence bundle manifest",
+    "decision record schema references",
+    "public data source registry references"
+  ],
+  "mvp_behavior": "Ghost Beam exports local RO-Crate-style evidence metadata but does not publish or upload to WorkflowHub.",
+  "safety_disclosure": "Future provenance registry compatibility only. No external upload or account integration is used."
+}

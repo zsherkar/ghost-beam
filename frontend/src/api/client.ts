@@ -125,6 +125,10 @@ export interface ExperimentEvent {
 
 export interface ExperimentState {
   scenario_id: string
+  data_source?: 'synthetic_live_twin' | 'recorded_fixture'
+  recorded_run_id?: string | null
+  recorded_step?: number | null
+  recorded_manifest?: Record<string, unknown> | null
   step_number: number
   drift: number
   calibration_freshness: number
@@ -191,6 +195,8 @@ export interface PlatformCapabilitiesResponse {
   adapter_mode: string
   real_hardware_writes_enabled: boolean
   capabilities: Record<string, boolean | string | number>
+  public_data_adapters?: string[]
+  public_data_status?: PublicDataSourcesResponse
   safety_notice: string
 }
 
@@ -243,6 +249,13 @@ export interface PlatformVersionResponse {
   benchmark_enabled: boolean
   evidence_bundle_enabled: boolean
   replay_enabled: boolean
+  recorded_run_ingestion_enabled?: boolean
+  public_data_adapters_enabled?: boolean
+  public_data_adapters?: string[]
+  boostr_manifest_available?: boolean
+  data_sources_registry_enabled?: boolean
+  epics_archiver_stub_enabled?: boolean
+  standards_manifests_enabled?: boolean
   safety_notice: string
 }
 
@@ -253,6 +266,141 @@ export interface EvidenceBundleResponse {
   filename: string
   path: string
   bundle: Record<string, unknown>
+}
+
+export interface RecordedRunSummary {
+  run_id: string
+  title: string
+  description: string
+  source: string
+  disclosure: string
+  steps: number
+  manifest_path?: string
+}
+
+export interface RecordedRunsResponse {
+  data_source: string
+  disclosure: string
+  runs: RecordedRunSummary[]
+}
+
+export interface RecordedRunLoadResponse {
+  run_id: string
+  loaded_step: number
+  manifest: Record<string, unknown>
+  available_steps: number[]
+  recorded_elogs: Array<Record<string, unknown>>
+  state: ExperimentState
+}
+
+export interface RecordedRunStepResponse {
+  run_id: string
+  step: number
+  row: Record<string, string>
+  manifest: Record<string, unknown>
+  recorded_elogs: Array<Record<string, unknown>>
+  decision_record_id: string | null
+  decision_record: DecisionRecord
+  state: ExperimentState
+  disclosure: string
+}
+
+export interface PublicDataSource {
+  dataset_id: string
+  name: string
+  facility: string
+  doi: string
+  license: string
+  status: 'not_installed' | 'local_slice_available' | string
+  default_local_path: string
+  local_slices: string[]
+  disclosure: string
+}
+
+export interface PublicDataSourcesResponse {
+  adapters_enabled: boolean
+  sources: PublicDataSource[]
+  latest_public_data_artifact?: Record<string, unknown> | null
+}
+
+export interface PublicDataImportResponse {
+  run_id: string
+  dataset_id: string
+  source_path: string
+  row_count: number
+  stored_row_count: number
+  column_list: string[]
+  timestamp_range: Record<string, unknown> | null
+  detected_numeric_signals: string[]
+  mapping_status: string
+  import_status?: 'IMPORTED' | 'NO_LOCAL_SLICE' | string
+  decision?: 'ANALYZE' | 'IMPORT_ERROR' | 'NO_LOCAL_SLICE' | string
+  allowed_actions?: string[]
+  disclosure: string
+}
+
+export interface PublicDataAnalysisArtifact {
+  artifact_type: string
+  schema_version: string
+  run_id: string
+  dataset_id: string
+  data_source: 'public_boostr'
+  created_at: string
+  window: Record<string, number>
+  numeric_metrics: Record<string, Record<string, number>>
+  anomaly_score: number
+  trust_score: number
+  trust_assessment?: string
+  decision: 'WINDOW_OK' | 'ANALYZE' | 'FLAG_FOR_REVIEW' | string
+  recommended_action?: string
+  policy_language: string
+  allowed_actions: string[]
+  writes_allowed?: boolean
+  hardware_write_permitted: boolean
+  disclosure: string
+}
+
+export interface DataSourceRecord {
+  id: string
+  name: string
+  category: 'core_demo' | 'public_dataset' | 'facility_connector' | 'artifact_standard' | 'validation_standard' | 'future_extension' | string
+  role: string
+  status: string
+  active: boolean
+  writes_allowed: boolean | string
+  local_only: boolean
+  runtime_network_required: boolean
+  doi?: string
+  license?: string
+  expected_format?: string
+  description: string
+  safety_disclosure: string
+  manifest_path?: string
+  manifest_available?: boolean
+  metadata?: Record<string, unknown>
+}
+
+export interface DataSourcesSummaryResponse {
+  core_demo_sources: string[]
+  public_dataset_adapters: string[]
+  facility_connector_stubs: string[]
+  artifact_standards: string[]
+  validation_standards: string[]
+  future_extensions?: string[]
+  active_sources: string[]
+  counts_by_category: Record<string, number>
+  no_real_hardware: boolean
+  no_runtime_downloads: boolean
+  no_external_runtime_calls: boolean
+  evidence_bundle_includes_registry: boolean
+}
+
+export interface DataSourcesRegistryResponse {
+  registry_version: string
+  generated_at: string
+  safety_disclosure: string
+  sources: DataSourceRecord[]
+  summary: DataSourcesSummaryResponse
 }
 
 export async function fetchHealth(): Promise<{ status: string; service: string }> {
@@ -400,6 +548,16 @@ export async function fetchPlatformVersion(): Promise<PlatformVersionResponse> {
   return response.data
 }
 
+export async function fetchDataSourcesRegistry(): Promise<DataSourcesRegistryResponse> {
+  const response = await api.get('/data-sources')
+  return response.data
+}
+
+export async function fetchDataSourcesSummary(): Promise<DataSourcesSummaryResponse> {
+  const response = await api.get('/data-sources/summary')
+  return response.data
+}
+
 export async function runBenchmark(totalTrials = 50, seed = 42): Promise<BenchmarkResult> {
   const response = await api.post('/benchmark/run', {
     total_trials: totalTrials,
@@ -423,5 +581,39 @@ export async function exportEvidenceBundle(request: {
   frontend_metadata?: Record<string, unknown>
 }): Promise<EvidenceBundleResponse> {
   const response = await api.post('/experiment/evidence-bundle', request)
+  return response.data
+}
+
+export async function fetchRecordedRuns(): Promise<RecordedRunsResponse> {
+  const response = await api.get('/recorded-runs')
+  return response.data
+}
+
+export async function loadRecordedRun(runId: string): Promise<RecordedRunLoadResponse> {
+  const response = await api.post('/recorded-runs/load', { run_id: runId })
+  return response.data
+}
+
+export async function evaluateRecordedRunStep(runId: string, step: number): Promise<RecordedRunStepResponse> {
+  const response = await api.post('/recorded-runs/evaluate-step', { run_id: runId, step })
+  return response.data
+}
+
+export async function fetchPublicDataSources(): Promise<PublicDataSourcesResponse> {
+  const response = await api.get('/public-data/sources')
+  return response.data
+}
+
+export async function importBoostrLocal(path: string): Promise<PublicDataImportResponse> {
+  const response = await api.post('/public-data/boostr/import-local', { path })
+  return response.data
+}
+
+export async function evaluateBoostrWindow(runId: string, startIndex = 0, windowSize = 100): Promise<PublicDataAnalysisArtifact> {
+  const response = await api.post('/public-data/boostr/evaluate-window', {
+    run_id: runId,
+    start_index: startIndex,
+    window_size: windowSize,
+  })
   return response.data
 }

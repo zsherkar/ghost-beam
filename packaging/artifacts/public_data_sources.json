@@ -1,0 +1,17 @@
+{
+  "adapters_enabled": true,
+  "sources": [
+    {
+      "dataset_id": "boostr",
+      "name": "BOOSTR: A Dataset for Accelerator Control Systems",
+      "facility": "Fermilab Booster",
+      "doi": "10.5281/zenodo.4382663",
+      "license": "CC BY 4.0",
+      "status": "not_installed",
+      "default_local_path": "backend/data/public_datasets/boostr/local_sample.csv",
+      "local_slices": [],
+      "disclosure": "Public data mode is read-only analysis. No real-time hardware, live ACNET/EPICS, facility eLogs, or machine writes are used."
+    }
+  ],
+  "latest_public_data_artifact": null
+}

@@ -1,0 +1,4 @@
+timestamp,title,text,risk_tags,recommended_action
+2026-04-26T11:58:00Z,Diffuse beam after RF phase drift,Similar diffuse off-center beam was corrected by verifying RF phase before increasing quadrupole strength.,rf_phase_check;quad_conflict;calibration,Take an OTR calibration measurement and check RF phase before increasing quad_2.
+2026-04-26T11:59:00Z,Quadrupole correction amplified halo,Increasing quad_2 during an RF phase drift made the beam halo worse in the synthetic replay.,quad_conflict;halo_risk;human_review,Hold quadrupole correction until the RF cavity readback is reconciled.
+2026-04-26T12:01:30Z,Post-calibration RF trim recovered beam,After calibration, a small RF phase correction plus a limited quadrupole trim restored the synthetic beam profile.,calibration;rf_phase_check;approve_small_step,Approve a small RF phase correction and verify with BPM/BCM readbacks.

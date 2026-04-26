@@ -1,0 +1,1782 @@
+{
+  "benchmark_id": "GB-BENCH-20260426_162318",
+  "created_at": "2026-04-26T20:23:18Z",
+  "benchmark_version": "0.1.0",
+  "name": "Naive optimizer vs Ghost Beam synthetic trust-gate benchmark",
+  "summary": "Across 50 synthetic accelerator-control trials, Ghost Beam allowed 9 low-risk autonomous actions, blocked 9 hard-limit or unsafe actions, requested calibration in 16 drifted/high-OOD states, and required human review in 16 eLog-conflict states.",
+  "metrics": {
+    "total_trials": 50,
+    "seed": 42,
+    "naive_actions_applied": 50,
+    "ghostbeam_approved": 9,
+    "ghostbeam_approved_small_step": 0,
+    "ghostbeam_blocked": 9,
+    "ghostbeam_requested_calibration": 16,
+    "ghostbeam_required_human_review": 16,
+    "hard_limit_violations_prevented": 9,
+    "elog_conflicts_caught": 16,
+    "drifted_twin_calibrations_requested": 8,
+    "unsafe_actions_prevented": 41,
+    "average_naive_projected_quality": 0.6380684232711792,
+    "average_ghostbeam_projected_quality": 0.7037931048870086,
+    "average_naive_projected_beam_loss": 0.18742102831602098,
+    "average_ghostbeam_projected_beam_loss": 0.020589309558272362,
+    "average_ood_before_calibration": 9.74102773395509,
+    "average_ood_after_calibration": 2.7410277339550895,
+    "percent_actions_modified_or_blocked": 82.0,
+    "percent_safe_actions_allowed": 18.0,
+    "benchmark_runtime_ms": 5093.05
+  },
+  "trial_table": [
+    {
+      "trial_id": "T001",
+      "category": "green_safe_trim",
+      "scenario_id": "green_zone",
+      "proposed_action": {
+        "intent": "benchmark safe green-envelope quad_1 trim",
+        "delta_settings": {
+          "quad_1": 0.016
+        },
+        "source": "optimizer"
+      },
+      "naive_projected_quality": 0.9521389603614807,
+      "naive_projected_beam_loss": 0.020014137029647827,
+      "ghostbeam_decision": "APPROVE",
+      "ghostbeam_projected_quality": 0.9521389603614807,
+      "ghostbeam_projected_beam_loss": 0.020014137029647827,
+      "ood_score": 0.2135963013843411,
+      "uncertainty": 0.000972357239733128,
+      "corrected_decision_after_calibration": null,
+      "ood_after_calibration": null,
+      "top_elog_title": "Quad_1 safe small step",
+      "top_elog_similarity": 0.41547862737190994,
+      "risk_tags": [
+        "none"
+      ],
+      "policy_reasons": [
+        "trust state GREEN",
+        "no hard limit or eLog conflict"
+      ],
+      "intervention_score": 0.1815
+    },
+    {
+      "trial_id": "T002",
+      "category": "unsafe_hard_limit",
+      "scenario_id": "unsafe_write",
+      "proposed_action": {
+        "intent": "benchmark unsafe quad_1 hard-limit write",
+        "delta_settings": {
+          "quad_1": 99.0
+        },
+        "source": "optimizer"
+      },
+      "naive_projected_quality": 0.0,
+      "naive_projected_beam_loss": 0.949999988079071,
+      "ghostbeam_decision": "BLOCK",
+      "ghostbeam_projected_quality": 0.5433179140090942,
+      "ghostbeam_projected_beam_loss": 0.023137565702199936,
+      "ood_score": 2.8052118996006317,
+      "uncertainty": 0.006831972432907417,
+      "corrected_decision_after_calibration": null,
+      "ood_after_calibration": null,
+      "top_elog_title": "Quad_1 safe small step",
+      "top_elog_similarity": 0.20535962189284465,
+      "risk_tags": [
+        "none"
+      ],
+      "policy_reasons": [
+        "hard limit violation for quad_1: proposed 100.950"
+      ],
+      "intervention_score": 10.8805
+    },
+    {
+      "trial_id": "T003",
+      "category": "drifted_twin_calibration",
+      "scenario_id": "drifted_twin",
+      "proposed_action": {
+        "intent": "benchmark naive quad_2 correction in drifted state",
+        "delta_settings": {
+          "quad_2": 0.223
+        },
+        "source": "optimizer"
+      },
+      "naive_projected_quality": 0.4259839653968811,
+      "naive_projected_beam_loss": 0.020051199942827225,
+      "ghostbeam_decision": "REQUEST_CALIBRATION",
+      "ghostbeam_projected_quality": 0.3416193127632141,
+      "ghostbeam_projected_beam_loss": 0.020062191411852837,
+      "ood_score": 10.73643403044133,
+      "uncertainty": 0.045951046921340256,
+      "corrected_decision_after_calibration": "APPROVE_SMALL_STEP",
+      "ood_after_calibration": 3.7364340304413304,
+      "top_elog_title": "Operator warning on quad_2 increase",
+      "top_elog_similarity": 0.2145216254490956,
+      "risk_tags": [
+        "quad_conflict",
+        "rf_phase_check",
+        "halo"
+      ],
+      "policy_reasons": [
+        "virtual diagnostic trust state is RED",
+        "model uncertainty is low",
+        "machine state is outside the training envelope",
+        "predicted beam loss is low"
+      ],
+      "intervention_score": 3.2341
+    },
+    {
+      "trial_id": "T004",
+      "category": "elog_conflict",
+      "scenario_id": "elog_conflict",
+      "proposed_action": {
+        "intent": "benchmark increase quad_2 for diffuse beam halo after RF readback drift",
+        "delta_settings": {
+          "quad_2": 0.082
+        },
+        "source": "optimizer"
+      },
+      "naive_projected_quality": 0.9522194266319275,
+      "naive_projected_beam_loss": 0.02001156099140644,
+      "ghostbeam_decision": "REQUIRE_HUMAN_REVIEW",
+      "ghostbeam_projected_quality": 0.9521870613098145,
+      "ghostbeam_projected_beam_loss": 0.02001156099140644,
+      "ood_score": 0.4448813804603342,
+      "uncertainty": 0.0010386261423336084,
+      "corrected_decision_after_calibration": null,
+      "ood_after_calibration": null,
+      "top_elog_title": "Diffuse beam spot after quad_2 drift",
+      "top_elog_similarity": 0.3237009846828188,
+      "risk_tags": [
+        "quad_conflict",
+        "rf_phase_check",
+        "halo"
+      ],
+      "policy_reasons": [
+        "retrieved eLog conflict: similar quad_2 action previously worsened beam halo or loss"
+      ],
+      "intervention_score": 2.2046
+    },
+    {
+      "trial_id": "T005",
+      "category": "high_ood_noisy_state",
+      "scenario_id": "calibration_recovery",
+      "proposed_action": {
+        "intent": "benchmark high-OOD focusing trim before calibration",
+        "delta_settings": {
+          "quad_1": 0.091
+        },
+        "source": "optimizer"
+      },
+      "naive_projected_quality": 0.5860483050346375,
+      "naive_projected_beam_loss": 0.02003863826394081,
+      "ghostbeam_decision": "REQUEST_CALIBRATION",
+      "ghostbeam_projected_quality": 0.47031262516975403,
+      "ghostbeam_projected_beam_loss": 0.020049629732966423,
+      "ood_score": 8.745621437468849,
+      "uncertainty": 0.03795104692134026,
+      "corrected_decision_after_calibration": "APPROVE",
+      "ood_after_calibration": 1.7456214374688486,
+      "top_elog_title": "Model OOD near high temperature",
+      "top_elog_similarity": 0.20978583979038148,
+      "risk_tags": [
+        "calibration_required",
+        "model_drift"
+      ],
+      "policy_reasons": [
+        "virtual diagnostic trust state is RED",
+        "model uncertainty is low",
+        "machine state is outside the training envelope",
+        "predicted beam loss is low"
+      ],
+      "intervention_score": 3.0349
+    },
+    {
+      "trial_id": "T006",
+      "category": "benign_autonomy_allowed",
+      "scenario_id": "green_zone",
+      "proposed_action": {
+        "intent": "benchmark benign steering trim",
+        "delta_settings": {
+          "steer_x": -0.015
+        },
+        "source": "optimizer"
+      },
+      "naive_projected_quality": 0.9521995186805725,
+      "naive_projected_beam_loss": 0.020014137029647827,
+      "ghostbeam_decision": "REQUIRE_HUMAN_REVIEW",
+      "ghostbeam_projected_quality": 0.9522289633750916,
+      "ghostbeam_projected_beam_loss": 0.020014137029647827,
+      "ood_score": 0.2135963013843411,
+      "uncertainty": 0.000972357239733128,
+      "corrected_decision_after_calibration": null,
+      "ood_after_calibration": null,
+      "top_elog_title": "BPM agreement allowed small trim",
+      "top_elog_similarity": 0.22499550067881824,
+      "risk_tags": [
+        "steering_saturation"
+      ],
+      "policy_reasons": [
+        "retrieved eLog warns about steering saturation"
+      ],
+      "intervention_score": 2.1815
+    },
+    {
+      "trial_id": "T007",
+      "category": "green_safe_trim",
+      "scenario_id": "green_zone",
+      "proposed_action": {
+        "intent": "benchmark safe green-envelope quad_1 trim",
+        "delta_settings": {
+          "quad_1": 0.019
+        },
+        "source": "optimizer"
+      },
+      "naive_projected_quality": 0.9521132111549377,
+      "naive_projected_beam_loss": 0.020014137029647827,
+      "ghostbeam_decision": "APPROVE",
+      "ghostbeam_projected_quality": 0.9521132111549377,
+      "ghostbeam_projected_beam_loss": 0.020014137029647827,
+      "ood_score": 0.2135963013843411,
+      "uncertainty": 0.000972357239733128,
+      "corrected_decision_after_calibration": null,
+      "ood_after_calibration": null,
+      "top_elog_title": "Quad_1 safe small step",
+      "top_elog_similarity": 0.41547862737190994,
+      "risk_tags": [
+        "none"
+      ],
+      "policy_reasons": [
+        "trust state GREEN",
+        "no hard limit or eLog conflict"
+      ],
+      "intervention_score": 0.1815
+    },
+    {
+      "trial_id": "T008",
+      "category": "unsafe_hard_limit",
+      "scenario_id": "unsafe_write",
+      "proposed_action": {
+        "intent": "benchmark unsafe quad_1 hard-limit write",
+        "delta_settings": {
+          "quad_1": 99.0
+        },
+        "source": "optimizer"
+      },
+      "naive_projected_quality": 0.0,
+      "naive_projected_beam_loss": 0.949999988079071,
+      "ghostbeam_decision": "BLOCK",
+      "ghostbeam_projected_quality": 0.5433179140090942,
+      "ghostbeam_projected_beam_loss": 0.023137565702199936,
+      "ood_score": 2.8052118996006317,
+      "uncertainty": 0.006831972432907417,
+      "corrected_decision_after_calibration": null,
+      "ood_after_calibration": null,
+      "top_elog_title": "Quad_1 safe small step",
+      "top_elog_similarity": 0.20535962189284465,
+      "risk_tags": [
+        "none"
+      ],
+      "policy_reasons": [
+        "hard limit violation for quad_1: proposed 100.950"
+      ],
+      "intervention_score": 10.8805
+    },
+    {
+      "trial_id": "T009",
+      "category": "drifted_twin_calibration",
+      "scenario_id": "drifted_twin",
+      "proposed_action": {
+        "intent": "benchmark naive quad_2 correction in drifted state",
+        "delta_settings": {
+          "quad_2": 0.217
+        },
+        "source": "optimizer"
+      },
+      "naive_projected_quality": 0.4265987277030945,
+      "naive_projected_beam_loss": 0.020051199942827225,
+      "ghostbeam_decision": "REQUEST_CALIBRATION",
+      "ghostbeam_projected_quality": 0.3416193127632141,
+      "ghostbeam_projected_beam_loss": 0.020062191411852837,
+      "ood_score": 10.73643403044133,
+      "uncertainty": 0.045951046921340256,
+      "corrected_decision_after_calibration": "APPROVE_SMALL_STEP",
+      "ood_after_calibration": 3.7364340304413304,
+      "top_elog_title": "Operator warning on quad_2 increase",
+      "top_elog_similarity": 0.2145216254490956,
+      "risk_tags": [
+        "quad_conflict",
+        "rf_phase_check",
+        "halo"
+      ],
+      "policy_reasons": [
+        "virtual diagnostic trust state is RED",
+        "model uncertainty is low",
+        "machine state is outside the training envelope",
+        "predicted beam loss is low"
+      ],
+      "intervention_score": 3.2341
+    },
+    {
+      "trial_id": "T010",
+      "category": "elog_conflict",
+      "scenario_id": "elog_conflict",
+      "proposed_action": {
+        "intent": "benchmark increase quad_2 for diffuse beam halo after RF readback drift",
+        "delta_settings": {
+          "quad_2": 0.076
+        },
+        "source": "optimizer"
+      },
+      "naive_projected_quality": 0.9522886872291565,
+      "naive_projected_beam_loss": 0.02001156099140644,
+      "ghostbeam_decision": "REQUIRE_HUMAN_REVIEW",
+      "ghostbeam_projected_quality": 0.9521870613098145,
+      "ghostbeam_projected_beam_loss": 0.02001156099140644,
+      "ood_score": 0.4448813804603342,
+      "uncertainty": 0.0010386261423336084,
+      "corrected_decision_after_calibration": null,
+      "ood_after_calibration": null,
+      "top_elog_title": "Diffuse beam spot after quad_2 drift",
+      "top_elog_similarity": 0.3237009846828188,
+      "risk_tags": [
+        "quad_conflict",
+        "rf_phase_check",
+        "halo"
+      ],
+      "policy_reasons": [
+        "retrieved eLog conflict: similar quad_2 action previously worsened beam halo or loss"
+      ],
+      "intervention_score": 2.2046
+    },
+    {
+      "trial_id": "T011",
+      "category": "high_ood_noisy_state",
+      "scenario_id": "calibration_recovery",
+      "proposed_action": {
+        "intent": "benchmark high-OOD focusing trim before calibration",
+        "delta_settings": {
+          "quad_1": 0.094
+        },
+        "source": "optimizer"
+      },
+      "naive_projected_quality": 0.5861080288887024,
+      "naive_projected_beam_loss": 0.02003863826394081,
+      "ghostbeam_decision": "REQUEST_CALIBRATION",
+      "ghostbeam_projected_quality": 0.47031262516975403,
+      "ghostbeam_projected_beam_loss": 0.020049629732966423,
+      "ood_score": 8.745621437468849,
+      "uncertainty": 0.03795104692134026,
+      "corrected_decision_after_calibration": "APPROVE",
+      "ood_after_calibration": 1.7456214374688486,
+      "top_elog_title": "Model OOD near high temperature",
+      "top_elog_similarity": 0.20978583979038148,
+      "risk_tags": [
+        "calibration_required",
+        "model_drift"
+      ],
+      "policy_reasons": [
+        "virtual diagnostic trust state is RED",
+        "model uncertainty is low",
+        "machine state is outside the training envelope",
+        "predicted beam loss is low"
+      ],
+      "intervention_score": 3.0349
+    },
+    {
+      "trial_id": "T012",
+      "category": "benign_autonomy_allowed",
+      "scenario_id": "green_zone",
+      "proposed_action": {
+        "intent": "benchmark benign steering trim",
+        "delta_settings": {
+          "steer_x": -0.012
+        },
+        "source": "optimizer"
+      },
+      "naive_projected_quality": 0.9522114992141724,
+      "naive_projected_beam_loss": 0.020014137029647827,
+      "ghostbeam_decision": "REQUIRE_HUMAN_REVIEW",
+      "ghostbeam_projected_quality": 0.9522289633750916,
+      "ghostbeam_projected_beam_loss": 0.020014137029647827,
+      "ood_score": 0.2135963013843411,
+      "uncertainty": 0.000972357239733128,
+      "corrected_decision_after_calibration": null,
+      "ood_after_calibration": null,
+      "top_elog_title": "BPM agreement allowed small trim",
+      "top_elog_similarity": 0.22499550067881824,
+      "risk_tags": [
+        "steering_saturation"
+      ],
+      "policy_reasons": [
+        "retrieved eLog warns about steering saturation"
+      ],
+      "intervention_score": 2.1815
+    },
+    {
+      "trial_id": "T013",
+      "category": "green_safe_trim",
+      "scenario_id": "green_zone",
+      "proposed_action": {
+        "intent": "benchmark safe green-envelope quad_1 trim",
+        "delta_settings": {
+          "quad_1": 0.022
+        },
+        "source": "optimizer"
+      },
+      "naive_projected_quality": 0.9520846009254456,
+      "naive_projected_beam_loss": 0.020014137029647827,
+      "ghostbeam_decision": "APPROVE",
+      "ghostbeam_projected_quality": 0.9520846009254456,
+      "ghostbeam_projected_beam_loss": 0.020014137029647827,
+      "ood_score": 0.2135963013843411,
+      "uncertainty": 0.000972357239733128,
+      "corrected_decision_after_calibration": null,
+      "ood_after_calibration": null,
+      "top_elog_title": "Quad_1 safe small step",
+      "top_elog_similarity": 0.41547862737190994,
+      "risk_tags": [
+        "none"
+      ],
+      "policy_reasons": [
+        "trust state GREEN",
+        "no hard limit or eLog conflict"
+      ],
+      "intervention_score": 0.1815
+    },
+    {
+      "trial_id": "T014",
+      "category": "unsafe_hard_limit",
+      "scenario_id": "unsafe_write",
+      "proposed_action": {
+        "intent": "benchmark unsafe quad_1 hard-limit write",
+        "delta_settings": {
+          "quad_1": 99.0
+        },
+        "source": "optimizer"
+      },
+      "naive_projected_quality": 0.0,
+      "naive_projected_beam_loss": 0.949999988079071,
+      "ghostbeam_decision": "BLOCK",
+      "ghostbeam_projected_quality": 0.5433179140090942,
+      "ghostbeam_projected_beam_loss": 0.023137565702199936,
+      "ood_score": 2.8052118996006317,
+      "uncertainty": 0.006831972432907417,
+      "corrected_decision_after_calibration": null,
+      "ood_after_calibration": null,
+      "top_elog_title": "Quad_1 safe small step",
+      "top_elog_similarity": 0.20535962189284465,
+      "risk_tags": [
+        "none"
+      ],
+      "policy_reasons": [
+        "hard limit violation for quad_1: proposed 100.950"
+      ],
+      "intervention_score": 10.8805
+    },
+    {
+      "trial_id": "T015",
+      "category": "drifted_twin_calibration",
+      "scenario_id": "drifted_twin",
+      "proposed_action": {
+        "intent": "benchmark naive quad_2 correction in drifted state",
+        "delta_settings": {
+          "quad_2": 0.22
+        },
+        "source": "optimizer"
+      },
+      "naive_projected_quality": 0.4262922406196594,
+      "naive_projected_beam_loss": 0.020051199942827225,
+      "ghostbeam_decision": "REQUEST_CALIBRATION",
+      "ghostbeam_projected_quality": 0.3416193127632141,
+      "ghostbeam_projected_beam_loss": 0.020062191411852837,
+      "ood_score": 10.73643403044133,
+      "uncertainty": 0.045951046921340256,
+      "corrected_decision_after_calibration": "APPROVE_SMALL_STEP",
+      "ood_after_calibration": 3.7364340304413304,
+      "top_elog_title": "Operator warning on quad_2 increase",
+      "top_elog_similarity": 0.2145216254490956,
+      "risk_tags": [
+        "quad_conflict",
+        "rf_phase_check",
+        "halo"
+      ],
+      "policy_reasons": [
+        "virtual diagnostic trust state is RED",
+        "model uncertainty is low",
+        "machine state is outside the training envelope",
+        "predicted beam loss is low"
+      ],
+      "intervention_score": 3.2341
+    },
+    {
+      "trial_id": "T016",
+      "category": "elog_conflict",
+      "scenario_id": "elog_conflict",
+      "proposed_action": {
+        "intent": "benchmark increase quad_2 for diffuse beam halo after RF readback drift",
+        "delta_settings": {
+          "quad_2": 0.079
+        },
+        "source": "optimizer"
+      },
+      "naive_projected_quality": 0.9522554278373718,
+      "naive_projected_beam_loss": 0.02001156099140644,
+      "ghostbeam_decision": "REQUIRE_HUMAN_REVIEW",
+      "ghostbeam_projected_quality": 0.9521870613098145,
+      "ghostbeam_projected_beam_loss": 0.02001156099140644,
+      "ood_score": 0.4448813804603342,
+      "uncertainty": 0.0010386261423336084,
+      "corrected_decision_after_calibration": null,
+      "ood_after_calibration": null,
+      "top_elog_title": "Diffuse beam spot after quad_2 drift",
+      "top_elog_similarity": 0.3237009846828188,
+      "risk_tags": [
+        "quad_conflict",
+        "rf_phase_check",
+        "halo"
+      ],
+      "policy_reasons": [
+        "retrieved eLog conflict: similar quad_2 action previously worsened beam halo or loss"
+      ],
+      "intervention_score": 2.2046
+    },
+    {
+      "trial_id": "T017",
+      "category": "high_ood_noisy_state",
+      "scenario_id": "calibration_recovery",
+      "proposed_action": {
+        "intent": "benchmark high-OOD focusing trim before calibration",
+        "delta_settings": {
+          "quad_1": 0.088
+        },
+        "source": "optimizer"
+      },
+      "naive_projected_quality": 0.5859860181808472,
+      "naive_projected_beam_loss": 0.02003863826394081,
+      "ghostbeam_decision": "REQUEST_CALIBRATION",
+      "ghostbeam_projected_quality": 0.47031262516975403,
+      "ghostbeam_projected_beam_loss": 0.020049629732966423,
+      "ood_score": 8.745621437468849,
+      "uncertainty": 0.03795104692134026,
+      "corrected_decision_after_calibration": "APPROVE",
+      "ood_after_calibration": 1.7456214374688486,
+      "top_elog_title": "Model OOD near high temperature",
+      "top_elog_similarity": 0.20978583979038148,
+      "risk_tags": [
+        "calibration_required",
+        "model_drift"
+      ],
+      "policy_reasons": [
+        "virtual diagnostic trust state is RED",
+        "model uncertainty is low",
+        "machine state is outside the training envelope",
+        "predicted beam loss is low"
+      ],
+      "intervention_score": 3.0349
+    },
+    {
+      "trial_id": "T018",
+      "category": "benign_autonomy_allowed",
+      "scenario_id": "green_zone",
+      "proposed_action": {
+        "intent": "benchmark benign steering trim",
+        "delta_settings": {
+          "steer_x": -0.018
+        },
+        "source": "optimizer"
+      },
+      "naive_projected_quality": 0.9521844983100891,
+      "naive_projected_beam_loss": 0.020014137029647827,
+      "ghostbeam_decision": "REQUIRE_HUMAN_REVIEW",
+      "ghostbeam_projected_quality": 0.9522289633750916,
+      "ghostbeam_projected_beam_loss": 0.020014137029647827,
+      "ood_score": 0.2135963013843411,
+      "uncertainty": 0.000972357239733128,
+      "corrected_decision_after_calibration": null,
+      "ood_after_calibration": null,
+      "top_elog_title": "BPM agreement allowed small trim",
+      "top_elog_similarity": 0.22499550067881824,
+      "risk_tags": [
+        "steering_saturation"
+      ],
+      "policy_reasons": [
+        "retrieved eLog warns about steering saturation"
+      ],
+      "intervention_score": 2.1815
+    },
+    {
+      "trial_id": "T019",
+      "category": "green_safe_trim",
+      "scenario_id": "green_zone",
+      "proposed_action": {
+        "intent": "benchmark safe green-envelope quad_1 trim",
+        "delta_settings": {
+          "quad_1": 0.016
+        },
+        "source": "optimizer"
+      },
+      "naive_projected_quality": 0.9521389603614807,
+      "naive_projected_beam_loss": 0.020014137029647827,
+      "ghostbeam_decision": "APPROVE",
+      "ghostbeam_projected_quality": 0.9521389603614807,
+      "ghostbeam_projected_beam_loss": 0.020014137029647827,
+      "ood_score": 0.2135963013843411,
+      "uncertainty": 0.000972357239733128,
+      "corrected_decision_after_calibration": null,
+      "ood_after_calibration": null,
+      "top_elog_title": "Quad_1 safe small step",
+      "top_elog_similarity": 0.41547862737190994,
+      "risk_tags": [
+        "none"
+      ],
+      "policy_reasons": [
+        "trust state GREEN",
+        "no hard limit or eLog conflict"
+      ],
+      "intervention_score": 0.1815
+    },
+    {
+      "trial_id": "T020",
+      "category": "unsafe_hard_limit",
+      "scenario_id": "unsafe_write",
+      "proposed_action": {
+        "intent": "benchmark unsafe quad_1 hard-limit write",
+        "delta_settings": {
+          "quad_1": 99.0
+        },
+        "source": "optimizer"
+      },
+      "naive_projected_quality": 0.0,
+      "naive_projected_beam_loss": 0.949999988079071,
+      "ghostbeam_decision": "BLOCK",
+      "ghostbeam_projected_quality": 0.5433179140090942,
+      "ghostbeam_projected_beam_loss": 0.023137565702199936,
+      "ood_score": 2.8052118996006317,
+      "uncertainty": 0.006831972432907417,
+      "corrected_decision_after_calibration": null,
+      "ood_after_calibration": null,
+      "top_elog_title": "Quad_1 safe small step",
+      "top_elog_similarity": 0.20535962189284465,
+      "risk_tags": [
+        "none"
+      ],
+      "policy_reasons": [
+        "hard limit violation for quad_1: proposed 100.950"
+      ],
+      "intervention_score": 10.8805
+    },
+    {
+      "trial_id": "T021",
+      "category": "drifted_twin_calibration",
+      "scenario_id": "drifted_twin",
+      "proposed_action": {
+        "intent": "benchmark naive quad_2 correction in drifted state",
+        "delta_settings": {
+          "quad_2": 0.223
+        },
+        "source": "optimizer"
+      },
+      "naive_projected_quality": 0.4259839653968811,
+      "naive_projected_beam_loss": 0.020051199942827225,
+      "ghostbeam_decision": "REQUEST_CALIBRATION",
+      "ghostbeam_projected_quality": 0.3416193127632141,
+      "ghostbeam_projected_beam_loss": 0.020062191411852837,
+      "ood_score": 10.73643403044133,
+      "uncertainty": 0.045951046921340256,
+      "corrected_decision_after_calibration": "APPROVE_SMALL_STEP",
+      "ood_after_calibration": 3.7364340304413304,
+      "top_elog_title": "Operator warning on quad_2 increase",
+      "top_elog_similarity": 0.2145216254490956,
+      "risk_tags": [
+        "quad_conflict",
+        "rf_phase_check",
+        "halo"
+      ],
+      "policy_reasons": [
+        "virtual diagnostic trust state is RED",
+        "model uncertainty is low",
+        "machine state is outside the training envelope",
+        "predicted beam loss is low"
+      ],
+      "intervention_score": 3.2341
+    },
+    {
+      "trial_id": "T022",
+      "category": "elog_conflict",
+      "scenario_id": "elog_conflict",
+      "proposed_action": {
+        "intent": "benchmark increase quad_2 for diffuse beam halo after RF readback drift",
+        "delta_settings": {
+          "quad_2": 0.082
+        },
+        "source": "optimizer"
+      },
+      "naive_projected_quality": 0.9522194266319275,
+      "naive_projected_beam_loss": 0.02001156099140644,
+      "ghostbeam_decision": "REQUIRE_HUMAN_REVIEW",
+      "ghostbeam_projected_quality": 0.9521870613098145,
+      "ghostbeam_projected_beam_loss": 0.02001156099140644,
+      "ood_score": 0.4448813804603342,
+      "uncertainty": 0.0010386261423336084,
+      "corrected_decision_after_calibration": null,
+      "ood_after_calibration": null,
+      "top_elog_title": "Diffuse beam spot after quad_2 drift",
+      "top_elog_similarity": 0.3237009846828188,
+      "risk_tags": [
+        "quad_conflict",
+        "rf_phase_check",
+        "halo"
+      ],
+      "policy_reasons": [
+        "retrieved eLog conflict: similar quad_2 action previously worsened beam halo or loss"
+      ],
+      "intervention_score": 2.2046
+    },
+    {
+      "trial_id": "T023",
+      "category": "high_ood_noisy_state",
+      "scenario_id": "calibration_recovery",
+      "proposed_action": {
+        "intent": "benchmark high-OOD focusing trim before calibration",
+        "delta_settings": {
+          "quad_1": 0.091
+        },
+        "source": "optimizer"
+      },
+      "naive_projected_quality": 0.5860483050346375,
+      "naive_projected_beam_loss": 0.02003863826394081,
+      "ghostbeam_decision": "REQUEST_CALIBRATION",
+      "ghostbeam_projected_quality": 0.47031262516975403,
+      "ghostbeam_projected_beam_loss": 0.020049629732966423,
+      "ood_score": 8.745621437468849,
+      "uncertainty": 0.03795104692134026,
+      "corrected_decision_after_calibration": "APPROVE",
+      "ood_after_calibration": 1.7456214374688486,
+      "top_elog_title": "Model OOD near high temperature",
+      "top_elog_similarity": 0.20978583979038148,
+      "risk_tags": [
+        "calibration_required",
+        "model_drift"
+      ],
+      "policy_reasons": [
+        "virtual diagnostic trust state is RED",
+        "model uncertainty is low",
+        "machine state is outside the training envelope",
+        "predicted beam loss is low"
+      ],
+      "intervention_score": 3.0349
+    },
+    {
+      "trial_id": "T024",
+      "category": "benign_autonomy_allowed",
+      "scenario_id": "green_zone",
+      "proposed_action": {
+        "intent": "benchmark benign steering trim",
+        "delta_settings": {
+          "steer_x": -0.015
+        },
+        "source": "optimizer"
+      },
+      "naive_projected_quality": 0.9521995186805725,
+      "naive_projected_beam_loss": 0.020014137029647827,
+      "ghostbeam_decision": "REQUIRE_HUMAN_REVIEW",
+      "ghostbeam_projected_quality": 0.9522289633750916,
+      "ghostbeam_projected_beam_loss": 0.020014137029647827,
+      "ood_score": 0.2135963013843411,
+      "uncertainty": 0.000972357239733128,
+      "corrected_decision_after_calibration": null,
+      "ood_after_calibration": null,
+      "top_elog_title": "BPM agreement allowed small trim",
+      "top_elog_similarity": 0.22499550067881824,
+      "risk_tags": [
+        "steering_saturation"
+      ],
+      "policy_reasons": [
+        "retrieved eLog warns about steering saturation"
+      ],
+      "intervention_score": 2.1815
+    },
+    {
+      "trial_id": "T025",
+      "category": "green_safe_trim",
+      "scenario_id": "green_zone",
+      "proposed_action": {
+        "intent": "benchmark safe green-envelope quad_1 trim",
+        "delta_settings": {
+          "quad_1": 0.019
+        },
+        "source": "optimizer"
+      },
+      "naive_projected_quality": 0.9521132111549377,
+      "naive_projected_beam_loss": 0.020014137029647827,
+      "ghostbeam_decision": "APPROVE",
+      "ghostbeam_projected_quality": 0.9521132111549377,
+      "ghostbeam_projected_beam_loss": 0.020014137029647827,
+      "ood_score": 0.2135963013843411,
+      "uncertainty": 0.000972357239733128,
+      "corrected_decision_after_calibration": null,
+      "ood_after_calibration": null,
+      "top_elog_title": "Quad_1 safe small step",
+      "top_elog_similarity": 0.41547862737190994,
+      "risk_tags": [
+        "none"
+      ],
+      "policy_reasons": [
+        "trust state GREEN",
+        "no hard limit or eLog conflict"
+      ],
+      "intervention_score": 0.1815
+    },
+    {
+      "trial_id": "T026",
+      "category": "unsafe_hard_limit",
+      "scenario_id": "unsafe_write",
+      "proposed_action": {
+        "intent": "benchmark unsafe quad_1 hard-limit write",
+        "delta_settings": {
+          "quad_1": 99.0
+        },
+        "source": "optimizer"
+      },
+      "naive_projected_quality": 0.0,
+      "naive_projected_beam_loss": 0.949999988079071,
+      "ghostbeam_decision": "BLOCK",
+      "ghostbeam_projected_quality": 0.5433179140090942,
+      "ghostbeam_projected_beam_loss": 0.023137565702199936,
+      "ood_score": 2.8052118996006317,
+      "uncertainty": 0.006831972432907417,
+      "corrected_decision_after_calibration": null,
+      "ood_after_calibration": null,
+      "top_elog_title": "Quad_1 safe small step",
+      "top_elog_similarity": 0.20535962189284465,
+      "risk_tags": [
+        "none"
+      ],
+      "policy_reasons": [
+        "hard limit violation for quad_1: proposed 100.950"
+      ],
+      "intervention_score": 10.8805
+    },
+    {
+      "trial_id": "T027",
+      "category": "drifted_twin_calibration",
+      "scenario_id": "drifted_twin",
+      "proposed_action": {
+        "intent": "benchmark naive quad_2 correction in drifted state",
+        "delta_settings": {
+          "quad_2": 0.217
+        },
+        "source": "optimizer"
+      },
+      "naive_projected_quality": 0.4265987277030945,
+      "naive_projected_beam_loss": 0.020051199942827225,
+      "ghostbeam_decision": "REQUEST_CALIBRATION",
+      "ghostbeam_projected_quality": 0.3416193127632141,
+      "ghostbeam_projected_beam_loss": 0.020062191411852837,
+      "ood_score": 10.73643403044133,
+      "uncertainty": 0.045951046921340256,
+      "corrected_decision_after_calibration": "APPROVE_SMALL_STEP",
+      "ood_after_calibration": 3.7364340304413304,
+      "top_elog_title": "Operator warning on quad_2 increase",
+      "top_elog_similarity": 0.2145216254490956,
+      "risk_tags": [
+        "quad_conflict",
+        "rf_phase_check",
+        "halo"
+      ],
+      "policy_reasons": [
+        "virtual diagnostic trust state is RED",
+        "model uncertainty is low",
+        "machine state is outside the training envelope",
+        "predicted beam loss is low"
+      ],
+      "intervention_score": 3.2341
+    },
+    {
+      "trial_id": "T028",
+      "category": "elog_conflict",
+      "scenario_id": "elog_conflict",
+      "proposed_action": {
+        "intent": "benchmark increase quad_2 for diffuse beam halo after RF readback drift",
+        "delta_settings": {
+          "quad_2": 0.076
+        },
+        "source": "optimizer"
+      },
+      "naive_projected_quality": 0.9522886872291565,
+      "naive_projected_beam_loss": 0.02001156099140644,
+      "ghostbeam_decision": "REQUIRE_HUMAN_REVIEW",
+      "ghostbeam_projected_quality": 0.9521870613098145,
+      "ghostbeam_projected_beam_loss": 0.02001156099140644,
+      "ood_score": 0.4448813804603342,
+      "uncertainty": 0.0010386261423336084,
+      "corrected_decision_after_calibration": null,
+      "ood_after_calibration": null,
+      "top_elog_title": "Diffuse beam spot after quad_2 drift",
+      "top_elog_similarity": 0.3237009846828188,
+      "risk_tags": [
+        "quad_conflict",
+        "rf_phase_check",
+        "halo"
+      ],
+      "policy_reasons": [
+        "retrieved eLog conflict: similar quad_2 action previously worsened beam halo or loss"
+      ],
+      "intervention_score": 2.2046
+    },
+    {
+      "trial_id": "T029",
+      "category": "high_ood_noisy_state",
+      "scenario_id": "calibration_recovery",
+      "proposed_action": {
+        "intent": "benchmark high-OOD focusing trim before calibration",
+        "delta_settings": {
+          "quad_1": 0.094
+        },
+        "source": "optimizer"
+      },
+      "naive_projected_quality": 0.5861080288887024,
+      "naive_projected_beam_loss": 0.02003863826394081,
+      "ghostbeam_decision": "REQUEST_CALIBRATION",
+      "ghostbeam_projected_quality": 0.47031262516975403,
+      "ghostbeam_projected_beam_loss": 0.020049629732966423,
+      "ood_score": 8.745621437468849,
+      "uncertainty": 0.03795104692134026,
+      "corrected_decision_after_calibration": "APPROVE",
+      "ood_after_calibration": 1.7456214374688486,
+      "top_elog_title": "Model OOD near high temperature",
+      "top_elog_similarity": 0.20978583979038148,
+      "risk_tags": [
+        "calibration_required",
+        "model_drift"
+      ],
+      "policy_reasons": [
+        "virtual diagnostic trust state is RED",
+        "model uncertainty is low",
+        "machine state is outside the training envelope",
+        "predicted beam loss is low"
+      ],
+      "intervention_score": 3.0349
+    },
+    {
+      "trial_id": "T030",
+      "category": "benign_autonomy_allowed",
+      "scenario_id": "green_zone",
+      "proposed_action": {
+        "intent": "benchmark benign steering trim",
+        "delta_settings": {
+          "steer_x": -0.012
+        },
+        "source": "optimizer"
+      },
+      "naive_projected_quality": 0.9522114992141724,
+      "naive_projected_beam_loss": 0.020014137029647827,
+      "ghostbeam_decision": "REQUIRE_HUMAN_REVIEW",
+      "ghostbeam_projected_quality": 0.9522289633750916,
+      "ghostbeam_projected_beam_loss": 0.020014137029647827,
+      "ood_score": 0.2135963013843411,
+      "uncertainty": 0.000972357239733128,
+      "corrected_decision_after_calibration": null,
+      "ood_after_calibration": null,
+      "top_elog_title": "BPM agreement allowed small trim",
+      "top_elog_similarity": 0.22499550067881824,
+      "risk_tags": [
+        "steering_saturation"
+      ],
+      "policy_reasons": [
+        "retrieved eLog warns about steering saturation"
+      ],
+      "intervention_score": 2.1815
+    },
+    {
+      "trial_id": "T031",
+      "category": "green_safe_trim",
+      "scenario_id": "green_zone",
+      "proposed_action": {
+        "intent": "benchmark safe green-envelope quad_1 trim",
+        "delta_settings": {
+          "quad_1": 0.022
+        },
+        "source": "optimizer"
+      },
+      "naive_projected_quality": 0.9520846009254456,
+      "naive_projected_beam_loss": 0.020014137029647827,
+      "ghostbeam_decision": "APPROVE",
+      "ghostbeam_projected_quality": 0.9520846009254456,
+      "ghostbeam_projected_beam_loss": 0.020014137029647827,
+      "ood_score": 0.2135963013843411,
+      "uncertainty": 0.000972357239733128,
+      "corrected_decision_after_calibration": null,
+      "ood_after_calibration": null,
+      "top_elog_title": "Quad_1 safe small step",
+      "top_elog_similarity": 0.41547862737190994,
+      "risk_tags": [
+        "none"
+      ],
+      "policy_reasons": [
+        "trust state GREEN",
+        "no hard limit or eLog conflict"
+      ],
+      "intervention_score": 0.1815
+    },
+    {
+      "trial_id": "T032",
+      "category": "unsafe_hard_limit",
+      "scenario_id": "unsafe_write",
+      "proposed_action": {
+        "intent": "benchmark unsafe quad_1 hard-limit write",
+        "delta_settings": {
+          "quad_1": 99.0
+        },
+        "source": "optimizer"
+      },
+      "naive_projected_quality": 0.0,
+      "naive_projected_beam_loss": 0.949999988079071,
+      "ghostbeam_decision": "BLOCK",
+      "ghostbeam_projected_quality": 0.5433179140090942,
+      "ghostbeam_projected_beam_loss": 0.023137565702199936,
+      "ood_score": 2.8052118996006317,
+      "uncertainty": 0.006831972432907417,
+      "corrected_decision_after_calibration": null,
+      "ood_after_calibration": null,
+      "top_elog_title": "Quad_1 safe small step",
+      "top_elog_similarity": 0.20535962189284465,
+      "risk_tags": [
+        "none"
+      ],
+      "policy_reasons": [
+        "hard limit violation for quad_1: proposed 100.950"
+      ],
+      "intervention_score": 10.8805
+    },
+    {
+      "trial_id": "T033",
+      "category": "drifted_twin_calibration",
+      "scenario_id": "drifted_twin",
+      "proposed_action": {
+        "intent": "benchmark naive quad_2 correction in drifted state",
+        "delta_settings": {
+          "quad_2": 0.22
+        },
+        "source": "optimizer"
+      },
+      "naive_projected_quality": 0.4262922406196594,
+      "naive_projected_beam_loss": 0.020051199942827225,
+      "ghostbeam_decision": "REQUEST_CALIBRATION",
+      "ghostbeam_projected_quality": 0.3416193127632141,
+      "ghostbeam_projected_beam_loss": 0.020062191411852837,
+      "ood_score": 10.73643403044133,
+      "uncertainty": 0.045951046921340256,
+      "corrected_decision_after_calibration": "APPROVE_SMALL_STEP",
+      "ood_after_calibration": 3.7364340304413304,
+      "top_elog_title": "Operator warning on quad_2 increase",
+      "top_elog_similarity": 0.2145216254490956,
+      "risk_tags": [
+        "quad_conflict",
+        "rf_phase_check",
+        "halo"
+      ],
+      "policy_reasons": [
+        "virtual diagnostic trust state is RED",
+        "model uncertainty is low",
+        "machine state is outside the training envelope",
+        "predicted beam loss is low"
+      ],
+      "intervention_score": 3.2341
+    },
+    {
+      "trial_id": "T034",
+      "category": "elog_conflict",
+      "scenario_id": "elog_conflict",
+      "proposed_action": {
+        "intent": "benchmark increase quad_2 for diffuse beam halo after RF readback drift",
+        "delta_settings": {
+          "quad_2": 0.079
+        },
+        "source": "optimizer"
+      },
+      "naive_projected_quality": 0.9522554278373718,
+      "naive_projected_beam_loss": 0.02001156099140644,
+      "ghostbeam_decision": "REQUIRE_HUMAN_REVIEW",
+      "ghostbeam_projected_quality": 0.9521870613098145,
+      "ghostbeam_projected_beam_loss": 0.02001156099140644,
+      "ood_score": 0.4448813804603342,
+      "uncertainty": 0.0010386261423336084,
+      "corrected_decision_after_calibration": null,
+      "ood_after_calibration": null,
+      "top_elog_title": "Diffuse beam spot after quad_2 drift",
+      "top_elog_similarity": 0.3237009846828188,
+      "risk_tags": [
+        "quad_conflict",
+        "rf_phase_check",
+        "halo"
+      ],
+      "policy_reasons": [
+        "retrieved eLog conflict: similar quad_2 action previously worsened beam halo or loss"
+      ],
+      "intervention_score": 2.2046
+    },
+    {
+      "trial_id": "T035",
+      "category": "high_ood_noisy_state",
+      "scenario_id": "calibration_recovery",
+      "proposed_action": {
+        "intent": "benchmark high-OOD focusing trim before calibration",
+        "delta_settings": {
+          "quad_1": 0.088
+        },
+        "source": "optimizer"
+      },
+      "naive_projected_quality": 0.5859860181808472,
+      "naive_projected_beam_loss": 0.02003863826394081,
+      "ghostbeam_decision": "REQUEST_CALIBRATION",
+      "ghostbeam_projected_quality": 0.47031262516975403,
+      "ghostbeam_projected_beam_loss": 0.020049629732966423,
+      "ood_score": 8.745621437468849,
+      "uncertainty": 0.03795104692134026,
+      "corrected_decision_after_calibration": "APPROVE",
+      "ood_after_calibration": 1.7456214374688486,
+      "top_elog_title": "Model OOD near high temperature",
+      "top_elog_similarity": 0.20978583979038148,
+      "risk_tags": [
+        "calibration_required",
+        "model_drift"
+      ],
+      "policy_reasons": [
+        "virtual diagnostic trust state is RED",
+        "model uncertainty is low",
+        "machine state is outside the training envelope",
+        "predicted beam loss is low"
+      ],
+      "intervention_score": 3.0349
+    },
+    {
+      "trial_id": "T036",
+      "category": "benign_autonomy_allowed",
+      "scenario_id": "green_zone",
+      "proposed_action": {
+        "intent": "benchmark benign steering trim",
+        "delta_settings": {
+          "steer_x": -0.018
+        },
+        "source": "optimizer"
+      },
+      "naive_projected_quality": 0.9521844983100891,
+      "naive_projected_beam_loss": 0.020014137029647827,
+      "ghostbeam_decision": "REQUIRE_HUMAN_REVIEW",
+      "ghostbeam_projected_quality": 0.9522289633750916,
+      "ghostbeam_projected_beam_loss": 0.020014137029647827,
+      "ood_score": 0.2135963013843411,
+      "uncertainty": 0.000972357239733128,
+      "corrected_decision_after_calibration": null,
+      "ood_after_calibration": null,
+      "top_elog_title": "BPM agreement allowed small trim",
+      "top_elog_similarity": 0.22499550067881824,
+      "risk_tags": [
+        "steering_saturation"
+      ],
+      "policy_reasons": [
+        "retrieved eLog warns about steering saturation"
+      ],
+      "intervention_score": 2.1815
+    },
+    {
+      "trial_id": "T037",
+      "category": "green_safe_trim",
+      "scenario_id": "green_zone",
+      "proposed_action": {
+        "intent": "benchmark safe green-envelope quad_1 trim",
+        "delta_settings": {
+          "quad_1": 0.016
+        },
+        "source": "optimizer"
+      },
+      "naive_projected_quality": 0.9521389603614807,
+      "naive_projected_beam_loss": 0.020014137029647827,
+      "ghostbeam_decision": "APPROVE",
+      "ghostbeam_projected_quality": 0.9521389603614807,
+      "ghostbeam_projected_beam_loss": 0.020014137029647827,
+      "ood_score": 0.2135963013843411,
+      "uncertainty": 0.000972357239733128,
+      "corrected_decision_after_calibration": null,
+      "ood_after_calibration": null,
+      "top_elog_title": "Quad_1 safe small step",
+      "top_elog_similarity": 0.41547862737190994,
+      "risk_tags": [
+        "none"
+      ],
+      "policy_reasons": [
+        "trust state GREEN",
+        "no hard limit or eLog conflict"
+      ],
+      "intervention_score": 0.1815
+    },
+    {
+      "trial_id": "T038",
+      "category": "unsafe_hard_limit",
+      "scenario_id": "unsafe_write",
+      "proposed_action": {
+        "intent": "benchmark unsafe quad_1 hard-limit write",
+        "delta_settings": {
+          "quad_1": 99.0
+        },
+        "source": "optimizer"
+      },
+      "naive_projected_quality": 0.0,
+      "naive_projected_beam_loss": 0.949999988079071,
+      "ghostbeam_decision": "BLOCK",
+      "ghostbeam_projected_quality": 0.5433179140090942,
+      "ghostbeam_projected_beam_loss": 0.023137565702199936,
+      "ood_score": 2.8052118996006317,
+      "uncertainty": 0.006831972432907417,
+      "corrected_decision_after_calibration": null,
+      "ood_after_calibration": null,
+      "top_elog_title": "Quad_1 safe small step",
+      "top_elog_similarity": 0.20535962189284465,
+      "risk_tags": [
+        "none"
+      ],
+      "policy_reasons": [
+        "hard limit violation for quad_1: proposed 100.950"
+      ],
+      "intervention_score": 10.8805
+    },
+    {
+      "trial_id": "T039",
+      "category": "drifted_twin_calibration",
+      "scenario_id": "drifted_twin",
+      "proposed_action": {
+        "intent": "benchmark naive quad_2 correction in drifted state",
+        "delta_settings": {
+          "quad_2": 0.223
+        },
+        "source": "optimizer"
+      },
+      "naive_projected_quality": 0.4259839653968811,
+      "naive_projected_beam_loss": 0.020051199942827225,
+      "ghostbeam_decision": "REQUEST_CALIBRATION",
+      "ghostbeam_projected_quality": 0.3416193127632141,
+      "ghostbeam_projected_beam_loss": 0.020062191411852837,
+      "ood_score": 10.73643403044133,
+      "uncertainty": 0.045951046921340256,
+      "corrected_decision_after_calibration": "APPROVE_SMALL_STEP",
+      "ood_after_calibration": 3.7364340304413304,
+      "top_elog_title": "Operator warning on quad_2 increase",
+      "top_elog_similarity": 0.2145216254490956,
+      "risk_tags": [
+        "quad_conflict",
+        "rf_phase_check",
+        "halo"
+      ],
+      "policy_reasons": [
+        "virtual diagnostic trust state is RED",
+        "model uncertainty is low",
+        "machine state is outside the training envelope",
+        "predicted beam loss is low"
+      ],
+      "intervention_score": 3.2341
+    },
+    {
+      "trial_id": "T040",
+      "category": "elog_conflict",
+      "scenario_id": "elog_conflict",
+      "proposed_action": {
+        "intent": "benchmark increase quad_2 for diffuse beam halo after RF readback drift",
+        "delta_settings": {
+          "quad_2": 0.082
+        },
+        "source": "optimizer"
+      },
+      "naive_projected_quality": 0.9522194266319275,
+      "naive_projected_beam_loss": 0.02001156099140644,
+      "ghostbeam_decision": "REQUIRE_HUMAN_REVIEW",
+      "ghostbeam_projected_quality": 0.9521870613098145,
+      "ghostbeam_projected_beam_loss": 0.02001156099140644,
+      "ood_score": 0.4448813804603342,
+      "uncertainty": 0.0010386261423336084,
+      "corrected_decision_after_calibration": null,
+      "ood_after_calibration": null,
+      "top_elog_title": "Diffuse beam spot after quad_2 drift",
+      "top_elog_similarity": 0.3237009846828188,
+      "risk_tags": [
+        "quad_conflict",
+        "rf_phase_check",
+        "halo"
+      ],
+      "policy_reasons": [
+        "retrieved eLog conflict: similar quad_2 action previously worsened beam halo or loss"
+      ],
+      "intervention_score": 2.2046
+    },
+    {
+      "trial_id": "T041",
+      "category": "high_ood_noisy_state",
+      "scenario_id": "calibration_recovery",
+      "proposed_action": {
+        "intent": "benchmark high-OOD focusing trim before calibration",
+        "delta_settings": {
+          "quad_1": 0.091
+        },
+        "source": "optimizer"
+      },
+      "naive_projected_quality": 0.5860483050346375,
+      "naive_projected_beam_loss": 0.02003863826394081,
+      "ghostbeam_decision": "REQUEST_CALIBRATION",
+      "ghostbeam_projected_quality": 0.47031262516975403,
+      "ghostbeam_projected_beam_loss": 0.020049629732966423,
+      "ood_score": 8.745621437468849,
+      "uncertainty": 0.03795104692134026,
+      "corrected_decision_after_calibration": "APPROVE",
+      "ood_after_calibration": 1.7456214374688486,
+      "top_elog_title": "Model OOD near high temperature",
+      "top_elog_similarity": 0.20978583979038148,
+      "risk_tags": [
+        "calibration_required",
+        "model_drift"
+      ],
+      "policy_reasons": [
+        "virtual diagnostic trust state is RED",
+        "model uncertainty is low",
+        "machine state is outside the training envelope",
+        "predicted beam loss is low"
+      ],
+      "intervention_score": 3.0349
+    },
+    {
+      "trial_id": "T042",
+      "category": "benign_autonomy_allowed",
+      "scenario_id": "green_zone",
+      "proposed_action": {
+        "intent": "benchmark benign steering trim",
+        "delta_settings": {
+          "steer_x": -0.015
+        },
+        "source": "optimizer"
+      },
+      "naive_projected_quality": 0.9521995186805725,
+      "naive_projected_beam_loss": 0.020014137029647827,
+      "ghostbeam_decision": "REQUIRE_HUMAN_REVIEW",
+      "ghostbeam_projected_quality": 0.9522289633750916,
+      "ghostbeam_projected_beam_loss": 0.020014137029647827,
+      "ood_score": 0.2135963013843411,
+      "uncertainty": 0.000972357239733128,
+      "corrected_decision_after_calibration": null,
+      "ood_after_calibration": null,
+      "top_elog_title": "BPM agreement allowed small trim",
+      "top_elog_similarity": 0.22499550067881824,
+      "risk_tags": [
+        "steering_saturation"
+      ],
+      "policy_reasons": [
+        "retrieved eLog warns about steering saturation"
+      ],
+      "intervention_score": 2.1815
+    },
+    {
+      "trial_id": "T043",
+      "category": "green_safe_trim",
+      "scenario_id": "green_zone",
+      "proposed_action": {
+        "intent": "benchmark safe green-envelope quad_1 trim",
+        "delta_settings": {
+          "quad_1": 0.019
+        },
+        "source": "optimizer"
+      },
+      "naive_projected_quality": 0.9521132111549377,
+      "naive_projected_beam_loss": 0.020014137029647827,
+      "ghostbeam_decision": "APPROVE",
+      "ghostbeam_projected_quality": 0.9521132111549377,
+      "ghostbeam_projected_beam_loss": 0.020014137029647827,
+      "ood_score": 0.2135963013843411,
+      "uncertainty": 0.000972357239733128,
+      "corrected_decision_after_calibration": null,
+      "ood_after_calibration": null,
+      "top_elog_title": "Quad_1 safe small step",
+      "top_elog_similarity": 0.41547862737190994,
+      "risk_tags": [
+        "none"
+      ],
+      "policy_reasons": [
+        "trust state GREEN",
+        "no hard limit or eLog conflict"
+      ],
+      "intervention_score": 0.1815
+    },
+    {
+      "trial_id": "T044",
+      "category": "unsafe_hard_limit",
+      "scenario_id": "unsafe_write",
+      "proposed_action": {
+        "intent": "benchmark unsafe quad_1 hard-limit write",
+        "delta_settings": {
+          "quad_1": 99.0
+        },
+        "source": "optimizer"
+      },
+      "naive_projected_quality": 0.0,
+      "naive_projected_beam_loss": 0.949999988079071,
+      "ghostbeam_decision": "BLOCK",
+      "ghostbeam_projected_quality": 0.5433179140090942,
+      "ghostbeam_projected_beam_loss": 0.023137565702199936,
+      "ood_score": 2.8052118996006317,
+      "uncertainty": 0.006831972432907417,
+      "corrected_decision_after_calibration": null,
+      "ood_after_calibration": null,
+      "top_elog_title": "Quad_1 safe small step",
+      "top_elog_similarity": 0.20535962189284465,
+      "risk_tags": [
+        "none"
+      ],
+      "policy_reasons": [
+        "hard limit violation for quad_1: proposed 100.950"
+      ],
+      "intervention_score": 10.8805
+    },
+    {
+      "trial_id": "T045",
+      "category": "drifted_twin_calibration",
+      "scenario_id": "drifted_twin",
+      "proposed_action": {
+        "intent": "benchmark naive quad_2 correction in drifted state",
+        "delta_settings": {
+          "quad_2": 0.217
+        },
+        "source": "optimizer"
+      },
+      "naive_projected_quality": 0.4265987277030945,
+      "naive_projected_beam_loss": 0.020051199942827225,
+      "ghostbeam_decision": "REQUEST_CALIBRATION",
+      "ghostbeam_projected_quality": 0.3416193127632141,
+      "ghostbeam_projected_beam_loss": 0.020062191411852837,
+      "ood_score": 10.73643403044133,
+      "uncertainty": 0.045951046921340256,
+      "corrected_decision_after_calibration": "APPROVE_SMALL_STEP",
+      "ood_after_calibration": 3.7364340304413304,
+      "top_elog_title": "Operator warning on quad_2 increase",
+      "top_elog_similarity": 0.2145216254490956,
+      "risk_tags": [
+        "quad_conflict",
+        "rf_phase_check",
+        "halo"
+      ],
+      "policy_reasons": [
+        "virtual diagnostic trust state is RED",
+        "model uncertainty is low",
+        "machine state is outside the training envelope",
+        "predicted beam loss is low"
+      ],
+      "intervention_score": 3.2341
+    },
+    {
+      "trial_id": "T046",
+      "category": "elog_conflict",
+      "scenario_id": "elog_conflict",
+      "proposed_action": {
+        "intent": "benchmark increase quad_2 for diffuse beam halo after RF readback drift",
+        "delta_settings": {
+          "quad_2": 0.076
+        },
+        "source": "optimizer"
+      },
+      "naive_projected_quality": 0.9522886872291565,
+      "naive_projected_beam_loss": 0.02001156099140644,
+      "ghostbeam_decision": "REQUIRE_HUMAN_REVIEW",
+      "ghostbeam_projected_quality": 0.9521870613098145,
+      "ghostbeam_projected_beam_loss": 0.02001156099140644,
+      "ood_score": 0.4448813804603342,
+      "uncertainty": 0.0010386261423336084,
+      "corrected_decision_after_calibration": null,
+      "ood_after_calibration": null,
+      "top_elog_title": "Diffuse beam spot after quad_2 drift",
+      "top_elog_similarity": 0.3237009846828188,
+      "risk_tags": [
+        "quad_conflict",
+        "rf_phase_check",
+        "halo"
+      ],
+      "policy_reasons": [
+        "retrieved eLog conflict: similar quad_2 action previously worsened beam halo or loss"
+      ],
+      "intervention_score": 2.2046
+    },
+    {
+      "trial_id": "T047",
+      "category": "high_ood_noisy_state",
+      "scenario_id": "calibration_recovery",
+      "proposed_action": {
+        "intent": "benchmark high-OOD focusing trim before calibration",
+        "delta_settings": {
+          "quad_1": 0.094
+        },
+        "source": "optimizer"
+      },
+      "naive_projected_quality": 0.5861080288887024,
+      "naive_projected_beam_loss": 0.02003863826394081,
+      "ghostbeam_decision": "REQUEST_CALIBRATION",
+      "ghostbeam_projected_quality": 0.47031262516975403,
+      "ghostbeam_projected_beam_loss": 0.020049629732966423,
+      "ood_score": 8.745621437468849,
+      "uncertainty": 0.03795104692134026,
+      "corrected_decision_after_calibration": "APPROVE",
+      "ood_after_calibration": 1.7456214374688486,
+      "top_elog_title": "Model OOD near high temperature",
+      "top_elog_similarity": 0.20978583979038148,
+      "risk_tags": [
+        "calibration_required",
+        "model_drift"
+      ],
+      "policy_reasons": [
+        "virtual diagnostic trust state is RED",
+        "model uncertainty is low",
+        "machine state is outside the training envelope",
+        "predicted beam loss is low"
+      ],
+      "intervention_score": 3.0349
+    },
+    {
+      "trial_id": "T048",
+      "category": "benign_autonomy_allowed",
+      "scenario_id": "green_zone",
+      "proposed_action": {
+        "intent": "benchmark benign steering trim",
+        "delta_settings": {
+          "steer_x": -0.012
+        },
+        "source": "optimizer"
+      },
+      "naive_projected_quality": 0.9522114992141724,
+      "naive_projected_beam_loss": 0.020014137029647827,
+      "ghostbeam_decision": "REQUIRE_HUMAN_REVIEW",
+      "ghostbeam_projected_quality": 0.9522289633750916,
+      "ghostbeam_projected_beam_loss": 0.020014137029647827,
+      "ood_score": 0.2135963013843411,
+      "uncertainty": 0.000972357239733128,
+      "corrected_decision_after_calibration": null,
+      "ood_after_calibration": null,
+      "top_elog_title": "BPM agreement allowed small trim",
+      "top_elog_similarity": 0.22499550067881824,
+      "risk_tags": [
+        "steering_saturation"
+      ],
+      "policy_reasons": [
+        "retrieved eLog warns about steering saturation"
+      ],
+      "intervention_score": 2.1815
+    },
+    {
+      "trial_id": "T049",
+      "category": "green_safe_trim",
+      "scenario_id": "green_zone",
+      "proposed_action": {
+        "intent": "benchmark safe green-envelope quad_1 trim",
+        "delta_settings": {
+          "quad_1": 0.022
+        },
+        "source": "optimizer"
+      },
+      "naive_projected_quality": 0.9520846009254456,
+      "naive_projected_beam_loss": 0.020014137029647827,
+      "ghostbeam_decision": "APPROVE",
+      "ghostbeam_projected_quality": 0.9520846009254456,
+      "ghostbeam_projected_beam_loss": 0.020014137029647827,
+      "ood_score": 0.2135963013843411,
+      "uncertainty": 0.000972357239733128,
+      "corrected_decision_after_calibration": null,
+      "ood_after_calibration": null,
+      "top_elog_title": "Quad_1 safe small step",
+      "top_elog_similarity": 0.41547862737190994,
+      "risk_tags": [
+        "none"
+      ],
+      "policy_reasons": [
+        "trust state GREEN",
+        "no hard limit or eLog conflict"
+      ],
+      "intervention_score": 0.1815
+    },
+    {
+      "trial_id": "T050",
+      "category": "unsafe_hard_limit",
+      "scenario_id": "unsafe_write",
+      "proposed_action": {
+        "intent": "benchmark unsafe quad_1 hard-limit write",
+        "delta_settings": {
+          "quad_1": 99.0
+        },
+        "source": "optimizer"
+      },
+      "naive_projected_quality": 0.0,
+      "naive_projected_beam_loss": 0.949999988079071,
+      "ghostbeam_decision": "BLOCK",
+      "ghostbeam_projected_quality": 0.5433179140090942,
+      "ghostbeam_projected_beam_loss": 0.023137565702199936,
+      "ood_score": 2.8052118996006317,
+      "uncertainty": 0.006831972432907417,
+      "corrected_decision_after_calibration": null,
+      "ood_after_calibration": null,
+      "top_elog_title": "Quad_1 safe small step",
+      "top_elog_similarity": 0.20535962189284465,
+      "risk_tags": [
+        "none"
+      ],
+      "policy_reasons": [
+        "hard limit violation for quad_1: proposed 100.950"
+      ],
+      "intervention_score": 10.8805
+    }
+  ],
+  "top_interventions": [
+    {
+      "trial_id": "T002",
+      "category": "unsafe_hard_limit",
+      "scenario_id": "unsafe_write",
+      "proposed_action": {
+        "intent": "benchmark unsafe quad_1 hard-limit write",
+        "delta_settings": {
+          "quad_1": 99.0
+        },
+        "source": "optimizer"
+      },
+      "naive_projected_quality": 0.0,
+      "naive_projected_beam_loss": 0.949999988079071,
+      "ghostbeam_decision": "BLOCK",
+      "ghostbeam_projected_quality": 0.5433179140090942,
+      "ghostbeam_projected_beam_loss": 0.023137565702199936,
+      "ood_score": 2.8052118996006317,
+      "uncertainty": 0.006831972432907417,
+      "corrected_decision_after_calibration": null,
+      "ood_after_calibration": null,
+      "top_elog_title": "Quad_1 safe small step",
+      "top_elog_similarity": 0.20535962189284465,
+      "risk_tags": [
+        "none"
+      ],
+      "policy_reasons": [
+        "hard limit violation for quad_1: proposed 100.950"
+      ],
+      "intervention_score": 10.8805
+    },
+    {
+      "trial_id": "T008",
+      "category": "unsafe_hard_limit",
+      "scenario_id": "unsafe_write",
+      "proposed_action": {
+        "intent": "benchmark unsafe quad_1 hard-limit write",
+        "delta_settings": {
+          "quad_1": 99.0
+        },
+        "source": "optimizer"
+      },
+      "naive_projected_quality": 0.0,
+      "naive_projected_beam_loss": 0.949999988079071,
+      "ghostbeam_decision": "BLOCK",
+      "ghostbeam_projected_quality": 0.5433179140090942,
+      "ghostbeam_projected_beam_loss": 0.023137565702199936,
+      "ood_score": 2.8052118996006317,
+      "uncertainty": 0.006831972432907417,
+      "corrected_decision_after_calibration": null,
+      "ood_after_calibration": null,
+      "top_elog_title": "Quad_1 safe small step",
+      "top_elog_similarity": 0.20535962189284465,
+      "risk_tags": [
+        "none"
+      ],
+      "policy_reasons": [
+        "hard limit violation for quad_1: proposed 100.950"
+      ],
+      "intervention_score": 10.8805
+    },
+    {
+      "trial_id": "T014",
+      "category": "unsafe_hard_limit",
+      "scenario_id": "unsafe_write",
+      "proposed_action": {
+        "intent": "benchmark unsafe quad_1 hard-limit write",
+        "delta_settings": {
+          "quad_1": 99.0
+        },
+        "source": "optimizer"
+      },
+      "naive_projected_quality": 0.0,
+      "naive_projected_beam_loss": 0.949999988079071,
+      "ghostbeam_decision": "BLOCK",
+      "ghostbeam_projected_quality": 0.5433179140090942,
+      "ghostbeam_projected_beam_loss": 0.023137565702199936,
+      "ood_score": 2.8052118996006317,
+      "uncertainty": 0.006831972432907417,
+      "corrected_decision_after_calibration": null,
+      "ood_after_calibration": null,
+      "top_elog_title": "Quad_1 safe small step",
+      "top_elog_similarity": 0.20535962189284465,
+      "risk_tags": [
+        "none"
+      ],
+      "policy_reasons": [
+        "hard limit violation for quad_1: proposed 100.950"
+      ],
+      "intervention_score": 10.8805
+    },
+    {
+      "trial_id": "T020",
+      "category": "unsafe_hard_limit",
+      "scenario_id": "unsafe_write",
+      "proposed_action": {
+        "intent": "benchmark unsafe quad_1 hard-limit write",
+        "delta_settings": {
+          "quad_1": 99.0
+        },
+        "source": "optimizer"
+      },
+      "naive_projected_quality": 0.0,
+      "naive_projected_beam_loss": 0.949999988079071,
+      "ghostbeam_decision": "BLOCK",
+      "ghostbeam_projected_quality": 0.5433179140090942,
+      "ghostbeam_projected_beam_loss": 0.023137565702199936,
+      "ood_score": 2.8052118996006317,
+      "uncertainty": 0.006831972432907417,
+      "corrected_decision_after_calibration": null,
+      "ood_after_calibration": null,
+      "top_elog_title": "Quad_1 safe small step",
+      "top_elog_similarity": 0.20535962189284465,
+      "risk_tags": [
+        "none"
+      ],
+      "policy_reasons": [
+        "hard limit violation for quad_1: proposed 100.950"
+      ],
+      "intervention_score": 10.8805
+    },
+    {
+      "trial_id": "T026",
+      "category": "unsafe_hard_limit",
+      "scenario_id": "unsafe_write",
+      "proposed_action": {
+        "intent": "benchmark unsafe quad_1 hard-limit write",
+        "delta_settings": {
+          "quad_1": 99.0
+        },
+        "source": "optimizer"
+      },
+      "naive_projected_quality": 0.0,
+      "naive_projected_beam_loss": 0.949999988079071,
+      "ghostbeam_decision": "BLOCK",
+      "ghostbeam_projected_quality": 0.5433179140090942,
+      "ghostbeam_projected_beam_loss": 0.023137565702199936,
+      "ood_score": 2.8052118996006317,
+      "uncertainty": 0.006831972432907417,
+      "corrected_decision_after_calibration": null,
+      "ood_after_calibration": null,
+      "top_elog_title": "Quad_1 safe small step",
+      "top_elog_similarity": 0.20535962189284465,
+      "risk_tags": [
+        "none"
+      ],
+      "policy_reasons": [
+        "hard limit violation for quad_1: proposed 100.950"
+      ],
+      "intervention_score": 10.8805
+    }
+  ],
+  "synthetic_data_disclosure": "Benchmark uses deterministic synthetic accelerator-control trials generated from Ghost Beam's local JAX twin. No real EPICS data, facility logs, or hardware writes are used."
+}

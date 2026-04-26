@@ -1,0 +1,25 @@
+{
+  "dataset_id": "fermilab_bpm_ipm",
+  "name": "Fermilab BPM/IPM Booster diagnostics dataset",
+  "facility": "Fermilab Booster",
+  "source": "Fermilab / Zenodo / OSTI",
+  "source_type": "public beam diagnostics dataset",
+  "doi": "10.5281/zenodo.17429707",
+  "status": "manifest_ready",
+  "expected_format": "local CSV/parquet/raw data slice",
+  "role": "beam diagnostics, beam-position/profile analysis, and emittance-comparison context",
+  "notes": "No files are bundled. Ghost Beam can add a future read-only local-slice importer without changing the core synthetic JAX demo.",
+  "local_slice_future_path": "backend/data/public_datasets/fermilab_bpm_ipm/",
+  "mapped_capabilities": [
+    "beam_position_profile_context",
+    "diagnostic_replay",
+    "emittance_comparison",
+    "read_only_public_data_analysis"
+  ],
+  "safety_disclosure": [
+    "no real-time hardware",
+    "no live ACNET/EPICS",
+    "no facility eLogs",
+    "no hardware writes"
+  ]
+}

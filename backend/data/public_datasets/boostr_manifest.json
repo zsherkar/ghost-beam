@@ -1,0 +1,23 @@
+{
+  "dataset_id": "boostr",
+  "name": "BOOSTR: A Dataset for Accelerator Control Systems",
+  "facility": "Fermilab Booster",
+  "source_type": "public accelerator-control dataset",
+  "doi": "10.5281/zenodo.4382663",
+  "license": "CC BY 4.0",
+  "expected_format": "parquet/csv",
+  "notes": "User must supply a local slice. Ghost Beam does not auto-download the full dataset.",
+  "default_local_path": "backend/data/public_datasets/boostr/local_sample.csv",
+  "mapped_capabilities": [
+    "time_series_ingestion",
+    "anomaly_detection",
+    "control_signal_replay",
+    "trust_gate_evaluation"
+  ],
+  "safety_disclosure": [
+    "no real-time hardware",
+    "no live ACNET/EPICS",
+    "no facility eLogs"
+  ],
+  "runtime_policy": "Read-only public data analysis. No hardware actions or simulated writes are allowed from this adapter."
+}

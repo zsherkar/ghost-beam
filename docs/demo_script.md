@@ -24,14 +24,14 @@ The principle is simple: autonomous science should not just know how to act. It 
 8. Point to the top eLog match. Say: "The retrieved synthetic eLog says similar symptoms were caused by RF phase drift and increasing quad_2 worsened halo."
 9. Step 5, **Calibration**: apply calibration. Show OOD dropping.
 10. Step 6, **Safer Correction**: Ghost Beam evaluates a smaller RF correction and approves a small step.
-11. Step 7, **Export Artifact**: open DecisionRecord JSON, generate the backend-persisted Mission Report, and download/copy the report.
+11. Step 7, **Export Artifact**: open the Decision Record drawer, show the Diagnosis tab and "What Ghost Beam Did" timeline, then generate the backend-persisted Mission Report and download/copy the report.
 
 ## Platform Realism Talking Points
 
 - Active adapter: Simulated JAX Twin.
 - EPICS is present only as a disabled stub; real hardware writes are off.
 - Mission Reports are persisted locally as backend artifacts.
-- DecisionRecords have a JSON schema and validation status in session exports.
+- Decision Records have a JSON schema and validation status in session exports.
 - Synthetic data provenance is documented in `backend/data/synthetic_data_manifest.json`.
 
 ## Fallback Narration If UI Fails

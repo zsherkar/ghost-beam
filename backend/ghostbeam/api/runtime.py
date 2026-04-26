@@ -3,6 +3,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 from datetime import datetime, timezone
+import csv
+import json
 
 import yaml
 
@@ -21,6 +23,10 @@ from ghostbeam.physics.transfer_jax import generate_beam_image, generate_beam_tr
 
 def scenario_dir() -> Path:
     return Path(__file__).resolve().parents[2] / "data" / "scenarios"
+
+
+def recorded_runs_dir() -> Path:
+    return Path(__file__).resolve().parents[2] / "data" / "recorded_runs"
 
 
 def list_scenarios() -> list[dict[str, str]]:
@@ -52,6 +58,97 @@ def scenario_action(data: dict[str, Any]) -> ProposedAction:
     return ProposedAction(**data["proposed_action"])
 
 
+def list_recorded_runs() -> list[dict[str, Any]]:
+    runs: list[dict[str, Any]] = []
+    for path in sorted(recorded_runs_dir().glob("*_manifest.json")):
+        data = json.loads(path.read_text(encoding="utf-8"))
+        runs.append(
+            {
+                "run_id": data["run_id"],
+                "title": data.get("title", data["run_id"]),
+                "description": data.get("description", ""),
+                "source": data.get("source", "recorded_fixture"),
+                "disclosure": data.get("disclosure", ""),
+                "steps": data.get("steps", 0),
+                "manifest_path": str(path),
+            }
+        )
+    return runs
+
+
+def load_recorded_manifest(run_id: str) -> dict[str, Any]:
+    path = recorded_runs_dir() / f"{run_id}_manifest.json"
+    if not path.exists():
+        raise KeyError(f"unknown recorded run_id {run_id}")
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def load_recorded_rows(run_id: str) -> list[dict[str, str]]:
+    path = recorded_runs_dir() / f"{run_id}.csv"
+    if not path.exists():
+        raise KeyError(f"recorded run rows not found for {run_id}")
+    with path.open("r", encoding="utf-8", newline="") as handle:
+        return list(csv.DictReader(handle))
+
+
+def load_recorded_elogs(run_id: str) -> list[dict[str, Any]]:
+    path = recorded_runs_dir() / f"{run_id}_elogs.csv"
+    if not path.exists():
+        return []
+    with path.open("r", encoding="utf-8", newline="") as handle:
+        rows: list[dict[str, Any]] = []
+        for row in csv.DictReader(handle):
+            rows.append(
+                {
+                    **row,
+                    "risk_tags": [
+                        item.strip()
+                        for item in str(row.get("risk_tags", "")).split(";")
+                        if item.strip()
+                    ],
+                }
+            )
+        return rows
+
+
+def recorded_settings(row: dict[str, str]) -> MachineSettings:
+    return MachineSettings(
+        quad_1=float(row["quad_1"]),
+        quad_2=float(row["quad_2"]),
+        steer_x=float(row["steer_x"]),
+        steer_y=float(row["steer_y"]),
+        rf_phase=float(row["rf_phase"]),
+        rf_amplitude=float(row["rf_amplitude"]),
+    )
+
+
+def recorded_action(row: dict[str, str]) -> ProposedAction:
+    event_type = row.get("event_type", "")
+    if event_type == "naive_proposal":
+        return ProposedAction(
+            intent="recorded naive quadrupole correction from trace",
+            source="scenario",
+            delta_settings={"quad_2": 0.22},
+        )
+    if event_type == "safer_correction":
+        return ProposedAction(
+            intent="recorded safer RF correction after calibration",
+            source="scenario",
+            delta_settings={"rf_phase": -0.35, "quad_2": 0.03},
+        )
+    if event_type == "unsafe_probe":
+        return ProposedAction(
+            intent="recorded unsafe hard-limit probe",
+            source="scenario",
+            delta_settings={"quad_1": 99.0},
+        )
+    return ProposedAction(
+        intent="recorded trace monitor evaluation",
+        source="scenario",
+        delta_settings={},
+    )
+
+
 class GhostBeamRuntime:
     def __init__(self):
         self.adapter = SimulatedEPICS(DEFAULT_SETTINGS)
@@ -63,10 +160,18 @@ class GhostBeamRuntime:
         self.history: list[dict[str, Any]] = []
         self.step_number = 0
         self.records: dict[str, DecisionRecord] = {}
+        self.data_source = "synthetic_live_twin"
+        self.recorded_run_id: str | None = None
+        self.recorded_step: int | None = None
+        self.recorded_manifest: dict[str, Any] | None = None
 
     def load(self, scenario_id: str) -> dict[str, Any]:
         data = load_scenario(scenario_id)
         self.current_scenario_id = scenario_id
+        self.data_source = "synthetic_live_twin"
+        self.recorded_run_id = None
+        self.recorded_step = None
+        self.recorded_manifest = None
         settings = scenario_settings(data)
         self.adapter = SimulatedEPICS(settings)
         return {
@@ -216,6 +321,10 @@ class GhostBeamRuntime:
         latest_record = self.latest_record
         return {
             "scenario_id": self.current_scenario_id,
+            "data_source": self.data_source,
+            "recorded_run_id": self.recorded_run_id,
+            "recorded_step": self.recorded_step,
+            "recorded_manifest": self.recorded_manifest,
             "step_number": self.step_number,
             "drift": drift,
             "calibration_freshness": self.calibration_weight(self.current_scenario_id),
@@ -259,6 +368,90 @@ class GhostBeamRuntime:
             {"decision_record_id": self.latest_record_id, "decision": record.gate_decision.decision},
         )
         return self.experiment_state()
+
+    def _recorded_row_by_step(self, run_id: str, step: int) -> tuple[dict[str, Any], dict[str, str]]:
+        manifest = load_recorded_manifest(run_id)
+        rows = load_recorded_rows(run_id)
+        if not rows:
+            raise KeyError(f"recorded run {run_id} has no rows")
+        selected = next((row for row in rows if int(row["step"]) == int(step)), rows[0])
+        return manifest, selected
+
+    def load_recorded_run(self, run_id: str) -> dict[str, Any]:
+        manifest, row = self._recorded_row_by_step(run_id, 0)
+        scenario_id = str(manifest.get("scenario_id", "drifted_twin"))
+        self.current_scenario_id = scenario_id
+        self.data_source = "recorded_fixture"
+        self.recorded_run_id = run_id
+        self.recorded_step = int(row["step"])
+        self.recorded_manifest = manifest
+        self.adapter = SimulatedEPICS(recorded_settings(row))
+        self.calibration_weights[scenario_id] = float(manifest.get("calibration_weight", 0.0))
+        self.step_number = int(row["step"])
+        self.history = []
+        self.records = {}
+        self.latest_record_id = None
+        self.latest_record = None
+        self.latest_proposed_action = recorded_action(row)
+        self._append_event(
+            "recorded_run_load",
+            f"Loaded recorded fixture {run_id}",
+            {
+                "run_id": run_id,
+                "step": self.recorded_step,
+                "source": "recorded_fixture",
+                "disclosure": manifest.get("disclosure", ""),
+                "note": row.get("note", ""),
+            },
+        )
+        record = self.evaluate_current(self.latest_proposed_action, append_history=False)
+        self._append_event(
+            "evaluate",
+            f"Recorded fixture evaluation: {record.gate_decision.decision}",
+            {"decision_record_id": self.latest_record_id, "decision": record.gate_decision.decision},
+        )
+        return {
+            "run_id": run_id,
+            "loaded_step": self.recorded_step,
+            "manifest": manifest,
+            "available_steps": [int(item["step"]) for item in load_recorded_rows(run_id)],
+            "recorded_elogs": load_recorded_elogs(run_id),
+            "state": self.experiment_state(),
+        }
+
+    def evaluate_recorded_step(self, run_id: str, step: int) -> dict[str, Any]:
+        manifest, row = self._recorded_row_by_step(run_id, step)
+        scenario_id = str(manifest.get("scenario_id", "drifted_twin"))
+        self.current_scenario_id = scenario_id
+        self.data_source = "recorded_fixture"
+        self.recorded_run_id = run_id
+        self.recorded_step = int(row["step"])
+        self.recorded_manifest = manifest
+        self.adapter = SimulatedEPICS(recorded_settings(row))
+        self.step_number = int(row["step"])
+        action = recorded_action(row)
+        record = self.evaluate_current(action, append_history=True)
+        self._append_event(
+            "recorded_step",
+            f"Evaluated recorded fixture step {self.recorded_step}",
+            {
+                "run_id": run_id,
+                "event_type": row.get("event_type", ""),
+                "note": row.get("note", ""),
+                "decision_record_id": self.latest_record_id,
+            },
+        )
+        return {
+            "run_id": run_id,
+            "step": self.recorded_step,
+            "row": row,
+            "manifest": manifest,
+            "recorded_elogs": load_recorded_elogs(run_id),
+            "decision_record_id": self.latest_record_id,
+            "decision_record": record.model_dump(),
+            "state": self.experiment_state(),
+            "disclosure": manifest.get("disclosure", ""),
+        }
 
     def propose_experiment_action(
         self,

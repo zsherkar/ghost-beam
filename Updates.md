@@ -1139,3 +1139,705 @@ The production code already exported `exportEvidenceBundle` and `npm run build` 
 ### Next recommended step
 Use `scripts/start_ghostbeam.ps1` for demo startup so Vite always force-refreshes dependencies, then run `scripts/run_smoke.ps1` before opening the app for rehearsal.
 --------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+## Update 2026-04-26 13:36 local time - Release candidate visual fixes and recorded-data realism pass
+
+### Objective
+Fix topbar/workspace overlap, make light-mode 3D scene coherent, add recorded-data ingestion/replay path, perform full-width visual QA, and preserve the current working benchmark/evidence/guided-demo stack.
+
+### Current known issues
+- System card is pushed downward into the 3D twin/workspace border.
+- Light theme shell is coherent, but 3D twin still feels dark-mode-native.
+- Synthetic data is well documented, but there is not yet a recorded-run ingestion path.
+- Full external 1920/1440 visual QA is still incomplete.
+- Vite still warns about large Three/R3F chunk.
+- 3D geometry is procedural.
+
+### Local git checkpoint
+- Working tree was clean before edits.
+- Creating local branch `release-candidate-polish` for this pass.
+- No remote, push, upload, public tunnel, paid service, real EPICS, or hardware access is used.
+
+--------------------------------------------------------------------------------
+## Update 2026-04-26 13:51 local time - Release candidate visual fixes and recorded-data realism complete
+
+### Objective
+Fix the topbar/workspace overlap, make the light-mode 3D scene feel integrated, add a recorded-run fixture ingestion path, update platform/artifact surfaces, and preserve the benchmark/evidence/guided-demo stack.
+
+### Root UI fixes
+- Increased the app topbar row from 76px to 84px, clamped system/control card heights, centered topbar children, and added a slightly larger workspace top gap so the System card no longer collides with the 3D twin border.
+- Kept the short topbar description as `Accelerator trust agent.`.
+- Added Auto twin lighting mode: dark theme resolves to Control Room; light theme resolves to Inspection unless the user chooses a manual mode.
+- Light + Inspection now uses the existing light scene palette by default, with light floor/grid/backdrop integration and readable labels.
+
+### Backend changes
+- Added `/recorded-runs`, `/recorded-runs/load`, and `/recorded-runs/evaluate-step`.
+- Added recorded-run parsing helpers and runtime state fields: `data_source`, `recorded_run_id`, `recorded_step`, and `recorded_manifest`.
+- Added recorded-run capability metadata to `/platform/capabilities` and `/platform/version`.
+- Updated evidence bundle output to include `data_source`, `recorded_run_id`, and the recorded-run manifest.
+
+### Frontend changes
+- Added recorded-run API client types/functions.
+- Added Settings drawer controls for data source, loading the recorded fixture, and evaluating fixture steps.
+- Updated the topbar scenario label to follow the active experiment state after a recorded fixture load.
+- Updated the 3D scene to support `auto`, `control-room`, `inspection`, and `presentation` lighting modes.
+
+### Data/provenance changes
+- Added `backend/data/recorded_runs/sample_recorded_drifted_twin.csv`.
+- Added `backend/data/recorded_runs/sample_recorded_drifted_twin_elogs.csv`.
+- Added `backend/data/recorded_runs/sample_recorded_drifted_twin_manifest.json`.
+- Added `backend/data/recorded_runs/README.md`.
+- All recorded-run files are explicitly labeled as synthetic JAX-twin fixtures with no real facility data, EPICS, or hardware writes.
+
+### Docs/scripts
+- Updated `README.md`, `docs/api.md`, `docs/artifact_schema.md`, and `docs/visual_qa_checklist.md`.
+- Added `scripts/capture_visual_qa.ps1`; it captures screenshots if Playwright CLI is installed and otherwise prints manual external-browser QA instructions.
+- Updated `scripts/README.md`.
+
+### Commands run
+- `git status --short --branch` - confirmed branch and dirty state.
+- `git branch release-candidate-polish; git checkout release-candidate-polish` - created local checkpoint branch before edits.
+- `python -m pytest tests -q` from `backend` with `PYTHONPATH=D:\Building\Ghost Beam\backend\.deps;D:\Building\Ghost Beam\backend` - `44 passed in 21.95s`.
+- `npm run build` from `frontend` - passed; Vite still warns that the lazy `ControlRoom3D` chunk is larger than 500 kB.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\run_smoke.ps1` - passed.
+- Inline FastAPI TestClient smoke for `/recorded-runs`, `/recorded-runs/load`, `/recorded-runs/evaluate-step`, `/platform/capabilities`, and `/experiment/evidence-bundle` - all returned 200.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\capture_visual_qa.ps1` - completed; Playwright CLI was not installed, so the script printed manual QA instructions.
+- Restarted local backend on `127.0.0.1:8000` and restarted Vite dev server on `127.0.0.1:5173 --force` for browser smoke.
+
+### Validation
+- Backend tests passed: 44 tests.
+- Frontend build passed.
+- Smoke script passed, including health, non-mutating health check, benchmark, evidence bundle, and version metadata.
+- Recorded-run API smoke passed and evidence bundle reported `recorded_fixture` after a recorded step evaluation.
+- In-app browser smoke confirmed the app renders, dark topbar no longer overlaps the workspace, light theme integrates the 3D scene, Settings can load the recorded fixture, and recorded step 3 evaluates as `REQUEST_CALIBRATION`.
+- Captured in-app QA screenshots:
+  - `docs/screenshots/inapp_dark_topbar_rc.png`
+  - `docs/screenshots/inapp_light_recorded_fixture.png`
+
+### Known limitations
+- True external 1920x1080 and 1440x900 screenshots were not captured in this run because Playwright CLI is not installed; manual instructions are documented.
+- Vite still warns about the large lazy-loaded Three/R3F chunk.
+- 3D geometry remains procedural rather than CAD/GLB.
+- Recorded-run ingestion is a synthetic fixture replay/evaluation path, not a live or real facility connector.
+
+### Next recommended step
+Run one final live external-browser rehearsal at 1920x1080 using `docs/visual_qa_checklist.md`, capture the named screenshots, then record the demo with Judge Demo Mode, Guided Demo, Benchmark, recorded fixture, Mission Report, and Evidence Bundle.
+
+--------------------------------------------------------------------------------
+## Update 2026-04-26 13:59 local time - Final UI stabilization and guided panel docking pass
+
+### Objective
+Dock or move the guided experiment panel so it does not block the 3D twin, fix topbar System-card alignment, remove right-rail ghost card artifacts, make the 3D twin genuinely adapt to light mode, and preserve all existing release-candidate functionality.
+
+### Current known issues
+- Guided demo card overlays the beamline.
+- System card droops below the topbar row.
+- Small hidden card tops appear above Decision Summary.
+- Light theme still has dark-mode 3D twin behavior.
+- Core backend/benchmark/artifact functionality is working and must not be disturbed.
+
+### Safety checkpoint
+- `git status --short --branch` showed the previous release-candidate recorded-run pass is still uncommitted on `master`.
+- No checkpoint commit was created because the working tree is not clean and contains prior uncommitted changes that must be preserved.
+- No push, remote, public tunnel, paid service, real EPICS, or hardware action is used.
+
+--------------------------------------------------------------------------------
+## Update 2026-04-26 14:05 local time - Final UI stabilization and guided panel docking complete
+
+### Objective
+Dock the guided controller away from the 3D twin, correct topbar System-card alignment, remove right-rail ghost-card bleed, harden light-mode twin appearance, and preserve all backend/artifact/demo functionality.
+
+### Files changed
+- `frontend/src/App.tsx` - moved `GuidedDemoPanel` into the right rail after Experiment Runner, added twin-lighting manual override handling, and kept light-theme Auto fallback from stale localStorage.
+- `frontend/src/components/scene/ControlRoom3D.tsx` - brightened the light Inspection/Presentation scene palettes.
+- `frontend/src/styles/globals.css` - adjusted app/topbar rows, standardized topbar card heights, docked guided panel styling, strengthened sticky Decision Summary backdrop, and polished light scene CSS.
+- `Updates.md` - added start and final technical log entries for this pass.
+- `docs/screenshots/final_ui_light_guided_docked.png` - in-app browser QA capture showing the light UI with guided mode active.
+
+### Frontend changes
+- Guided Drifted Twin Test controller is now docked inside the right rail, immediately below Experiment Runner.
+- The full guided controller no longer mounts as a fixed overlay over the L1 Transfer Line.
+- Topbar row increased to 88px with consistent 56px topbar card/control heights and centered alignment.
+- Decision Summary sticky card now has a stronger backdrop, higher z-index, overflow clipping, and right-rail isolation so lower cards do not peek through above it.
+- Existing guided controls are preserved: Previous, Next, Auto Play, Pause, Reset, Replay, Health Check, Benchmark, Load Replay, Mission Report, and Evidence Bundle.
+
+### 3D / digital twin changes
+- Auto lighting remains the default route: dark theme resolves to Control Room and light theme resolves to Inspection.
+- Stale localStorage lighting values no longer force Control Room unless the user explicitly chose a twin lighting mode through the View HUD.
+- Light Inspection and Presentation palettes were brightened with a lighter background/floor, clearer grid, and stronger illumination.
+- Dark Control Room remains available and unchanged as the primary cinematic mode.
+
+### Validation
+- `npm run build` from `frontend` - passed. Vite still reports the known large lazy `ControlRoom3D` chunk warning.
+- `python -m pytest tests -q` from `backend` with `PYTHONPATH=D:\Building\Ghost Beam\backend\.deps;D:\Building\Ghost Beam\backend` - `44 passed in 16.81s`.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\run_smoke.ps1` - passed health, dry-run health check, benchmark, evidence bundle, and version checks.
+- Restarted Vite dev server with `npm run dev -- --host 127.0.0.1 --port 5173 --force`.
+- In-app browser smoke:
+  - App loaded at `http://127.0.0.1:5173/`.
+  - No fresh console errors on the active QA tab.
+  - Guided demo opened without covering the beamline; it is docked in the rail.
+  - Light theme rendered with a light-compatible beamline surface.
+  - Decision Summary, Experiment Runner, and Evidence & eLog remained visible.
+
+### Known limitations
+- Draggable/pop-out guided behavior was not added; the accepted behavior is docked right-rail mode.
+- In-app browser viewport is narrow, so true external 1440/1600/1920 visual QA still needs the documented manual screenshot pass.
+- Vite still warns about the large lazy-loaded Three/R3F scene chunk.
+- The prior recorded-run/backend release-candidate changes remain uncommitted in the same working tree; no remote push was performed.
+
+### Next recommended step
+Do a final external-browser rehearsal at 1440x900 and 1920x1080, capture the checklist screenshots, then record the demo using Judge Demo Mode, Guided Demo, Benchmark, Mission Report, recorded fixture, and Evidence Bundle.
+--------------------------------------------------------------------------------
+## Update 2026-04-26 14:15 local time - Emergency topbar rebuild and guided demo visibility fix
+
+### Objective
+Rebuild the topbar layout so all controls align in one contained row, and move Guided Experiment controls into an always-visible position inside Experiment Runner.
+
+### Current known issues
+- System card droops below the topbar row.
+- Topbar/workspace boundary visually collides.
+- Guided Experiment card is mounted too low or hidden in right-rail scroll.
+- User cannot reliably run the guided demo without hunting for the controller.
+
+## Update 2026-04-26 14:26 local time - Emergency topbar rebuild and guided demo visibility fix final
+
+### Objective
+Fix the two active demo blockers: the drooping System card/topbar collision and the Guided Demo controller being hidden too low in the right rail.
+
+### Root cause
+- System card droop: the topbar used three separate grid columns (`brand-lockup`, standalone `system-card`, and a hard-coded `topbar-controls` grid). Under desktop-width pressure, the standalone System card and later media/display rules could get visually out of sync with the rest of the toolbar. A later `.icon-button { display: grid }` rule also overrode the intended secondary-icon collapse, keeping too many icons visible at 1440px and squeezing the toolbar.
+- Guided Demo hidden: `GuidedDemoPanel` rendered as a separate card after `ExperimentControlPanel` in the scrollable right rail. Clicking Guided activated the panel, but the full controller could be below the visible rail area, so the live demo depended on scrolling.
+
+### Files changed
+- `frontend/src/components/layout/TopBar.tsx` - rebuilt DOM structure into product block plus one topbar controls row containing System, Local Time, Scenario, Theme, and icon toolbar.
+- `frontend/src/styles/globals.css` - rebuilt topbar CSS around a fixed 96px grid row, 58px control cards, flex-based toolbar, explicit workspace separation, inline guided styles, and corrected desktop icon hiding.
+- `frontend/src/components/panels/ExperimentControlPanel.tsx` - added Guided Experiment Runner mode with step badge, title, one-line explanation, progress, Previous/Next, Auto Play/Pause, Reset Demo, Generate Report, Exit Guided, and collapsed manual controls.
+- `frontend/src/App.tsx` - removed the lower standalone `GuidedDemoPanel` render, wired guided state into `ExperimentControlPanel`, scrolls the right rail to top when Guided is opened, and added Reset Twin Appearance plumbing.
+- `frontend/src/components/scene/ControlRoom3D.tsx` - renamed the HUD control to Scene Appearance and added a Reset button to clear stale scene appearance override.
+- `docs/screenshots/final_topbar_aligned.png` - 1440x900 dark screenshot showing topbar contained and aligned.
+- `docs/screenshots/final_guided_inline_dark.png` - 1440x900 dark screenshot showing Guided controls inline in Experiment Runner.
+- `docs/screenshots/final_guided_inline_light.png` - 1440x900 light screenshot showing Guided controls inline and the twin resolved to light inspection.
+- `Updates.md` - start and final entries for this emergency pass.
+
+### Topbar changes
+- Topbar now uses `grid-template-columns: minmax(260px, 1fr) auto` with one `.topbar-product` block and one flex `.topbar-controls` row.
+- `.app-shell` now uses `grid-template-rows: 96px minmax(0, 1fr)`.
+- System, Local Time, Scenario, Theme, and icon controls share a 58px height family with no top margins, no transforms, and no absolute positioning.
+- Workspace starts at grid row 2 with top at 96px, so the L1 Transfer Line card cannot intersect the System card.
+- Secondary topbar icons now collapse reliably below 1760px; at 1440px only the core Guided/Judge/Health icons remain visible.
+
+### Guided demo changes
+- Guided controls now render directly inside `ExperimentControlPanel` as an inline Guided Experiment Runner state.
+- Manual action editing remains available behind a `Show manual controls` toggle while guided mode is active.
+- The separate lower `GuidedDemoPanel` card is no longer rendered in the right rail, removing the duplicate/hidden guided-card issue.
+- Opening Guided from the topbar or runner sets guided mode active, scrolls the right rail to top, and runs the real backend-driven guided step sequence.
+
+### Light twin changes
+- Scene Appearance supports `Auto`, `Ctrl`, `Inspect`, and `Present`; Auto resolves to `control-room` in dark theme and `inspection` in light theme.
+- Reset Twin Appearance clears the stale user-override flag and restores Auto, preventing old localStorage from forcing a dark twin in light mode.
+- Browser diagnostics confirmed light guided state uses `scene-theme-light twin-lighting-inspection twin-lighting-auto`.
+
+### Commands run
+- `npm run build` from `frontend` - passed; Vite still reports the known large lazy `ControlRoom3D` chunk warning.
+- `$env:PYTHONPATH='D:\Building\Ghost Beam\backend\.deps;D:\Building\Ghost Beam\backend'; python -m pytest tests -q` from `backend` - passed, 44 tests.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\run_smoke.ps1` - passed health, dry-run health, benchmark, evidence bundle, and platform version checks.
+- Restarted frontend dev server with `npm run dev -- --host 127.0.0.1 --port 5173 --force`.
+- In-app browser smoke at `http://127.0.0.1:5173/` - no console errors; Guided inline state appeared; advancing to step 2 showed drifted-twin/calibration state.
+- Headless Chrome CDP visual smoke at 1440x900 - saved three screenshots and confirmed System card is within topbar, above workspace, Guided is inline, no lower Guided panel is visible, and light theme resolves the twin to inspection.
+- Headless Chrome geometry smoke at 1366x768, 1440x900, 1600x900, and 1920x1080 - confirmed topbar height 96px, workspace top 96px, System card within topbar, and System card above workspace.
+
+### Validation
+- System card alignment: confirmed at 1366x768, 1440x900, 1600x900, and 1920x1080 with DOM geometry checks.
+- Guided visibility: confirmed at 1440x900 with Guided controls visible directly inside Experiment Runner and no visible lower `GuidedDemoPanel`.
+- Guided backend behavior: clicked Next in browser; the UI advanced to Guided 2/7 and showed drift/calibration state from the live experiment flow.
+- Light twin behavior: switching to Light produced `scene-theme-light twin-lighting-inspection twin-lighting-auto`, and screenshot shows a light-compatible inspection viewport.
+- Dark theme: screenshot confirms dark Control Room remains intact.
+
+### Known limitations
+- Vite still warns that the lazy `ControlRoom3D` chunk is larger than 500 kB.
+- The old `GuidedDemoPanel` component file remains in the codebase but is no longer rendered by default; it can be removed in a cleanup pass if no longer needed.
+- Full screenshot captures were saved at 1440x900; other desktop sizes were validated with geometry checks rather than image files.
+
+### Next recommended step
+Run one final live rehearsal from a clean browser profile: open the app, click Guided, advance through all seven guided steps, generate mission report, run benchmark, export evidence bundle, and record the demo.
+## Update 2026-04-26 14:38 local time - Scenario semantics, diagnosis report, and beam outcome clarity pass
+
+### Objective
+Fix user-facing DecisionRecord naming, add a human-readable Ghost Beam Diagnosis/Intervention Report, separate Scenario behavior from Guided Drifted Twin Test behavior, and make post-intervention beam visualization clearly show safe recovery rather than a beam leaving the pipe.
+
+### Current known issues
+- User-facing title says DECISIONRECORD JSON instead of Decision Record.
+- JSON export exists, but human-readable diagnosis is not prominent enough.
+- Selecting other scenarios may still appear to run Drifted Twin.
+- Guided Demo should explicitly be Drifted Twin Test, but normal scenario selection should honor the selected scenario.
+- Beam visualization can look like the beam is aligned out of the tunnel/pipe.
+- The UI needs more explicit "what Ghost Beam did" timeline.
+
+## Update 2026-04-26 14:54 local time - Scenario semantics, diagnosis report, and beam outcome clarity pass final
+
+### Objective
+Fix scenario semantics, user-facing artifact naming, human-readable diagnosis/reporting, evidence-bundle diagnosis inclusion, guided Drifted Twin Test confirmation, and beam visualization clarity without changing core backend experiment logic.
+
+### Root causes
+- DecisionRecord naming leaked into the UI because the first artifact drawer was built around internal schema names and defaulted straight to raw JSON. The drawer now separates product labels from internal TypeScript/Pydantic names.
+- Scenarios appeared to route to Drifted Twin because Guided Demo and Scenario selection shared visible controls without a clear mode boundary. Guided is now explicitly labeled Drifted Twin Test and asks for confirmation before intentionally switching from another live scenario.
+- Beam visualization looked ambiguous because the current trajectory line scaled offsets too aggressively and used the same visual language for current beam and projected risky action. The current beam is now clamped inside the pipe, while risky naive outcomes render as a separate translucent dashed projection.
+
+### Files changed
+- `frontend/src/utils/diagnosis.ts` - new diagnosis/timeline/Markdown utility built from live Decision Record and experiment state.
+- `frontend/src/components/panels/DecisionRecordDrawer.tsx` - renamed user-facing drawer surfaces, added Diagnosis/JSON/Evidence/Export tabs, copy summary, export Diagnosis Markdown, evidence list, and "What Ghost Beam did" timeline.
+- `frontend/src/components/panels/ExperimentControlPanel.tsx` - added Live Scenario vs Guided Drifted Twin Test mode status and guided scenario-switch confirmation.
+- `frontend/src/components/panels/EvidenceDrawer.tsx` - changed user-facing DecisionRecord strings to Decision Record.
+- `frontend/src/components/layout/TopBar.tsx` - changed Guided action accessible label/title to `Guided: Drifted Twin Test`.
+- `frontend/src/App.tsx` - separated normal scenario selection from guided flow, added confirmation before Guided switches scenarios, passed diagnosis into backend mission report and evidence bundle metadata, and refreshed guided step copy.
+- `frontend/src/components/scene/ControlRoom3D.tsx` - clamped current beam path inside the pipe, added dashed naive-projection overlay, and added calibration/stabilized outcome labels.
+- `frontend/src/styles/globals.css` - styled diagnosis tabs, diagnosis panels, timeline rows, guided mode status/confirmation, and beam outcome labels.
+- `frontend/src/utils/missionReport.ts` - added optional human diagnosis to frontend fallback mission reports and Markdown.
+- `frontend/src/utils/trust.ts` - changed fallback user-facing text to Decision Record.
+- `backend/ghostbeam/artifacts/mission_report.py` - persisted frontend human diagnosis in backend report payload and Markdown.
+- `backend/ghostbeam/artifacts/evidence_bundle.py` - included human diagnosis and diagnosis Markdown in evidence bundles and bundle README.
+- `README.md` - updated artifact/demo wording to Decision Record + Diagnosis.
+- `docs/artifact_schema.md` - documented the Ghost Beam Diagnosis artifact and timeline fields.
+- `docs/final_demo_click_path.md` - added Diagnosis tab/timeline and Guided Drifted Twin Test switch language.
+- `docs/final_judge_answers.md` - added answers explaining that Ghost Beam gates rather than merely stops actions and why Guided Demo uses Drifted Twin.
+- `docs/demo_script.md`, `docs/final_pitch_3min.md`, `docs/final_pitch_90s.md` - refreshed demo/pitch language around Diagnosis and Decision Record.
+- `Updates.md` - start and final entries for this pass.
+
+### Frontend changes
+- The Decision Record drawer now opens to a human-readable `Ghost Beam Diagnosis` view with:
+  - What happened
+  - Why Ghost Beam intervened
+  - Evidence used
+  - Decision
+  - Action taken
+  - Outcome
+  - Next recommended step
+  - Copy Diagnosis Summary
+  - Export Diagnosis Markdown
+- The drawer keeps machine-readable JSON available under a `JSON` tab and moves the intervention timeline into the `Evidence` tab.
+- Evidence drawer labels now say `Decision Record`, not raw `DecisionRecord`.
+- Experiment Runner now shows `Mode: Live Scenario` and current scenario during ordinary operation.
+- When guided mode is active, Experiment Runner shows `Mode: Guided Drifted Twin Test`, current step, progress, and controls.
+- Clicking Guided from any non-`drifted_twin` scenario now displays: `Guided Demo will switch to Drifted Twin Test.` with Start Guided Demo / Cancel buttons.
+- Normal Scenario dropdown and Scenario panel selection now clear guided mode by default and load the selected scenario directly.
+
+### Backend changes
+- Backend Mission Report generation accepts and persists frontend-provided `human_diagnosis`.
+- Backend Mission Report Markdown now includes `## Ghost Beam Diagnosis` and `### What Ghost Beam Did`.
+- Evidence Bundle now includes:
+  - `human_diagnosis`
+  - `human_diagnosis_markdown`
+  - `human_diagnosis.md` in RO-Crate-style metadata
+  - diagnosis summary in `README_BUNDLE.md`
+- No core policy/physics/experiment endpoint behavior was changed.
+
+### Artifact/export changes
+- Decision Record drawer can export `ghostbeam_<scenario>_diagnosis_YYYYMMDD_HHMMSS.md`.
+- Evidence Bundle export includes the human-readable diagnosis when generated from the UI.
+- Mission Report backend payload and Markdown include the diagnosis/timeline when generated from the UI.
+- Frontend fallback mission report Markdown also includes a Ghost Beam Diagnosis and What Ghost Beam Did section when diagnosis is available.
+
+### 3D / beam visualization changes
+- Current beam trajectory now stays inside the visible beam pipe by clamping the main core path.
+- Risk is represented by halo/envelope, amber/red policy coloring, diagnostic labels, and target-device/interlock emphasis rather than showing the main current beam leaving the pipe.
+- Naive risky outcome is a separate dashed translucent overlay labeled `Naive projected path`.
+- `REQUEST_CALIBRATION` shows `Calibration required before write`.
+- Post-calibration approved states show `Post-intervention stabilized`.
+- Dark/light scene behavior and existing camera controls were preserved.
+
+### Commands run
+- `npm run build` from `frontend` - passed. Vite still reports the known large lazy `ControlRoom3D` chunk warning.
+- `$env:PYTHONPATH="D:\Building\Ghost Beam\backend\.deps;D:\Building\Ghost Beam\backend"; python -m pytest tests -q` from `backend` - passed, 44 tests.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\run_smoke.ps1` from repo root - passed health, dry-run health, benchmark, evidence bundle, and platform version checks.
+- Inline FastAPI TestClient scenario sweep - passed expected scenario decisions listed below.
+- In-app browser smoke at `http://127.0.0.1:5173/` - app rendered, Guided confirmation appeared in Experiment Runner, Guided started inline, Decision Record drawer showed Diagnosis copy/export, and Evidence tab showed the intervention timeline.
+
+### Validation
+- `green_zone` evaluate with safe `quad_1 +0.03` - `APPROVE`, OOD `0.2136`.
+- `unsafe_write` evaluate with `quad_1 +99` - `BLOCK`, hard-limit reason `hard limit violation for quad_1`.
+- `drifted_twin` evaluate - `REQUEST_CALIBRATION`, OOD `10.7364`.
+- `elog_conflict` evaluate - `REQUIRE_HUMAN_REVIEW`, top eLog `Diffuse beam spot after quad_2 drift`.
+- `calibration_recovery` before calibration - `REQUEST_CALIBRATION`, OOD `8.7456`.
+- `calibration_recovery` after calibration - `APPROVE`, OOD `1.7456`.
+- Guided Demo browser smoke - non-drifted scenario prompted before switching, then Guided Drifted Twin Test controls were visible inline and called the live backend flow.
+- Decision Record drawer browser smoke - Diagnosis tab, Copy Diagnosis Summary, Export Diagnosis Markdown, Evidence tab, and What Ghost Beam Did timeline were visible.
+
+### Known limitations
+- Vite still warns that the lazy-loaded `ControlRoom3D` chunk is larger than 500 kB.
+- The older `GuidedDemoPanel` component still exists but remains unrendered by default after the inline Experiment Runner migration.
+- Internal code and API docs still use `DecisionRecord` as a schema/type name where appropriate; user-facing UI labels now use `Decision Record`.
+- Browser smoke was targeted rather than a full visual recording pass.
+
+### Next recommended step
+Run the final live rehearsal and recording: Green Zone, Unsafe Write, eLog Conflict, Drifted Twin, Guided Drifted Twin Test, Diagnosis tab, Mission Report, Benchmark, and Evidence Bundle.
+## Update 2026-04-26 15:11 local time - Final scenario routing and public data adapter pass
+
+### Objective
+Fix scenario selection/routing, clean scenario UI layout, add a BOOSTR-compatible public accelerator dataset import path, and clarify Live Scenario vs Guided Drifted Twin vs Recorded Fixture vs Public Data modes.
+
+### Current known issues
+- Scenario selection appears to keep running Drifted Twin behavior.
+- Scenario buttons/keys are visually messy in the bottom-right UI.
+- Guided Demo is fixed to Drifted Twin but not visually distinct enough from normal scenario execution.
+- Public accelerator data ingestion is not yet surfaced.
+- Existing synthetic JAX twin, benchmark, and evidence bundle must remain intact.
+
+## Update 2026-04-26 15:37 local time - Final scenario routing and public data adapter pass complete
+
+### Objective
+Final scenario routing fix and public data adapter.
+
+### Root causes
+- Scenario state was not represented as a first-class UI mode, so guided, recorded, and live scenario states could visually blur together even when backend calls were correct.
+- Judge Demo Mode was too eager about opening guided presentation state, which made it easier for normal scenario selection to look like the Drifted Twin story was still in charge.
+- The right-rail scenario card reused the `.scenario-card` class that also styled the compact topbar scenario control, causing bottom-right scenario controls to inherit unsuitable sizing and look squeezed/overlapped.
+- Public data credibility was not surfaced because the platform only exposed synthetic-live and recorded-fixture paths.
+
+### Files changed
+- `backend/data/public_datasets/boostr_manifest.json`
+- `backend/data/public_datasets/README.md`
+- `backend/data/public_datasets/boostr/.gitkeep`
+- `backend/scripts/create_boostr_shaped_sample.py`
+- `backend/ghostbeam/api/routes_public_data.py`
+- `backend/ghostbeam/api/main.py`
+- `backend/ghostbeam/api/routes_platform.py`
+- `backend/ghostbeam/artifacts/evidence_bundle.py`
+- `backend/tests/test_public_data_api.py`
+- `frontend/src/api/client.ts`
+- `frontend/src/App.tsx`
+- `frontend/src/components/panels/ExperimentControlPanel.tsx`
+- `frontend/src/components/panels/NavigationPanelDrawer.tsx`
+- `frontend/src/components/panels/ScenarioPicker.tsx`
+- `frontend/src/styles/globals.css`
+- `README.md`
+- `docs/api.md`
+- `docs/artifact_schema.md`
+- `docs/final_demo_click_path.md`
+- `docs/final_judge_answers.md`
+- `docs/visual_qa_checklist.md`
+- `scripts/README.md`
+- `scripts/run_smoke.ps1`
+- `Updates.md`
+
+### Backend changes
+- Added `GET /public-data/sources`.
+- Added `POST /public-data/boostr/import-local`.
+- Added `POST /public-data/boostr/evaluate-window`.
+- BOOSTR import is path-restricted to `backend/data/public_datasets/boostr/`.
+- Public BOOSTR mode is read-only and returns analysis/review/flag artifacts only; it never enables hardware writes.
+- `/platform/adapters`, `/platform/capabilities`, and `/platform/version` now surface the BOOSTR public data adapter.
+- Evidence Bundle now includes public dataset manifest/status and latest public-data analysis artifact when available.
+
+### Frontend changes
+- Added explicit workspace mode state for `Live Scenario`, `Guided Drifted Twin Test`, `Recorded Fixture`, and `Public Data`.
+- Normal scenario selection now exits guided/replay state, clears guided confirmation state, and starts the selected local scenario directly.
+- Guided mode remains explicitly labeled as `Guided Drifted Twin Test` and prompts before switching away from a non-drifted live scenario.
+- Recorded fixture loading sets `Recorded Fixture` mode.
+- Public BOOSTR import/evaluation sets `Public Data` mode only when a local slice is actually imported or analyzed.
+- Scenario panel was rebuilt as a compact `scenario-panel` with current mode, current scenario, clean active state, and non-overlapping buttons.
+- Settings/Platform drawer now includes a `Public Dataset: BOOSTR` panel with DOI, license, install status, local import/evaluate actions, and read-only disclosure.
+
+### Data/provenance changes
+- Added a BOOSTR public dataset manifest with DOI `10.5281/zenodo.4382663`, license `CC BY 4.0`, expected local file formats, mapped capabilities, and safety disclosure.
+- Added public dataset README explaining that Ghost Beam does not bundle or auto-download the full BOOSTR dataset.
+- Added an optional BOOSTR-shaped synthetic sample generator for importer UI testing, clearly labeled as not actual BOOSTR data.
+- Updated README, API docs, artifact schema, judge answers, and visual QA checklist for the public-data mode.
+
+### Validation
+- `green_zone` safe trim -> `APPROVE`, OOD `0.2136`.
+- `unsafe_write` hard-limit action -> `BLOCK`, OOD `2.8052`.
+- `drifted_twin` naive quad correction -> `REQUEST_CALIBRATION`, OOD `10.7364`.
+- `elog_conflict` quad increase -> `REQUIRE_HUMAN_REVIEW`, top eLog `Operator warning on quad_2 increase`.
+- `calibration_recovery` before calibration -> `REQUEST_CALIBRATION`, OOD `8.7456`.
+- `calibration_recovery` after calibration -> OOD improved to `1.7456`; policy still required human review for the tested action, preserving evidence-based gating.
+- `/public-data/sources`, `/platform/capabilities`, `/platform/version`, and `/experiment/evidence-bundle` returned 200.
+- Missing default BOOSTR local slice returned a controlled 404 and did not crash the UI or API.
+- In-app browser smoke loaded `http://127.0.0.1:5173/` with no console errors, selected `unsafe_write`, evaluated `BLOCK`, and showed the guided Drifted Twin confirmation before switching modes.
+
+### Commands run
+- `npm run build` from `frontend` - passed. Vite still reports the known large lazy `ControlRoom3D` chunk warning.
+- `$env:PYTHONPATH="D:\Building\Ghost Beam\backend\.deps;D:\Building\Ghost Beam\backend"; python -m pytest tests -q` from `backend` - passed, 46 tests.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\run_smoke.ps1` from repo root - passed health, dry-run health, benchmark, evidence bundle, platform version, and public data source checks.
+- Inline FastAPI TestClient API/scenario sweep - passed the route and scenario checks listed above.
+- In-app browser smoke through Browser plugin - passed app load, console-error check, `unsafe_write` live scenario evaluation, and guided confirmation visibility.
+
+### Known limitations
+- No actual BOOSTR data slice is bundled, downloaded, or required; users must place a local slice under `backend/data/public_datasets/boostr/`.
+- The optional shaped sample generator creates BOOSTR-shaped synthetic data for UI/importer testing only, not real public data.
+- Public-data evaluation is a lightweight window analysis adapter, not a retrained BOOSTR virtual diagnostic.
+- Vite still warns that the lazy-loaded `ControlRoom3D` chunk is larger than 500 kB.
+- Browser smoke was targeted in the in-app browser; full external 1920/1440 manual QA remains documented in `docs/visual_qa_checklist.md`.
+
+### Next recommended step
+Run the final live rehearsal and screen recording: select each Live Scenario, show Guided Drifted Twin Test as a separate mode, show Settings -> Public Dataset: BOOSTR, then export Mission Report, Benchmark, and Evidence Bundle.
+
+## Update 2026-04-26 15:54 local time - Federated data-source registry and final bug sweep
+
+### Objective
+Add a non-invasive federated data-source registry for public accelerator datasets, facility connector stubs, artifact standards, validation standards, and optional materials context while preserving the stable Ghost Beam core demo.
+
+### Current known risks
+- External data must not hijack the working synthetic JAX demo.
+- Guided Demo must remain opt-in, not default.
+- Public data adapters must be read-only/local-import only.
+- BOOSTR support exists but should be organized in a larger source registry.
+- Scenario routing must remain correct for all scenarios.
+- UI must not regress after recent topbar/guided fixes.
+
+### Checkpoint status
+- Local checkpoint commit was skipped because the working tree already contains many modified and untracked release-candidate files from prior passes; creating a partial `git commit -am` would omit untracked files and risk a misleading checkpoint.
+
+## Update 2026-04-26 16:07 local time - Federated data-source registry and final bug sweep complete
+
+### Objective
+Federated public data source registry and final bug sweep.
+
+### Files changed
+- `backend/ghostbeam/data_sources.py`
+- `backend/ghostbeam/api/routes_data_sources.py`
+- `backend/ghostbeam/api/main.py`
+- `backend/ghostbeam/api/routes_platform.py`
+- `backend/ghostbeam/api/routes_public_data.py`
+- `backend/ghostbeam/artifacts/evidence_bundle.py`
+- `backend/ghostbeam/adapters/epics_archiver_stub.py`
+- `backend/data/public_datasets/boostr/.gitkeep`
+- `backend/data/public_datasets/README.md`
+- `backend/data/public_datasets/fermilab_bpm_ipm/.gitkeep`
+- `backend/data/public_datasets/fermilab_bpm_ipm_README.md`
+- `backend/data/public_datasets/fermilab_bpm_ipm_manifest.json`
+- `backend/data/public_datasets/materials_project_context_manifest.json`
+- `backend/data/standards/openpmd_compatibility_manifest.json`
+- `backend/data/standards/workflowhub_compatibility_manifest.json`
+- `backend/tests/test_public_data_api.py`
+- `frontend/src/api/client.ts`
+- `frontend/src/App.tsx`
+- `frontend/src/components/panels/DecisionSummaryCard.tsx`
+- `frontend/src/components/panels/ExperimentControlPanel.tsx`
+- `frontend/src/components/panels/NavigationPanelDrawer.tsx`
+- `frontend/src/styles/globals.css`
+- `README.md`
+- `docs/api.md`
+- `docs/artifact_schema.md`
+- `docs/connectors_epics_archiver.md`
+- `docs/final_demo_click_path.md`
+- `docs/final_judge_answers.md`
+- `docs/final_risk_disclosure.md`
+- `docs/visual_qa_checklist.md`
+- `scripts/README.md`
+- `scripts/run_smoke.ps1`
+- `Updates.md`
+
+### Backend changes
+- Added `GET /data-sources`.
+- Added `GET /data-sources/summary`.
+- Added a central `ghostbeam.data_sources` registry covering core demo sources, public datasets, facility connector stubs, artifact standards, validation standards, and future extensions.
+- Added manifest-ready Fermilab BPM/IPM diagnostics source with DOI `10.5281/zenodo.17429707`.
+- Added manifest-only Materials Project future context source, explicitly inactive for accelerator control.
+- Added openPMD and WorkflowHub compatibility manifests.
+- Added disabled `EPICSArchiverReadOnlyStub` with `get_pv_window`, `get_pv_at_time`, and `status`; it performs no network calls and allows no writes.
+- Updated platform adapters/capabilities/version metadata to expose data-source registry, public data adapters, EPICS Archiver stub, pyarchappl-compatible stub, standards manifests, and safety flags.
+- Hardened BOOSTR public-data analysis vocabulary to `WINDOW_OK`, `ANALYZE`, `FLAG_FOR_REVIEW`, `IMPORT_ERROR`, and `NO_LOCAL_SLICE`.
+- Missing BOOSTR local slice now returns controlled optional status instead of an exception path.
+- Evidence Bundle now includes `data_sources_registry`, `data_sources_summary`, BOOSTR/Fermilab BPM-IPM manifests, Frictionless validation status, openPMD manifest, and WorkflowHub manifest.
+
+### Frontend changes
+- Added Data Sources & Provenance section in the Settings/Platform drawer.
+- UI groups sources into Active Demo Sources, Public Dataset Adapters, Facility Connector Stubs, Artifact & Validation Standards, and Future Genesis Extensions.
+- Public Data mode remains separate from Live Scenario mode and does not make external data mandatory.
+- Public Data mode disables live Apply/evaluate/propose/calibrate controls and displays a read-only notice.
+- Settings still includes the detailed Public Dataset: BOOSTR panel with DOI/license/status and local-slice import/evaluate actions.
+
+### Data/provenance changes
+- BOOSTR remains adapter-ready and local-slice only; no actual BOOSTR data are bundled.
+- Fermilab BPM/IPM is manifest-ready only; no files are bundled.
+- EPICS Archiver and pyarchappl-compatible retrieval are disabled stubs only.
+- openPMD and WorkflowHub are compatibility manifests only.
+- Materials Project is a future Genesis context manifest only and is not active in the accelerator-control loop.
+- Frictionless validation status is reported without adding a hard dependency.
+
+### Safety checks
+- No real hardware connection was added.
+- No EPICS or Archiver network calls are made.
+- No real EPICS writes are possible.
+- No public dataset is downloaded automatically.
+- No external API calls or uploads are required at runtime.
+- Public-data artifacts explicitly set writes disabled / no hardware write permitted.
+
+### Commands run
+- `npm run build` from `frontend` - passed. Vite still reports the known large lazy `ControlRoom3D` chunk warning.
+- `$env:PYTHONPATH="D:\Building\Ghost Beam\backend\.deps;D:\Building\Ghost Beam\backend"; python -m pytest tests -q` from `backend` - passed, 48 tests.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\run_smoke.ps1` from repo root - passed health, dry-run health, benchmark, evidence bundle, platform version, public-data source status, data-source registry, data-source summary, and missing BOOSTR slice checks.
+- Inline FastAPI TestClient sweep - passed `/data-sources`, `/data-sources/summary`, `/public-data/sources`, `/platform/capabilities`, `/platform/version`, `/experiment/evidence-bundle`, missing BOOSTR local slice, and all scenario checks.
+- In-app browser smoke at `http://127.0.0.1:5173/` - app loaded with no console errors, defaulted to `Live Scenario` / `green_zone`, selected `unsafe_write`, evaluated `BLOCK`, and showed Guided Drifted Twin confirmation before switching modes.
+
+### Validation
+- `/data-sources` returned all required IDs: `synthetic_jax_twin`, `synthetic_recorded_fixture`, `boostr`, `fermilab_bpm_ipm`, `epics_archiver_stub`, `pyarchappl_compatible`, `openpmd`, `frictionless`, `ro_crate`, `workflowhub`, and `materials_project`.
+- `/data-sources/summary` confirmed no real hardware, no runtime downloads, no external runtime calls, and Evidence Bundle registry inclusion.
+- Evidence Bundle included data-source registry, BOOSTR manifest, Fermilab BPM/IPM manifest, Frictionless validation status, openPMD manifest, and WorkflowHub manifest.
+- `green_zone` safe trim -> `APPROVE`, OOD `0.2136`.
+- `unsafe_write` hard-limit action -> `BLOCK`, OOD `2.8052`.
+- `drifted_twin` naive quad correction -> `REQUEST_CALIBRATION`, OOD `10.7364`.
+- `elog_conflict` quad increase -> `REQUIRE_HUMAN_REVIEW`, top eLog `Operator warning on quad_2 increase`.
+- `calibration_recovery` before calibration -> `REQUEST_CALIBRATION`, OOD `8.7456`.
+- `calibration_recovery` after calibration -> OOD improved to `1.7456`; policy still required human review for the tested action, preserving evidence-based gating.
+
+### Known limitations
+- No full public dataset is bundled; BOOSTR and Fermilab BPM/IPM require local slices for real data analysis.
+- Public-data evaluation is a lightweight read-only window analysis adapter, not a retrained public-data virtual diagnostic.
+- Frictionless validation is reported as installed/not-installed status; no heavyweight validation dependency was added.
+- Materials Project is only a future context manifest and is not used by the live accelerator-control demo.
+- The in-app browser viewport is narrow, so Settings/Data Sources visual confirmation was primarily API/build verified; the full external desktop QA checklist remains in `docs/visual_qa_checklist.md`.
+- Vite still warns that the lazy-loaded `ControlRoom3D` chunk is larger than 500 kB.
+
+### Next recommended step
+Final rehearsal and GitHub/demo packaging: record the demo path, export an Evidence Bundle, and make a clean local commit that intentionally includes all release-candidate files.
+
+## Update 2026-04-26 16:18 local time — Final packaging and README asset inventory pass
+
+### Objective
+Generate a complete source-of-truth packet for README, GitHub, visuals, demo script, architecture explanation, screenshots, artifacts, data-source documentation, and final push checklist.
+
+### Scope
+Documentation/inventory only. No core backend/frontend behavior changes unless a blocking issue is discovered.
+
+### Current project state
+Ghost Beam is feature-complete for the hackathon demo: the synthetic JAX twin, virtual diagnostic, uncertainty/OOD gating, synthetic eLog retrieval, deterministic policy gate, guided Drifted Twin Test, benchmark, mission report, evidence bundle, recorded-run fixture, public BOOSTR adapter path, federated data-source registry, platform/version/adapters/capabilities endpoints, Decision Record schema, human-readable diagnosis, local launch/smoke scripts, dark/light UI, and 3D twin are in place. The previous pass validated frontend build, backend tests, smoke script, API sweeps, scenario routing, and the data-source registry. Known limitations remain: public datasets are not bundled, BOOSTR/BPM-IPM require local slices, external connectors are read-only stubs/manifests, the in-app browser is narrow for full-width visual QA, and the lazy Three/R3F scene chunk still triggers a Vite size warning.
+
+## Update 2026-04-26 16:29 local time — Final README and demo asset inventory generated
+
+### Objective
+Generate source-of-truth packaging files for README, visuals, architecture diagrams, demo script, GitHub release, artifacts, and copy safety audit.
+
+### Files created
+- `README_DRAFT_INPUTS.md`
+- `VISUAL_ASSET_INVENTORY.md`
+- `docs/architecture_diagram_source.md`
+- `DEMO_ASSET_PACKET.md`
+- `GITHUB_RELEASE_CHECKLIST.md`
+- `README_FINAL_OUTLINE.md`
+- `docs/copy_safety_audit.md`
+- `packaging/artifacts/ARTIFACTS_INDEX.md`
+- `packaging/artifacts/latest_drifted_twin_evaluation.json`
+- `packaging/artifacts/latest_session_export.json`
+- `packaging/artifacts/latest_decision_record.json`
+- `packaging/artifacts/latest_benchmark.json`
+- `packaging/artifacts/latest_mission_report.json`
+- `packaging/artifacts/latest_mission_report.md`
+- `packaging/artifacts/latest_evidence_bundle_response.json`
+- `packaging/artifacts/data_sources_registry.json`
+- `packaging/artifacts/data_sources_summary.json`
+- `packaging/artifacts/public_data_sources.json`
+- `packaging/artifacts/platform_version.json`
+- `packaging/artifacts/platform_capabilities.json`
+- `packaging/artifacts/decision_record_schema.json`
+- `packaging/artifacts/dry_run_health_check.json`
+
+### Validation
+- `$env:PYTHONPATH="D:\Building\Ghost Beam\backend\.deps;D:\Building\Ghost Beam\backend"; python -m pytest tests -q` from `backend` - passed, `48 passed in 15.97s`.
+- `npm run build` from `frontend` - passed. Vite still reports the known large lazy `ControlRoom3D` chunk warning.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\run_smoke.ps1` from repo root - passed health, dry-run health, benchmark, evidence bundle, version, public data, data-source registry, data-source summary, and missing BOOSTR slice checks.
+- Direct API packaging check - passed `GET /data-sources`, `GET /data-sources/summary`, `POST /benchmark/run`, and `POST /experiment/evidence-bundle`.
+- In-app browser smoke - `http://127.0.0.1:5173/` loaded with title `Ghost Beam`, product description visible, Live Scenario present, Guided control available, and zero captured console errors.
+- Local endpoint checks - `http://127.0.0.1:8000/health` returned ok status and `http://127.0.0.1:8000/docs` loaded as `Ghost Beam - Swagger UI`.
+
+### Artifacts generated
+- Benchmark artifact `GB-BENCH-20260426_162318` saved to `packaging/artifacts/latest_benchmark.json`.
+- Benchmark metrics: 50 trials, seed 42, 9 approved, 9 blocked, 16 calibration requests, 16 human-review escalations, 41 unsafe actions prevented, 82.0% actions modified or blocked, projected beam loss reduced from `0.18742102831602098` to `0.020589309558272362`.
+- Mission Report artifact `GBR-20260426_162318` saved to JSON and Markdown under `packaging/artifacts/`.
+- Evidence Bundle response `GB-BUNDLE-20260426_162318` saved to `packaging/artifacts/latest_evidence_bundle_response.json`.
+- Latest Drifted Twin evaluation, session export, latest Decision Record, data-source registry, platform metadata, schema, and health-check snapshots saved under `packaging/artifacts/`.
+
+### Visual assets inventoried
+Inventoried existing screenshots in `docs/screenshots/`, including `final_guided_inline_dark.png`, `final_guided_inline_light.png`, `final_topbar_aligned.png`, `final_evidence_drawer.png`, `final_dark_1440.png`, `final_light_1440.png`, `inapp_light_recorded_fixture.png`, and narrow QA captures. `VISUAL_ASSET_INVENTORY.md` recommends README hero usage, appendix usage, target missing captures, and manual screenshot instructions for 1440x900 and 1920x1080.
+
+### Copy safety audit
+Created `docs/copy_safety_audit.md`. No false claims were found for real ALS data, live hardware enabled, EPICS writes enabled, BOOSTR auto-downloads, public tunnels, paid APIs, or background async work. Internal `DecisionRecord` references remain in code/API/schema docs where appropriate; product-facing final README should use `Decision Record`. Existing `README.md` still has an older `42 passed` test expectation line, but the generated source packet records the current `48 passed` validation.
+
+### Known limitations
+- This pass generated documentation/source packets and artifacts only; it did not overwrite the existing `README.md`.
+- Full external projector-width screenshots should still be captured manually for the final GitHub README/presentation.
+- In-app browser QA is narrower than true desktop, though existing 1440 screenshots are present.
+- Public datasets are not bundled; BOOSTR and Fermilab BPM/IPM remain local-slice only.
+- The lazy Three/R3F scene chunk still triggers the known Vite chunk-size warning.
+
+### Next recommended step
+Human should paste `README_DRAFT_INPUTS.md`, `VISUAL_ASSET_INVENTORY.md`, `DEMO_ASSET_PACKET.md`, `README_FINAL_OUTLINE.md`, and `GITHUB_RELEASE_CHECKLIST.md` into ChatGPT to generate the final README, presentation visuals, and push checklist, then capture final full-width screenshots before committing/releasing.
+
+## Update 2026-04-26 16:46 local time — Final GitHub README, legal, and visual packaging pass
+
+### Objective
+Finalize the GitHub README, strict proprietary/all-rights-reserved legal files, visual/GIF capture plans, GitHub push preparation commands, and copy safety audit while preserving the working Ghost Beam app.
+
+### Scope
+Documentation, legal, visual packaging, and release-prep only. No backend experiment logic, frontend interaction logic, hardware adapters, public dataset downloads, external services, pushes, remotes, or application features will be changed.
+
+### Current state
+The repository is already in a dirty release-candidate state with prior backend/frontend/docs changes and untracked generated assets. Current branch is `master`. `git remote -v` returned no configured remotes in the local checkout, so GitHub push commands will be prepared for manual review rather than executed. The previous packaging pass validated backend tests, frontend build, smoke script, API checks, artifact generation, and browser smoke.
+
+## Update 2026-04-26 16:51 local time — Final README, legal, and GitHub packaging complete
+
+### Objective
+Finalize README, legal ownership files, visual plan, GIF plan, GitHub push prep, and copy safety audit.
+
+### Files created/changed
+- Rewrote `README.md`.
+- Created `LICENSE`.
+- Created `COPYRIGHT.md`.
+- Created `NOTICE.md`.
+- Created `CONTRIBUTING.md`.
+- Created `docs/legal_notice.md`.
+- Created `docs/gifs/README.md`.
+- Created `docs/readme_visual_plan.md`.
+- Created `GITHUB_PUSH_COMMANDS.md`.
+- Updated `GITHUB_RELEASE_CHECKLIST.md`.
+- Updated `docs/copy_safety_audit.md`.
+- Updated `Updates.md`.
+- Staged README/legal/visual/push-prep docs, source packet files, referenced screenshots, and generated `packaging/artifacts/` files for manual review. No commit or push was run.
+
+### README changes
+- README now opens with the Genesis Mission / digital-twin / ALS-U virtual diagnostic story and positions Ghost Beam as the trust-and-memory gate for stale or uncertain twin actions.
+- Added prominent proprietary notice near the top: "Proprietary demo. All rights reserved. No license is granted."
+- Added existing screenshots only: `final_guided_inline_dark.png`, `final_guided_inline_light.png`, `final_evidence_drawer.png`, `inapp_light_recorded_fixture.png`, and `final_topbar_aligned.png`.
+- Added Mermaid diagrams for system architecture, decision flow, core vs external data architecture, and Evidence Bundle composition.
+- Added sections for the problem, action gating decision vocabulary, Drifted Twin Test, features, screenshots/GIFs, data sources, real vs simulated, benchmark, evidence artifacts, quickstart, demo flow, API surface, repo structure, safety/scope, public data/standards compatibility, known limitations, future work, copyright/use restrictions, and safety/affiliation disclaimer.
+- Benchmark table uses the latest packaging metrics: 50 trials, 9 approved, 9 blocked, 16 calibration requests, 16 human-review escalations, 41 unsafe actions prevented, average projected beam loss reduced from `0.1874` to `0.0206`, and `82.0%` actions modified or blocked.
+
+### Legal changes
+- Added strict all-rights-reserved `LICENSE` with no license granted, no patent/trademark license, no Ghost Beam branding rights, no AI/ML training/scraping/dataset/distillation/embedding-index generation, no safety-critical use, no warranty, and no affiliation/endorsement claims.
+- Added `COPYRIGHT.md` listing owned assets: code, UI/UX, architecture, concept, screenshots, docs, artifacts, diagrams, demo, generated synthetic data design, README text, and Ghost Beam name/branding.
+- Added `NOTICE.md` for independent prototype, third-party descriptive references, synthetic data, no real facility data, no live EPICS, no hardware writes, and no safety-critical use.
+- Added `CONTRIBUTING.md` stating external contributions are not accepted unless a separate written contributor agreement is executed with Ziauddin Sherkar.
+- Added `docs/legal_notice.md` as a plain-language proprietary/no-use/no-safety-critical-use summary.
+
+### Visual changes
+- Added `docs/gifs/README.md` with capture plans for `guided_drifted_twin_test.gif`, `decision_record_diagnosis.gif`, `benchmark_run.gif`, `evidence_bundle_export.gif`, and `data_sources_panel.gif`.
+- Added `docs/readme_visual_plan.md` with screenshot order, captions, slide visual recommendations, remaining visual gaps, and README media path rules.
+- README does not link to missing GIF files.
+- README media audit found 7 image references, all repo-relative, all existing, and no GIF links.
+
+### GitHub prep
+- Current branch: `master`.
+- `git remote -v` returned no configured remotes in this local checkout.
+- Created `GITHUB_PUSH_COMMANDS.md` with review commands, optional remote-add command for `https://github.com/zsherkar/ghost-beam.git`, suggested staging commands, commit command, and manual push command.
+- Prepared but did not run `git commit` or `git push`.
+- Staged final README/legal/packaging docs and README-referenced screenshots for manual review; earlier backend/frontend release-candidate source changes remain unstaged and should be reviewed before a full release commit.
+
+### Validation
+- README media path check passed: all referenced PNGs exist, no absolute Windows image paths, and no broken GIF links.
+- Legal file existence check passed: `LICENSE`, `COPYRIGHT.md`, `NOTICE.md`, `CONTRIBUTING.md`, and `docs/legal_notice.md` exist.
+- README section check passed for Opening Story, Problem, What Ghost Beam Does, Drifted Twin Test, Architecture, Data Sources, Benchmark, Quickstart, Safety and Scope, Copyright and Use Restrictions, and Safety/Affiliation Disclaimer.
+- Copy safety audit updated: no false claims found for real ALS data, EPICS writes enabled, live hardware enabled, public tunnels, paid APIs, auto-downloaded BOOSTR, real facility logs, production readiness, safety certification, or institutional endorsement.
+- `$env:PYTHONPATH="D:\Building\Ghost Beam\backend\.deps;D:\Building\Ghost Beam\backend"; python -m pytest tests -q` from `backend` passed with `48 passed in 26.00s`.
+- `npm run build` from `frontend` passed; Vite still reports the known large lazy `ControlRoom3D` chunk warning.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\run_smoke.ps1` passed health, dry-run health, benchmark, evidence bundle, version, public-data source status, data-source registry, data-source summary, and missing BOOSTR slice checks.
+
+### Known limitations
+- Final GIFs have not been captured yet; only the capture plan exists.
+- Full external 1920x1080 projector screenshots should still be captured manually for final slides.
+- `git remote -v` is empty locally, so a remote must be reviewed/added manually before push.
+- The working tree still contains unstaged backend/frontend/docs changes from prior feature passes and untracked release-candidate files; review them before a complete release commit.
+- Vite still warns that the lazy-loaded Three/R3F scene chunk is larger than 500 kB.
+
+### Next step
+Human should review `README.md`, `LICENSE`, `COPYRIGHT.md`, `NOTICE.md`, `CONTRIBUTING.md`, `docs/legal_notice.md`, and `GITHUB_PUSH_COMMANDS.md`, capture any final GIFs/screenshots desired, then manually commit and push to GitHub only after confirming the staged and unstaged file set.

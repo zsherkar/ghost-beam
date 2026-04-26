@@ -35,6 +35,35 @@ check("evidence_bundle", bundle["exported"] is True and bundle["bundle_id"], {"b
 version = client.get("/platform/version").json()
 check("version", version["real_hardware_writes_enabled"] is False and version["benchmark_enabled"] is True, version)
 
+public_sources = client.get("/public-data/sources").json()
+check(
+    "public_data_sources",
+    public_sources["adapters_enabled"] is True and public_sources["sources"][0]["dataset_id"] == "boostr",
+    public_sources["sources"][0],
+)
+
+data_sources = client.get("/data-sources").json()
+source_ids = {source["id"] for source in data_sources["sources"]}
+check(
+    "data_sources_registry",
+    {"synthetic_jax_twin", "boostr", "fermilab_bpm_ipm", "epics_archiver_stub", "ro_crate"}.issubset(source_ids),
+    data_sources["summary"],
+)
+
+data_summary = client.get("/data-sources/summary").json()
+check(
+    "data_sources_summary",
+    data_summary["no_real_hardware"] is True and data_summary["no_runtime_downloads"] is True,
+    data_summary,
+)
+
+missing_boostr = client.post("/public-data/boostr/import-local", json={"path": "backend/data/public_datasets/boostr/local_sample.csv"}).json()
+check(
+    "missing_boostr_slice_optional",
+    missing_boostr["decision"] == "NO_LOCAL_SLICE" and missing_boostr["row_count"] == 0,
+    missing_boostr,
+)
+
 failed = [item for item in checks if not item[1]]
 for name, passed, detail in checks:
     print(f"{'PASS' if passed else 'FAIL'} {name}: {detail}")

@@ -1,6 +1,7 @@
 import { Suspense, lazy, useEffect, useRef, useState } from 'react'
 import {
   BenchmarkResult,
+  DataSourcesRegistryResponse,
   DecisionRecord,
   EvidenceBundleResponse,
   ExperimentState,
@@ -9,24 +10,37 @@ import {
   PlatformCapabilitiesResponse,
   PlatformVersionResponse,
   ProposedAction,
+  PublicDataAnalysisArtifact,
+  PublicDataImportResponse,
+  PublicDataSourcesResponse,
+  RecordedRunLoadResponse,
+  RecordedRunsResponse,
+  RecordedRunStepResponse,
   ReplayArtifact,
   ScenarioLoad,
   ScenarioSummary,
   applyExperimentAction,
   calibrateExperiment,
   evaluateExperimentAction,
+  evaluateBoostrWindow,
+  evaluateRecordedRunStep,
   exportEvidenceBundle,
   exportExperiment,
   fetchDriftedTwinReplay,
+  fetchDataSourcesRegistry,
   fetchHealth,
   fetchExperimentState,
   fetchPlatformAdapters,
   fetchPlatformCapabilities,
   fetchPlatformVersion,
+  fetchPublicDataSources,
+  fetchRecordedRuns,
   fetchScenarios,
   fetchSyntheticDataManifest,
   generateBackendMissionReport,
+  importBoostrLocal,
   loadScenario,
+  loadRecordedRun,
   proposeExperimentAction,
   runBenchmark,
   runDryRunHealthCheck,
@@ -44,7 +58,6 @@ import EvidenceDrawer from './components/panels/EvidenceDrawer'
 import EvidenceStrip from './components/panels/EvidenceStrip'
 import ExperimentControlPanel from './components/panels/ExperimentControlPanel'
 import GateEvidenceCard from './components/panels/GateEvidenceCard'
-import GuidedDemoPanel from './components/panels/GuidedDemoPanel'
 import NaiveComparisonCard from './components/panels/NaiveComparisonCard'
 import NavigationPanelDrawer from './components/panels/NavigationPanelDrawer'
 import PolicyBreakdownDrawer from './components/panels/PolicyBreakdownDrawer'
@@ -53,6 +66,7 @@ import ScenarioPicker from './components/panels/ScenarioPicker'
 import TrustGateCard from './components/panels/TrustGateCard'
 import TwinStateCard from './components/panels/TwinStateCard'
 import ErrorBoundary from './components/system/ErrorBoundary'
+import { buildGhostBeamDiagnosis } from './utils/diagnosis'
 import {
   GuidedDemoReport,
   GuidedTranscriptEntry,
@@ -68,8 +82,9 @@ import {
 const ControlRoom3D = lazy(() => import('./components/scene/ControlRoom3D'))
 
 type ThemeMode = 'dark' | 'light' | 'system'
-type TwinLightingMode = 'control-room' | 'inspection' | 'presentation'
+type TwinLightingMode = 'auto' | 'control-room' | 'inspection' | 'presentation'
 type ExperimentEventState = 'evaluating' | 'calibrating' | 'applying' | 'blocked' | null
+type WorkspaceMode = 'live' | 'guided' | 'recorded' | 'public'
 
 function safeLocalStorageGet(key: string): string | null {
   try {
@@ -87,6 +102,14 @@ function safeLocalStorageSet(key: string, value: string) {
   }
 }
 
+function safeLocalStorageRemove(key: string) {
+  try {
+    window.localStorage.removeItem(key)
+  } catch {
+    // Ignore storage access failures.
+  }
+}
+
 function clearGhostBeamLocalUiState() {
   try {
     Object.keys(window.localStorage)
@@ -100,38 +123,38 @@ function clearGhostBeamLocalUiState() {
 const guidedDemoSteps = [
   {
     title: 'Nominal Baseline',
-    explanation: 'Start from green_zone so the judge sees a trusted twin and stable green beam before drift appears.',
+    explanation: 'L1 Transfer Line begins in a trusted operating region.',
     focus: 'Decision Summary',
   },
   {
     title: 'Drift Appears',
-    explanation: 'Move into the drifted twin condition: diffuse beam, elevated OOD score, and calibration pressure.',
+    explanation: "The machine drifts outside the twin's familiar envelope.",
     focus: 'Twin State + Beam Profile',
   },
   {
     title: 'Naive Proposal',
-    explanation: 'A naive optimizer proposes increasing quad_2 focusing. The quadrupole is highlighted in the twin.',
+    explanation: 'The optimizer proposes a quadrupole correction that looks plausible.',
     focus: 'Q7FF2',
   },
   {
     title: 'Ghost Beam Evaluation',
-    explanation: 'Run the full policy gate: uncertainty, OOD, vision labels, eLog memory, and hard limits.',
+    explanation: 'Ghost Beam checks twin uncertainty, OOD, and eLog memory before allowing any write.',
     focus: 'Trust Gate + Gate Evidence',
   },
   {
     title: 'Calibration',
-    explanation: 'Take a simulated calibration screen measurement so the model can refresh trust near the current state.',
+    explanation: 'Ghost Beam requests one calibration measurement instead of trusting the stale twin.',
     focus: 'Diagnostic Screen',
   },
   {
     title: 'Safer Correction',
-    explanation: 'Evaluate and apply a smaller RF-phase correction only if Ghost Beam approves it after calibration.',
+    explanation: 'With trust restored, Ghost Beam approves a smaller RF correction and trim.',
     focus: 'RF cavity',
   },
   {
     title: 'Export Artifact',
-    explanation: 'Open the structured DecisionRecord and session export path for auditability.',
-    focus: 'DecisionRecord JSON',
+    explanation: 'Ghost Beam exports a Decision Record, Diagnosis, and Evidence Bundle.',
+    focus: 'Decision Record & Diagnosis',
   },
 ]
 
@@ -142,12 +165,15 @@ function storedThemeMode(): ThemeMode {
 
 function storedTwinLightingMode(): TwinLightingMode {
   const value = safeLocalStorageGet('ghost-beam-twin-lighting')
-  if (value === 'inspection' || value === 'presentation') return value
-  return 'control-room'
+  const userSet = safeLocalStorageGet('ghost-beam-twin-lighting-user-set') === 'true'
+  if (!userSet) return 'auto'
+  if (value === 'auto' || value === 'control-room' || value === 'inspection' || value === 'presentation') return value
+  return 'auto'
 }
 
 function App() {
   const booted = useRef(false)
+  const rightRailRef = useRef<HTMLElement | null>(null)
   const [scenarios, setScenarios] = useState<ScenarioSummary[]>([])
   const [selected, setSelected] = useState<ScenarioLoad | null>(null)
   const [experiment, setExperiment] = useState<ExperimentState | null>(null)
@@ -168,6 +194,8 @@ function App() {
   const [twinLightingMode, setTwinLightingMode] = useState<TwinLightingMode>(storedTwinLightingMode)
   const [currentEvent, setCurrentEvent] = useState<ExperimentEventState>(null)
   const [guidedOpen, setGuidedOpen] = useState(false)
+  const [workspaceMode, setWorkspaceMode] = useState<WorkspaceMode>('live')
+  const [guidedConfirmOpen, setGuidedConfirmOpen] = useState(false)
   const [guidedStep, setGuidedStep] = useState(0)
   const [guidedPlaying, setGuidedPlaying] = useState(false)
   const [guidedBusy, setGuidedBusy] = useState(false)
@@ -195,6 +223,15 @@ function App() {
   const [replayArtifact, setReplayArtifact] = useState<ReplayArtifact | null>(null)
   const [replayStep, setReplayStep] = useState(0)
   const [evidenceBundle, setEvidenceBundle] = useState<EvidenceBundleResponse | null>(null)
+  const [recordedRuns, setRecordedRuns] = useState<RecordedRunsResponse | null>(null)
+  const [recordedRunResult, setRecordedRunResult] = useState<RecordedRunLoadResponse | null>(null)
+  const [recordedStepResult, setRecordedStepResult] = useState<RecordedRunStepResponse | null>(null)
+  const [recordedRunBusy, setRecordedRunBusy] = useState(false)
+  const [publicDataSources, setPublicDataSources] = useState<PublicDataSourcesResponse | null>(null)
+  const [publicDataImport, setPublicDataImport] = useState<PublicDataImportResponse | null>(null)
+  const [publicDataAnalysis, setPublicDataAnalysis] = useState<PublicDataAnalysisArtifact | null>(null)
+  const [publicDataBusy, setPublicDataBusy] = useState(false)
+  const [dataSourcesRegistry, setDataSourcesRegistry] = useState<DataSourcesRegistryResponse | null>(null)
 
   function triggerEvent(event: ExperimentEventState, duration = 1400) {
     if (!event) {
@@ -233,13 +270,68 @@ function App() {
     }
   }
 
-  async function chooseScenario(scenarioId: string) {
+  function handleThemeModeChange(mode: ThemeMode) {
+    setThemeMode(mode)
+    const userSetTwinLighting = safeLocalStorageGet('ghost-beam-twin-lighting-user-set') === 'true'
+    if (mode === 'light' && !userSetTwinLighting && twinLightingMode === 'control-room') {
+      setTwinLightingMode('auto')
+    }
+  }
+
+  function handleTwinLightingModeChange(mode: TwinLightingMode) {
+    safeLocalStorageSet('ghost-beam-twin-lighting-user-set', 'true')
+    setTwinLightingMode(mode)
+  }
+
+  function resetTwinAppearance() {
+    safeLocalStorageRemove('ghost-beam-twin-lighting-user-set')
+    safeLocalStorageSet('ghost-beam-twin-lighting', 'auto')
+    setTwinLightingMode('auto')
+    setStatus('Twin appearance reset to Auto.')
+  }
+
+  function openGuidedDemo() {
+    const currentScenario = experiment?.scenario_id ?? selected?.scenario_id
+    if (!guidedOpen && currentScenario && currentScenario !== 'drifted_twin') {
+      setGuidedConfirmOpen(true)
+      window.requestAnimationFrame(() => {
+        rightRailRef.current?.scrollTo({ top: 0, behavior: 'smooth' })
+      })
+      setStatus('Guided Demo will switch to Drifted Twin Test. Confirm in Experiment Runner.')
+      return
+    }
+    startGuidedDemo()
+  }
+
+  function startGuidedDemo() {
+    setGuidedConfirmOpen(false)
+    setGuidedOpen(true)
+    setWorkspaceMode('guided')
+    setReplayOpen(false)
+    setBenchmarkOpen(false)
+    window.requestAnimationFrame(() => {
+      rightRailRef.current?.scrollTo({ top: 0, behavior: 'smooth' })
+    })
+    void runGuidedStep(0)
+  }
+
+  async function chooseScenario(scenarioId: string, options: { preserveGuided?: boolean } = {}) {
+    if (!options.preserveGuided) {
+      setGuidedOpen(false)
+      setGuidedPlaying(false)
+      setGuidedConfirmOpen(false)
+      setWorkspaceMode('live')
+    }
+    setReplayOpen(false)
     setStatus(`Loading ${scenarioId}...`)
     const [loaded, state] = await Promise.all([loadScenario(scenarioId), startExperiment(scenarioId)])
     setSelected(loaded)
     setExperiment(state)
     setRecord(state.latest_decision_record)
     setDraftAction(state.latest_proposed_action ?? loaded.proposed_action)
+    setRecordedRunResult(null)
+    setRecordedStepResult(null)
+    setPublicDataAnalysis(null)
     setBackendConnected(true)
     setStatus('Experiment session started from live backend.')
     return { loaded, state }
@@ -270,7 +362,7 @@ function App() {
     if (decision.gate_decision.decision === 'BLOCK' || decision.gate_decision.decision === 'REQUIRE_HUMAN_REVIEW') {
       triggerEvent('blocked', 1500)
     }
-    setStatus(`DecisionRecord ${state.latest_decision_record_id ?? ''}: ${decision.gate_decision.decision}.`)
+    setStatus(`Decision Record ${state.latest_decision_record_id ?? ''}: ${decision.gate_decision.decision}.`)
     return decision
   }
 
@@ -317,6 +409,9 @@ function App() {
         synthetic_data_disclosure: syntheticDisclosure,
         current_theme_mode: themeMode,
         current_twin_lighting_mode: twinLightingMode,
+        workspace_mode: workspaceMode,
+        public_data_import: publicDataImport,
+        public_data_analysis: publicDataAnalysis,
       },
     }
     if (download) {
@@ -373,8 +468,133 @@ function App() {
     }
   }
 
+  function applyRecordedState(state: ExperimentState) {
+    setExperiment(state)
+    setRecord(state.latest_decision_record)
+    if (state.latest_proposed_action) setDraftAction(state.latest_proposed_action)
+    setBackendConnected(true)
+    setGuidedOpen(false)
+    setGuidedPlaying(false)
+    setGuidedConfirmOpen(false)
+    setWorkspaceMode('recorded')
+  }
+
+  async function runLoadRecordedFixture(runId?: string) {
+    if (recordedRunBusy) return
+    const nextRunId = runId ?? recordedRuns?.runs[0]?.run_id ?? 'sample_recorded_drifted_twin'
+    setRecordedRunBusy(true)
+    setAppError('')
+    try {
+      const result = await loadRecordedRun(nextRunId)
+      setRecordedRunResult(result)
+      setRecordedStepResult(null)
+      applyRecordedState(result.state)
+      setSelectedDevice('BPM07-06')
+      setStatus(`Recorded fixture loaded: ${result.run_id} step ${result.loaded_step}.`)
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'unknown error'
+      setAppError(`Recorded fixture load failed: ${message}`)
+      setStatus(`Recorded fixture load failed: ${message}`)
+    } finally {
+      setRecordedRunBusy(false)
+    }
+  }
+
+  async function runEvaluateRecordedStep(step: number) {
+    if (recordedRunBusy) return
+    const runId = recordedRunResult?.run_id ?? recordedRuns?.runs[0]?.run_id ?? 'sample_recorded_drifted_twin'
+    setRecordedRunBusy(true)
+    setAppError('')
+    try {
+      const result = await evaluateRecordedRunStep(runId, step)
+      setRecordedStepResult(result)
+      applyRecordedState(result.state)
+      triggerEvent(result.decision_record.gate_decision.decision === 'BLOCK' ? 'blocked' : 'evaluating', 1300)
+      setStatus(`Recorded step ${result.step} evaluated: ${result.decision_record.gate_decision.decision}.`)
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'unknown error'
+      setAppError(`Recorded step evaluation failed: ${message}`)
+      setStatus(`Recorded step evaluation failed: ${message}`)
+    } finally {
+      setRecordedRunBusy(false)
+    }
+  }
+
+  async function refreshPublicDataSources() {
+    const sources = await fetchPublicDataSources()
+    setPublicDataSources(sources)
+    return sources
+  }
+
+  async function runImportPublicBoostR(path?: string) {
+    if (publicDataBusy) return
+    setPublicDataBusy(true)
+    setAppError('')
+    try {
+      const sources = publicDataSources ?? await refreshPublicDataSources()
+      const boostr = sources.sources.find((source) => source.dataset_id === 'boostr')
+      const requestedPath = path ?? boostr?.local_slices?.[0] ?? boostr?.default_local_path ?? 'backend/data/public_datasets/boostr/local_sample.csv'
+      const imported = await importBoostrLocal(requestedPath)
+      if (imported.import_status === 'NO_LOCAL_SLICE' || imported.decision === 'NO_LOCAL_SLICE') {
+        setPublicDataImport(null)
+        setPublicDataAnalysis(null)
+        setStatus('No local BOOSTR slice installed. Public Data Mode remains read-only and optional.')
+        await refreshPublicDataSources()
+        return
+      }
+      setPublicDataImport(imported)
+      setWorkspaceMode('public')
+      setReplayOpen(false)
+      setGuidedOpen(false)
+      setGuidedConfirmOpen(false)
+      setStatus(`BOOSTR local slice imported: ${imported.row_count} rows, ${imported.detected_numeric_signals.length} numeric signals.`)
+      await refreshPublicDataSources()
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'unknown error'
+      const statusCode = typeof error === 'object' && error !== null && 'response' in error
+        ? Number((error as { response?: { status?: number } }).response?.status)
+        : 0
+      setPublicDataImport(null)
+      if (statusCode === 404) {
+        setAppError('')
+      } else {
+        setAppError(`Public BOOSTR import failed: ${message}`)
+      }
+      setStatus('No local BOOSTR slice installed. Public Data Mode remains read-only and optional.')
+      try {
+        await refreshPublicDataSources()
+      } catch {
+        // Keep current UI stable if the status refresh also fails.
+      }
+    } finally {
+      setPublicDataBusy(false)
+    }
+  }
+
+  async function runEvaluatePublicBoostRWindow() {
+    if (publicDataBusy || !publicDataImport) return
+    setPublicDataBusy(true)
+    setAppError('')
+    try {
+      const artifact = await evaluateBoostrWindow(publicDataImport.run_id, 0, Math.min(100, publicDataImport.stored_row_count || 100))
+      setPublicDataAnalysis(artifact)
+      setWorkspaceMode('public')
+      setStatus(`BOOSTR public window analysis: ${artifact.decision}, anomaly ${artifact.anomaly_score.toFixed(2)}, trust ${artifact.trust_score.toFixed(2)}.`)
+      const [capabilities, version] = await Promise.all([fetchPlatformCapabilities(), fetchPlatformVersion()])
+      setPlatformCapabilities(capabilities)
+      setPlatformVersion(version)
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'unknown error'
+      setAppError(`Public BOOSTR window evaluation failed: ${message}`)
+      setStatus(`Public BOOSTR window evaluation failed: ${message}`)
+    } finally {
+      setPublicDataBusy(false)
+    }
+  }
+
   async function runEvidenceBundleExport() {
     try {
+      const diagnosis = buildGhostBeamDiagnosis(record, experiment)
       const result = await exportEvidenceBundle({
         guided_transcript: guidedTranscript as unknown as Record<string, unknown>[],
         frontend_metadata: {
@@ -383,6 +603,20 @@ function App() {
           judge_mode: judgeMode,
           latest_benchmark_id: benchmarkResult?.benchmark_id,
           latest_report_id: backendMissionReport?.report_id,
+          data_source: experiment?.data_source ?? 'synthetic_live_twin',
+          recorded_run_id: experiment?.recorded_run_id ?? recordedRunResult?.run_id,
+          public_data_mode: workspaceMode === 'public',
+          public_data_import: publicDataImport,
+          public_data_analysis: publicDataAnalysis,
+          public_data_sources: publicDataSources,
+          human_diagnosis: diagnosis ? {
+            summary: diagnosis.summary,
+            markdown: diagnosis.markdown,
+            timeline: diagnosis.timeline,
+            evidence_used: diagnosis.evidenceUsed,
+            decision: diagnosis.decision,
+            outcome: diagnosis.outcome,
+          } : null,
         },
       })
       setEvidenceBundle(result)
@@ -404,7 +638,7 @@ function App() {
     setAppError('')
     try {
       if (nextIndex === 0) {
-        const { state } = await chooseScenario('green_zone')
+        const { state } = await chooseScenario('green_zone', { preserveGuided: true })
         setSelectedDevice('BPM07-06')
         triggerEvent('applying', 1100)
         appendGuidedEntry(createTranscriptEntry({
@@ -416,7 +650,7 @@ function App() {
           record: state.latest_decision_record,
         }))
       } else if (nextIndex === 1) {
-        const { state } = await chooseScenario('drifted_twin')
+        const { state } = await chooseScenario('drifted_twin', { preserveGuided: true })
         setSelectedDevice('BPM07-06')
         triggerEvent('evaluating', 1300)
         appendGuidedEntry(createTranscriptEntry({
@@ -506,7 +740,7 @@ function App() {
           stepIndex: nextIndex,
           title: guidedDemoSteps[nextIndex].title,
           endpoint: 'POST /experiment/export',
-          note: 'Structured session artifact and latest DecisionRecord are ready for judge inspection.',
+          note: 'Structured session artifact, Decision Record, Diagnosis, and Evidence Bundle are ready for judge inspection.',
           state,
           record: state.latest_decision_record,
         }))
@@ -531,6 +765,7 @@ function App() {
     setMissionReport(null)
     setReportNotice('')
     setGuidedOpen(true)
+    setWorkspaceMode('guided')
     setGuidedPlaying(false)
     await runGuidedStep(0)
     if (autoPlay) setGuidedPlaying(true)
@@ -542,9 +777,7 @@ function App() {
       if (next) {
         setThemeMode('dark')
         setTwinLightingMode('presentation')
-        setGuidedOpen(true)
-        if (!guidedTranscript.length) void resetGuidedDemo(false)
-        setStatus('Judge Demo Mode enabled: dark theme, presentation lighting, guided controller visible.')
+        setStatus('Judge Demo Mode enabled: dark theme and presentation lighting. Click Guided to start the Drifted Twin Test.')
       } else {
         setStatus('Judge Demo Mode disabled; live experiment state preserved.')
       }
@@ -553,7 +786,12 @@ function App() {
   }
 
   async function generateMissionReport() {
-    const report = buildGuidedDemoReport(guidedTranscript, record, experiment)
+    const diagnosis = buildGhostBeamDiagnosis(record, experiment)
+    const report = buildGuidedDemoReport(guidedTranscript, record, experiment, diagnosis ? {
+      summary: diagnosis.summary,
+      timeline: diagnosis.timeline,
+      markdown: diagnosis.markdown,
+    } : null)
     setMissionReport(report)
     setBackendMissionReport(null)
     setReportNotice('Generating backend mission report artifact...')
@@ -567,6 +805,7 @@ function App() {
           theme_mode: themeMode,
           twin_lighting_mode: twinLightingMode,
           judge_mode: judgeMode,
+          human_diagnosis: diagnosis,
         },
       })
       setBackendMissionReport(backendReport)
@@ -733,13 +972,15 @@ function App() {
   function clearLocalUiStateFromSettings() {
     clearGhostBeamLocalUiState()
     setThemeMode('dark')
-    setTwinLightingMode('control-room')
+    setTwinLightingMode('auto')
     setJudgeMode(false)
     setGuidedOpen(false)
+    setGuidedConfirmOpen(false)
     setReplayOpen(false)
     setBenchmarkOpen(false)
     setHealthOpen(false)
     setNavPanel(null)
+    setWorkspaceMode('live')
     setAppError('')
     setStatus('Local UI state cleared. Live experiment data was not modified.')
   }
@@ -753,21 +994,30 @@ function App() {
         setBackendConnected(true)
         const items = await fetchScenarios()
         try {
-          const [adapters, capabilities, manifest, version] = await Promise.all([
+          const [adapters, capabilities, manifest, version, recorded, publicSources, dataSources] = await Promise.all([
             fetchPlatformAdapters(),
             fetchPlatformCapabilities(),
             fetchSyntheticDataManifest(),
             fetchPlatformVersion(),
+            fetchRecordedRuns(),
+            fetchPublicDataSources(),
+            fetchDataSourcesRegistry(),
           ])
           setPlatformAdapters(adapters)
           setPlatformCapabilities(capabilities)
           setSyntheticManifest(manifest)
           setPlatformVersion(version)
+          setRecordedRuns(recorded)
+          setPublicDataSources(publicSources)
+          setDataSourcesRegistry(dataSources)
         } catch {
           setPlatformAdapters(null)
           setPlatformCapabilities(null)
           setSyntheticManifest(null)
           setPlatformVersion(null)
+          setRecordedRuns(null)
+          setPublicDataSources(null)
+          setDataSourcesRegistry(null)
         }
         setScenarios(items)
         const defaultScenario = items.find((item) => item.scenario_id === 'green_zone')?.scenario_id
@@ -838,6 +1088,18 @@ function App() {
   }, [guidedOpen, guidedPlaying, guidedBusy, guidedStep])
 
   const uiBusy = Boolean(pendingAction || guidedBusy || healthBusy)
+  const currentModeLabel = guidedOpen || workspaceMode === 'guided'
+    ? 'Guided Drifted Twin Test'
+    : workspaceMode === 'public'
+      ? 'Public Data'
+      : workspaceMode === 'recorded' || experiment?.data_source === 'recorded_fixture'
+        ? 'Recorded Fixture'
+        : 'Live Scenario'
+  const currentScenarioLabel = workspaceMode === 'public'
+    ? (publicDataAnalysis ? `BOOSTR window ${publicDataAnalysis.decision}` : publicDataImport ? 'BOOSTR local slice loaded' : 'BOOSTR adapter')
+    : experiment?.data_source === 'recorded_fixture'
+      ? `Recorded Fixture${experiment.recorded_step !== null && experiment.recorded_step !== undefined ? ` step ${experiment.recorded_step}` : ''}`
+      : selected?.scenario_id ?? experiment?.scenario_id ?? 'green_zone'
 
   return (
     <main className={`app-shell ${judgeMode ? 'judge-mode' : ''}`}>
@@ -848,17 +1110,14 @@ function App() {
       />
       <TopBar
         record={record}
-        selectedScenarioId={selected?.scenario_id}
+        selectedScenarioId={experiment?.scenario_id ?? selected?.scenario_id}
         scenarios={scenarios}
         backendConnected={backendConnected}
         themeMode={themeMode}
         judgeMode={judgeMode}
-        onThemeModeChange={setThemeMode}
+        onThemeModeChange={handleThemeModeChange}
         onScenarioChange={(scenarioId) => void runUiAction('Start scenario', () => chooseScenario(scenarioId))}
-        onRunGuidedDemo={() => {
-          setGuidedOpen(true)
-          void runGuidedStep(0)
-        }}
+        onRunGuidedDemo={openGuidedDemo}
         onJudgeDemoMode={enableJudgeDemoMode}
         onRunHealthCheck={() => void runDemoHealthCheck()}
       />
@@ -914,7 +1173,8 @@ function App() {
                 onReset={() => void runUiAction('Reset scenario', () => runReset())}
                 currentEvent={currentEvent}
                 twinLightingMode={twinLightingMode}
-                onTwinLightingModeChange={setTwinLightingMode}
+                onTwinLightingModeChange={handleTwinLightingModeChange}
+                onResetTwinAppearance={resetTwinAppearance}
                 appTheme={resolvedTheme}
                 busy={uiBusy}
                 judgeMode={judgeMode}
@@ -923,7 +1183,7 @@ function App() {
           </ErrorBoundary>
         </div>
 
-        <aside className="right-rail">
+        <aside className="right-rail" ref={rightRailRef}>
           <DecisionSummaryCard
             record={record}
             experiment={experiment}
@@ -931,6 +1191,7 @@ function App() {
             onCalibrate={() => void runUiAction('Calibration', () => runCalibration())}
             currentEvent={currentEvent}
             busy={uiBusy}
+            readOnlyMode={workspaceMode === 'public'}
           />
           <ExperimentControlPanel
             experiment={experiment}
@@ -943,11 +1204,36 @@ function App() {
             onCalibrate={() => void runUiAction('Calibration', () => runCalibration())}
             onReset={() => void runUiAction('Reset scenario', () => runReset())}
             onExportSession={() => void runUiAction('Export session', () => runExportSession())}
-            onStartGuidedDemo={() => {
-              setGuidedOpen(true)
-              void runGuidedStep(0)
-            }}
+            onStartGuidedDemo={openGuidedDemo}
             busy={uiBusy}
+            guidedConfirmOpen={guidedConfirmOpen}
+            modeLabelOverride={currentModeLabel}
+            scenarioLabelOverride={currentScenarioLabel}
+            readOnlyMode={workspaceMode === 'public'}
+            guidedActive={guidedOpen}
+            guidedSteps={guidedDemoSteps}
+            guidedStep={guidedStep}
+            guidedPlaying={guidedPlaying}
+            guidedBusy={guidedBusy}
+            guidedReportReady={Boolean(missionReport)}
+            guidedReportNotice={reportNotice}
+            onGuidedNext={() => void advanceGuided(1)}
+            onGuidedPrevious={() => void advanceGuided(-1)}
+            onGuidedAutoPlay={() => setGuidedPlaying(true)}
+            onGuidedPause={() => setGuidedPlaying(false)}
+            onGuidedReset={() => void resetGuidedDemo(false)}
+            onGuidedGenerateReport={() => { void generateMissionReport() }}
+            onGuidedConfirmStart={startGuidedDemo}
+            onGuidedCancel={() => {
+              setGuidedConfirmOpen(false)
+              setStatus('Guided Demo cancelled; live scenario mode preserved.')
+            }}
+            onGuidedExit={() => {
+              setGuidedOpen(false)
+              setGuidedPlaying(false)
+              setGuidedConfirmOpen(false)
+              setWorkspaceMode('live')
+            }}
           />
           <TrustGateCard
             record={record}
@@ -961,7 +1247,9 @@ function App() {
           <TwinStateCard record={record} currentEvent={currentEvent} />
           <ScenarioPicker
             scenarios={scenarios}
-            selectedId={selected?.scenario_id ?? ''}
+            selectedId={workspaceMode === 'live' ? selected?.scenario_id ?? '' : ''}
+            modeLabel={currentModeLabel}
+            currentScenarioLabel={currentScenarioLabel}
             onSelect={(id) => void chooseScenario(id)}
           />
         </aside>
@@ -994,6 +1282,25 @@ function App() {
         platformCapabilities={platformCapabilities}
         platformVersion={platformVersion}
         syntheticManifest={syntheticManifest}
+        recordedRuns={recordedRuns}
+        recordedRunResult={recordedRunResult}
+        recordedStepResult={recordedStepResult}
+        recordedRunBusy={recordedRunBusy}
+        publicDataSources={publicDataSources}
+        dataSourcesRegistry={dataSourcesRegistry}
+        publicDataImport={publicDataImport}
+        publicDataAnalysis={publicDataAnalysis}
+        publicDataBusy={publicDataBusy}
+        onRefreshPublicDataSources={() => {
+          void runUiAction('Refresh public data sources', async () => {
+            await refreshPublicDataSources()
+            setStatus('Public data source registry refreshed.')
+          })
+        }}
+        onImportPublicData={() => { void runImportPublicBoostR() }}
+        onEvaluatePublicDataWindow={() => { void runEvaluatePublicBoostRWindow() }}
+        onLoadRecordedRun={(runId) => void runLoadRecordedFixture(runId)}
+        onEvaluateRecordedStep={(step) => void runEvaluateRecordedStep(step)}
         onClearLocalUiState={clearLocalUiStateFromSettings}
         onClose={() => setNavPanel(null)}
         onOpenPolicy={() => {
@@ -1009,38 +1316,6 @@ function App() {
         onOpenDecisionRecord={() => {
           setEvidenceOpen(false)
           setJsonOpen(true)
-        }}
-      />
-      <GuidedDemoPanel
-        open={guidedOpen}
-        steps={guidedDemoSteps}
-        activeStep={guidedStep}
-        playing={guidedPlaying}
-        busy={guidedBusy}
-        transcript={guidedTranscript}
-        reportReady={Boolean(missionReport)}
-        reportNotice={reportNotice}
-        onNext={() => void advanceGuided(1)}
-        onPrevious={() => void advanceGuided(-1)}
-        onAutoPlay={() => setGuidedPlaying(true)}
-        onPause={() => setGuidedPlaying(false)}
-        onReset={() => void resetGuidedDemo(false)}
-        onReplayFromStart={() => void resetGuidedDemo(true)}
-        onGoToStep={(index) => void runGuidedStep(index)}
-        onGenerateReport={() => { void generateMissionReport() }}
-        onDownloadMarkdown={downloadMissionReportMarkdown}
-        onDownloadJson={downloadMissionReportJson}
-        onCopySummary={() => void copyMissionReportSummary()}
-        onRunHealthCheck={() => void runDemoHealthCheck()}
-        onRunBenchmark={() => {
-          setBenchmarkOpen(true)
-          void runBenchmarkPanel()
-        }}
-        onLoadReplay={() => void openReplayMode()}
-        onExportEvidenceBundle={() => void runEvidenceBundleExport()}
-        onExit={() => {
-          setGuidedOpen(false)
-          setGuidedPlaying(false)
         }}
       />
       <BenchmarkPanel

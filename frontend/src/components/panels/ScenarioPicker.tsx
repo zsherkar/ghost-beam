@@ -4,14 +4,29 @@ import { scenarioLabel } from '../../utils/format'
 interface Props {
   scenarios: ScenarioSummary[]
   selectedId: string
+  modeLabel: string
+  currentScenarioLabel: string
   onSelect: (scenarioId: string) => void
 }
 
-function ScenarioPicker({ scenarios = [], selectedId, onSelect }: Props) {
+function ScenarioPicker({ scenarios = [], selectedId, modeLabel, currentScenarioLabel, onSelect }: Props) {
   const safeScenarios = Array.isArray(scenarios) ? scenarios : []
   return (
-    <section className="glass-card scenario-card">
-      <h2>Scenario</h2>
+    <section className="glass-card scenario-panel">
+      <div className="card-header">
+        <h2>Scenario</h2>
+        <span className="step-pill">{modeLabel}</span>
+      </div>
+      <div className="scenario-status-grid">
+        <div>
+          <span>Current Mode</span>
+          <strong>{modeLabel}</strong>
+        </div>
+        <div>
+          <span>Current Scenario</span>
+          <strong>{scenarioLabel(currentScenarioLabel)}</strong>
+        </div>
+      </div>
       <div className="scenario-list">
         {safeScenarios.length === 0 && <p className="scenario-empty">Backend scenarios unavailable.</p>}
         {safeScenarios.map((scenario) => (
