@@ -1,1 +1,0 @@
-Create a beam position monitor GLB asset. It should be a thin ring sensor around a beam pipe with four small pickup pads, small cable ports, and a restrained brushed-metal finish. The aperture should be centered at the origin so it aligns with the Ghost Beam beam pipe.

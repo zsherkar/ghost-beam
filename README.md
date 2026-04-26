@@ -4,13 +4,11 @@
 
 Ghost Beam gates autonomous accelerator actions using digital-twin trust, uncertainty/OOD scoring, eLog memory, hard safety limits, and evidence-producing policy decisions.
 
-**Proprietary demo. All rights reserved. No license is granted.** See [Copyright and use restrictions](#copyright-and-use-restrictions).
-
 ![Ghost Beam guided Drifted Twin Test](docs/screenshots/final_guided_inline_dark.png)
 
 ## Opening Story
 
-Accelerator user facilities are entering the Genesis Mission era: digital twins are no longer just visual replicas of machines, but potential operators of scientific infrastructure. Berkeley Lab has described an ALS/ALS-U injector effort where a virtual diagnostic could estimate beam quality without perturbing the beam or interrupting user operations, eventually supporting an agentic assistant that keeps an aging, drifting injector optimized. Ghost Beam starts from the risk hidden inside that vision: if an autonomous optimizer trusts a stale or uncertain twin, it can confidently suggest the wrong machine action. Ghost Beam is a trust-and-memory gate for that moment. It checks digital-twin confidence, uncertainty/OOD, beam diagnostics, historical eLog evidence, hard PV limits, and calibration state before a proposed accelerator action is approved, shrunk, held for review, calibrated, or blocked — producing both a machine-readable Decision Record and a human-readable Diagnosis so labs get safer autonomy, fewer unnecessary interruptions, and a reusable evidence trail.
+Accelerator user facilities are entering the Genesis Mission era: digital twins are no longer just visual replicas of machines, but potential operators of scientific infrastructure. Berkeley Lab has described an ALS/ALS-U injector effort where a virtual diagnostic could estimate beam quality without perturbing the beam or interrupting user operations, eventually supporting an agentic assistant that keeps an aging, drifting injector optimized. Ghost Beam starts from the risk hidden inside that vision: if an autonomous optimizer trusts a stale or uncertain twin, it can confidently suggest the wrong machine action. Ghost Beam is a trust-and-memory gate for that moment. It checks digital-twin confidence, uncertainty/OOD, beam diagnostics, historical eLog evidence, hard PV limits, and calibration state before a proposed accelerator action is approved, shrunk, held for review, calibrated, or blocked - producing both a machine-readable Decision Record and a human-readable Diagnosis so labs get safer autonomy, fewer unnecessary interruptions, and a reusable evidence trail.
 
 Ghost Beam is a local, synthetic, no-hardware prototype. It demonstrates the control architecture safely; it does not operate real accelerator hardware.
 
@@ -300,7 +298,7 @@ Ghost Beam exports:
 - Frictionless validation status.
 - Platform readiness/version metadata.
 
-Packaging examples are indexed in [packaging/artifacts/ARTIFACTS_INDEX.md](packaging/artifacts/ARTIFACTS_INDEX.md).
+Evidence Bundle contents are documented in [docs/artifact_schema.md](docs/artifact_schema.md). Local generated evidence bundles are intentionally ignored by git by default.
 
 ## Quickstart
 
@@ -360,7 +358,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\run_smoke.ps1
 10. Export Evidence Bundle.
 11. Open Settings / Data Sources & Provenance to show the core and external data layers.
 
-Full demo script: [DEMO_ASSET_PACKET.md](DEMO_ASSET_PACKET.md)
+Full demo click path: [docs/final_demo_click_path.md](docs/final_demo_click_path.md)
 
 ## API Surface
 

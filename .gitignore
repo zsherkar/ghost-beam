@@ -1,23 +1,133 @@
-.venv/
+# dependency folders
 node_modules/
-.env
-*.pyc
-__pycache__/
-.pytest_cache/
-.tmp/
-.tmp-chrome-qa*/
-.pip-cache/
-.npm-cache/
+frontend/node_modules/
+.venv/
+venv/
+env/
 backend/.deps/
-.mypy_cache/
-.ruff_cache/
+
+# build outputs
+frontend/dist/
 dist/
 build/
-frontend/dist/
-backend/artifacts_output/
+*.tsbuildinfo
+
+# Python caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.pip-cache/
+
+# Vite / npm / package caches
+frontend/node_modules/.vite/
+.npm-cache/
+.pnpm-store/
+.yarn/
+.yarn-cache/
+
+# logs
+*.log
+.logs/
+logs/
+
+# local env / secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+/secrets.*
+/credentials.*
+/token*
+/tokens*
+/api_key*
+/apikey*
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# temporary browser QA profiles and automation scratch
+.tmp/
+.tmp-*/
+.tmp-chrome-qa*/
+chrome-qa*/
+playwright-report/
+test-results/
+
+# generated local artifacts that should not be public by default
 backend/artifacts/reports/
 backend/artifacts/benchmarks/
 backend/artifacts/evidence_bundles/
-backend/.coverage
-*.log
+backend/artifacts/*.json
+backend/artifacts/*.md
+backend/artifacts_output/
+packaging/artifacts/
+*.zip
+
+# full or local public datasets
+backend/data/public_datasets/boostr/*.csv
+backend/data/public_datasets/boostr/*.parquet
+backend/data/public_datasets/boostr/*.zip
+backend/data/public_datasets/boostr/*.h5
+backend/data/public_datasets/boostr/*.hdf5
+backend/data/public_datasets/fermilab_bpm_ipm/*.csv
+backend/data/public_datasets/fermilab_bpm_ipm/*.parquet
+backend/data/public_datasets/fermilab_bpm_ipm/*.zip
+backend/data/public_datasets/fermilab_bpm_ipm/*.h5
+backend/data/public_datasets/fermilab_bpm_ipm/*.hdf5
+
+# keep manifests and placeholders
+!backend/data/public_datasets/**/README.md
+!backend/data/public_datasets/**/*.json
+!backend/data/public_datasets/**/.gitkeep
+
+# internal prompts / planning packets / Codex scratch
+AGENTS.md
+Updates.md
+README_DRAFT_INPUTS.md
+README_FINAL_OUTLINE.md
+DEMO_ASSET_PACKET.md
+VISUAL_ASSET_INVENTORY.md
+GITHUB_RELEASE_CHECKLIST.md
+GITHUB_PUSH_COMMANDS.md
+PREVIEW_URLS.md
+docs/copy_safety_audit.md
+Pasted text*.txt
+*pasted*.txt
+*prompt*.md
+*Prompt*.md
+*scratch*.md
+*notes*.md
+*planning*.md
+*source-packet*.md
+*SOURCE_PACKET*.md
+
+# optional local CAD/generated heavy outputs
+cad/generated/
+*.step
+*.stl
+*.dxf
+*.glb
+*.gltf
+
+# important exception: keep curated README screenshots and GIFs
+!docs/screenshots/*.png
+!docs/screenshots/*.jpg
+!docs/screenshots/*.jpeg
+!docs/gifs/*.gif
+!docs/gifs/README.md
+
+# local trash
 .project-trash/

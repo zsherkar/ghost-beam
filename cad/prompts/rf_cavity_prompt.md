@@ -1,1 +1,0 @@
-Create an RF cavity GLB asset for a compact electron injector. The object should be a short metallic cylinder stack with three rounded cavity cells, copper-gray material, ring seams, and a centered beam pipe aperture. Keep it low-poly enough for a browser demo while still recognizable as an accelerator RF cavity.
