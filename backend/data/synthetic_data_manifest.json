@@ -1,0 +1,53 @@
+{
+  "manifest_version": "0.1.0",
+  "name": "Ghost Beam Synthetic Accelerator-Control Data Manifest",
+  "generated_for": "Ghost Beam local MVP",
+  "generator": "JAX transfer-matrix digital twin with deterministic synthetic diagnostics",
+  "data_classes": {
+    "machine_settings": [
+      "quad_1",
+      "quad_2",
+      "steer_x",
+      "steer_y",
+      "rf_phase",
+      "rf_amplitude"
+    ],
+    "safe_signals": [
+      "bpm_x_1",
+      "bpm_y_1",
+      "bpm_x_2",
+      "bpm_y_2",
+      "charge",
+      "temperature",
+      "rf_readback",
+      "beam_current_proxy"
+    ],
+    "hidden_outputs": [
+      "beam_quality",
+      "beam_size_x",
+      "beam_size_y",
+      "beam_loss",
+      "emittance_proxy"
+    ],
+    "beam_profile_images": "Generated synthetic 2D heatmaps from the local twin.",
+    "elog_corpus": "Synthetic operator-memory rows stored in backend/data/elogs.csv."
+  },
+  "synthetic_elog_entries": 50,
+  "scenarios": [
+    "green_zone",
+    "drifted_twin",
+    "elog_conflict",
+    "unsafe_write",
+    "calibration_recovery"
+  ],
+  "provenance_disclosure": "No real ALS, SLAC, Fermilab, Jefferson Lab, EPICS, camera, beamline, or facility eLog data are included.",
+  "hardware_disclosure": "No real hardware is connected. EPICS support is a disabled stub in this MVP.",
+  "privacy_disclosure": "No personal operator data, private logs, credentials, telemetry, or browser history are included.",
+  "replacement_path": [
+    "Replace SimulatedEPICS with a facility-approved read-only adapter.",
+    "Map approved process variables into MachineSettings and SafeSignals.",
+    "Train virtual diagnostics on approved facility data.",
+    "Review eLog ingestion for privacy and facility policy.",
+    "Keep writes disabled until a hardware-safety gate approves them."
+  ]
+}

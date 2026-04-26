@@ -1,0 +1,1 @@
+Create an OTR diagnostic screen GLB asset for an accelerator beamline. It should include a tilted translucent square screen, compact insertion frame, and a small camera mount. The screen should be visually readable from an angled control-room camera and work as a browser-friendly GLB.

@@ -1,0 +1,16 @@
+scenario_id: green_zone
+description: Safe in-envelope tune where Ghost Beam enables autonomy.
+drift: 0.0
+current_settings:
+  quad_1: 0.36
+  quad_2: -0.26
+  steer_x: 0.0
+  steer_y: 0.0
+  rf_phase: 0.45
+  rf_amplitude: 1.0
+proposed_action:
+  intent: small green-envelope quad_1 trim
+  delta_settings:
+    quad_1: 0.03
+  source: scenario
+expected_behavior: trust_state GREEN and decision APPROVE.

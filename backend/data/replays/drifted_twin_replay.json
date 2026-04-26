@@ -1,0 +1,62 @@
+{
+  "replay_id": "ghostbeam-drifted-twin-demo-replay",
+  "artifact_type": "synthetic_replay",
+  "created_for": "Ghost Beam Drifted Twin Test",
+  "disclosure": "Replay artifact generated from synthetic Ghost Beam scenarios. It is not a live facility record.",
+  "sequence": [
+    {
+      "step": 1,
+      "title": "Nominal Baseline",
+      "scenario_id": "green_zone",
+      "expected_decision": "APPROVE",
+      "expected_trust": "GREEN",
+      "operator_story": "The L1 Transfer Line begins in a trusted, calibrated state."
+    },
+    {
+      "step": 2,
+      "title": "Drift Appears",
+      "scenario_id": "drifted_twin",
+      "expected_decision": "REQUEST_CALIBRATION",
+      "expected_trust": "RED",
+      "operator_story": "Beam profile becomes diffuse/off-axis and the virtual diagnostic moves outside its trust envelope."
+    },
+    {
+      "step": 3,
+      "title": "Naive Proposal",
+      "proposed_action": {
+        "intent": "naive optimizer increase quad_2 focusing",
+        "source": "optimizer",
+        "delta_settings": {
+          "quad_2": 0.22
+        }
+      },
+      "operator_story": "A naive optimizer would try to correct the diffuse beam with more quadrupole focusing."
+    },
+    {
+      "step": 4,
+      "title": "Ghost Beam Evaluation",
+      "expected_decision": "REQUEST_CALIBRATION",
+      "top_elog_evidence": "Diffuse beam after RF phase drift",
+      "operator_story": "Ghost Beam checks OOD, uncertainty, vision, eLog memory, and policy before any simulated write."
+    },
+    {
+      "step": 5,
+      "title": "Calibration",
+      "expected_effect": "OOD decreases after synthetic screen measurement",
+      "operator_story": "The calibration screen refreshes model trust near the current machine state."
+    },
+    {
+      "step": 6,
+      "title": "Safer Correction",
+      "proposed_action": {
+        "intent": "correct RF phase after calibration verification",
+        "source": "human",
+        "delta_settings": {
+          "rf_phase": -0.35
+        }
+      },
+      "expected_decision": "APPROVE_SMALL_STEP",
+      "operator_story": "After calibration, Ghost Beam permits a smaller RF correction instead of the naive quadrupole push."
+    }
+  ]
+}

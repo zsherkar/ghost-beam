@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ghost-beam.local/schemas/decision_record.schema.json",
+  "title": "Ghost Beam DecisionRecord",
+  "description": "Machine-readable Ghost Beam gate decision over synthetic accelerator-control data.",
+  "schema_version": "0.1.0",
+  "type": "object",
+  "required": [
+    "scenario_id",
+    "current_settings",
+    "safe_signals",
+    "proposed_action",
+    "virtual_diagnostic",
+    "vision_diagnostic",
+    "elog_hits",
+    "gate_decision"
+  ],
+  "properties": {
+    "scenario_id": { "type": "string" },
+    "current_settings": { "$ref": "#/$defs/MachineSettings" },
+    "safe_signals": { "type": "object" },
+    "proposed_action": { "$ref": "#/$defs/ProposedAction" },
+    "virtual_diagnostic": {
+      "type": "object",
+      "required": ["predicted_quality", "uncertainty", "ood_score", "trust_state", "reasons"],
+      "properties": {
+        "predicted_quality": { "type": "number" },
+        "predicted_size_x": { "type": "number" },
+        "predicted_size_y": { "type": "number" },
+        "predicted_beam_loss": { "type": "number" },
+        "uncertainty": { "type": "number" },
+        "ood_score": { "type": "number" },
+        "trust_state": { "enum": ["GREEN", "YELLOW", "RED"] },
+        "reasons": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": true
+    },
+    "vision_diagnostic": { "type": "object", "additionalProperties": true },
+    "elog_hits": { "type": "array", "items": { "type": "object", "additionalProperties": true } },
+    "gate_decision": {
+      "type": "object",
+      "required": ["decision", "reasons", "safe_next_step", "human_approval_required"],
+      "properties": {
+        "decision": {
+          "enum": [
+            "APPROVE",
+            "APPROVE_SMALL_STEP",
+            "REQUIRE_HUMAN_REVIEW",
+            "REQUEST_CALIBRATION",
+            "BLOCK"
+          ]
+        },
+        "reasons": { "type": "array", "items": { "type": "string" } },
+        "safe_next_step": { "type": "string" },
+        "human_approval_required": { "type": "boolean" },
+        "approved_delta_settings": { "type": "object", "additionalProperties": { "type": "number" } },
+        "blocked_delta_settings": { "type": "object", "additionalProperties": { "type": "number" } }
+      },
+      "additionalProperties": true
+    },
+    "simulated_outcome_if_applied": { "type": ["object", "null"], "additionalProperties": true }
+  },
+  "$defs": {
+    "MachineSettings": {
+      "type": "object",
+      "required": ["quad_1", "quad_2", "steer_x", "steer_y", "rf_phase", "rf_amplitude"],
+      "properties": {
+        "quad_1": { "type": "number" },
+        "quad_2": { "type": "number" },
+        "steer_x": { "type": "number" },
+        "steer_y": { "type": "number" },
+        "rf_phase": { "type": "number" },
+        "rf_amplitude": { "type": "number" }
+      },
+      "additionalProperties": false
+    },
+    "ProposedAction": {
+      "type": "object",
+      "required": ["intent", "delta_settings", "source"],
+      "properties": {
+        "intent": { "type": "string" },
+        "delta_settings": { "type": "object", "additionalProperties": { "type": "number" } },
+        "source": { "enum": ["human", "llm", "optimizer", "scenario"] }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": true
+}

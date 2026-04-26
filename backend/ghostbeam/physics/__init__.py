@@ -1,0 +1,1 @@
+"""Synthetic accelerator physics core."""

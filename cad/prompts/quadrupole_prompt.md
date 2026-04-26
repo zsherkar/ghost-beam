@@ -1,0 +1,1 @@
+Create a compact accelerator quadrupole magnet as a GLB asset. It should have four symmetric pole blocks around a central beam pipe aperture, matte green-gray metal panels, subtle bolt detail, and a clean control-room instrument look. Keep the origin at the center of the aperture and use real-world proportions suitable for a small injector beamline.

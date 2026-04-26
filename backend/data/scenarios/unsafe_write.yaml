@@ -1,0 +1,16 @@
+scenario_id: unsafe_write
+description: Proposed action violates a hard quadrupole limit.
+drift: 0.0
+current_settings:
+  quad_1: 1.95
+  quad_2: -0.25
+  steer_x: 0.0
+  steer_y: 0.0
+  rf_phase: 0.4
+  rf_amplitude: 1.0
+proposed_action:
+  intent: unsafe large quad_1 increase
+  delta_settings:
+    quad_1: 0.2
+  source: scenario
+expected_behavior: hard bound violation and decision BLOCK.

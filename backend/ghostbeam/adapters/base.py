@@ -1,0 +1,13 @@
+from __future__ import annotations
+
+from typing import Protocol
+
+
+class AcceleratorAdapter(Protocol):
+    def read_pv(self, name: str) -> float: ...
+
+    def write_pv(self, name: str, value: float) -> None: ...
+
+    def get_limits(self, name: str) -> dict: ...
+
+    def snapshot(self) -> dict: ...

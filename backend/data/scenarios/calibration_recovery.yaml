@@ -1,0 +1,16 @@
+scenario_id: calibration_recovery
+description: Drifted state initially requests calibration then allows a smaller RF correction after synthetic calibration.
+drift: 1.2
+current_settings:
+  quad_1: 0.36
+  quad_2: -0.27
+  steer_x: 0.0
+  steer_y: 0.0
+  rf_phase: 0.45
+  rf_amplitude: 1.0
+proposed_action:
+  intent: correct RF phase after calibration recovery
+  delta_settings:
+    rf_phase: 0.8
+  source: scenario
+expected_behavior: before calibration REQUEST_CALIBRATION then after calibration APPROVE_SMALL_STEP or APPROVE.
