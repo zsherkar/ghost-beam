@@ -181,9 +181,9 @@ flowchart LR
 - Local launch and smoke scripts.
 - Local-only safety boundary.
 
-## Screenshots and GIFs
+## Screenshots
 
-These are the captured release screenshots currently embedded in the README.
+These are the release screenshots currently embedded in the README.
 
 ### Dark Guided Twin View
 
@@ -196,18 +196,6 @@ These are the captured release screenshots currently embedded in the README.
 ### Light Theme Twin View
 
 ![Ghost Beam light theme guided demo](docs/screenshots/final_guided_inline_light.png)
-
-### Recommended GIFs to Capture
-
-GIF files are not linked here until they exist. Capture instructions live in [docs/gifs/README.md](docs/gifs/README.md).
-
-| Suggested GIF | What to capture |
-| --- | --- |
-| `guided_drifted_twin_test.gif` | Guided Demo from Naive Proposal through Calibration and Safer Correction. |
-| `decision_record_diagnosis.gif` | Decision Record drawer, Diagnosis tab, evidence timeline, JSON tab. |
-| `benchmark_run.gif` | Benchmark run and summary metrics. |
-| `evidence_bundle_export.gif` | Evidence Bundle export action. |
-| `data_sources_panel.gif` | Settings to Data Sources & Provenance. |
 
 ## Data Sources
 
@@ -460,20 +448,6 @@ External data sources cannot apply actions or write to hardware.
 - EPICS/Archiver connectors are stubs only and do not connect to networks.
 - 3D beamline geometry is procedural, not CAD/GLB.
 - Vite still warns that the lazy-loaded Three/R3F scene chunk is larger than 500 kB.
-- Full projector-width screenshots should still be captured manually before final recording.
-
-## Future Work
-
-- Facility-approved read-only EPICS Archiver integration.
-- Facility-trained virtual diagnostics.
-- Real facility eLog connector with privacy review.
-- Actual local BOOSTR slice example.
-- Osprey-compatible pre-action trust-gate wrapper.
-- Xopt integration where Xopt proposes and Ghost Beam gates.
-- openPMD/openPMD-beamphysics import/export.
-- Signed evidence bundles and stronger RO-Crate generation.
-- CAD/GLB hardware assets.
-- Full external projector QA and final screen recording.
 
 ## Copyright and Use Restrictions
 
