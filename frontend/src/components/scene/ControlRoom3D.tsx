@@ -43,6 +43,22 @@ type TwinLightingMode = 'control-room' | 'inspection' | 'presentation'
 type ExperimentEventState = 'evaluating' | 'calibrating' | 'applying' | 'blocked' | null
 type CameraCommand = { kind: 'reset' | 'zoom-in' | 'zoom-out'; nonce: number } | null
 
+function safeLocalStorageGet(key: string): string | null {
+  try {
+    return window.localStorage.getItem(key)
+  } catch {
+    return null
+  }
+}
+
+function safeLocalStorageSet(key: string, value: string) {
+  try {
+    window.localStorage.setItem(key, value)
+  } catch {
+    // HUD state persistence must not be able to crash the 3D twin.
+  }
+}
+
 const lightingConfigs: Record<TwinLightingMode, {
   background: string
   fogColor: string
@@ -634,7 +650,7 @@ function ControlRoom3D({
   const [viewPreset, setViewPreset] = useState<ViewPreset>('isometric')
   const [labelMode, setLabelMode] = useState<LabelMode>('active')
   const [twinMode, setTwinMode] = useState<TwinMode>('physical')
-  const [viewExpanded, setViewExpanded] = useState(() => window.localStorage.getItem('ghost-beam-view-hud') === 'expanded')
+  const [viewExpanded, setViewExpanded] = useState(() => safeLocalStorageGet('ghost-beam-view-hud') === 'expanded')
   const [cameraCommand, setCameraCommand] = useState<CameraCommand>(null)
   const [autoRotate, setAutoRotate] = useState(false)
   const [hoveredDevice, setHoveredDevice] = useState<string | null>(null)
@@ -651,7 +667,7 @@ function ControlRoom3D({
   }, [judgeMode])
 
   useEffect(() => {
-    window.localStorage.setItem('ghost-beam-view-hud', viewExpanded ? 'expanded' : 'collapsed')
+    safeLocalStorageSet('ghost-beam-view-hud', viewExpanded ? 'expanded' : 'collapsed')
   }, [viewExpanded])
 
   useEffect(() => {

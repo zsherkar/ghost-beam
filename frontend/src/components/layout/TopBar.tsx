@@ -25,7 +25,7 @@ const themeOrder: ThemeMode[] = ['dark', 'light', 'system']
 function TopBar({
   record,
   selectedScenarioId,
-  scenarios,
+  scenarios = [],
   backendConnected,
   themeMode,
   judgeMode,
@@ -40,6 +40,7 @@ function TopBar({
   const ThemeIcon = themeMode === 'light' ? Sun : themeMode === 'system' ? Monitor : Moon
   const nextTheme = themeOrder[(themeOrder.indexOf(themeMode) + 1) % themeOrder.length]
   const [clock, setClock] = useState(() => formatLocalDateTime(new Date()))
+  const safeScenarios = Array.isArray(scenarios) ? scenarios : []
 
   useEffect(() => {
     const timer = window.setInterval(() => {
@@ -78,9 +79,10 @@ function TopBar({
           <select
             aria-label="Scenario"
             value={selectedScenarioId ?? ''}
+            disabled={!safeScenarios.length}
             onChange={(event) => onScenarioChange(event.currentTarget.value)}
           >
-            {scenarios.map((scenario) => (
+            {safeScenarios.map((scenario) => (
               <option key={scenario.scenario_id} value={scenario.scenario_id}>
                 {scenarioLabel(scenario.scenario_id)}
               </option>

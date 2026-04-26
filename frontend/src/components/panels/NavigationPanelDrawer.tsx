@@ -18,6 +18,7 @@ interface Props {
   platformCapabilities?: PlatformCapabilitiesResponse | null
   platformVersion?: PlatformVersionResponse | null
   syntheticManifest?: Record<string, unknown> | null
+  onClearLocalUiState: () => void
   onClose: () => void
   onOpenPolicy: () => void
 }
@@ -31,6 +32,7 @@ function NavigationPanelDrawer({
   platformCapabilities,
   platformVersion,
   syntheticManifest,
+  onClearLocalUiState,
   onClose,
   onOpenPolicy,
 }: Props) {
@@ -85,7 +87,10 @@ function NavigationPanelDrawer({
       return [['Action source', record?.proposed_action.source ?? 'none'], ['Optimizer', 'Local gradient/random-search proposal'], ['LLM agent', 'Stubbed; deterministic gate remains local']]
     }
     if (panel === 'Simulations') {
-      return scenarios.map((scenario) => [scenarioLabel(scenario.scenario_id), scenario.expected_behavior])
+      const safeScenarios = Array.isArray(scenarios) ? scenarios : []
+      return safeScenarios.length
+        ? safeScenarios.map((scenario) => [scenarioLabel(scenario.scenario_id), scenario.expected_behavior])
+        : [['Scenarios', 'Backend scenarios unavailable.']]
     }
     if (panel === 'Settings') {
       const activeAdapter = platformAdapters?.adapters.find((adapter) => adapter.id === platformAdapters.active_adapter_id)
@@ -123,6 +128,11 @@ function NavigationPanelDrawer({
         {panel === 'Trust Gate' && (
           <button className="nav-primary" type="button" onClick={onOpenPolicy}>
             Open full policy breakdown
+          </button>
+        )}
+        {panel === 'Settings' && (
+          <button className="nav-primary" type="button" onClick={onClearLocalUiState}>
+            Clear Local UI State
           </button>
         )}
         <div className="nav-panel-list">

@@ -13,8 +13,10 @@ if (-not (Test-Path $Python)) {
 }
 
 Write-Host "Starting Ghost Beam locally only..."
-Write-Host "Backend:  http://127.0.0.1:8000"
-Write-Host "Frontend: http://127.0.0.1:5173"
+Write-Host "Frontend MVP: http://127.0.0.1:5173/"
+Write-Host "Backend API:  http://127.0.0.1:8000/"
+Write-Host "API Docs:     http://127.0.0.1:8000/docs"
+Write-Host "Health:       http://127.0.0.1:8000/health"
 
 $backendScript = @"
 `$env:PYTHONPATH='$Backend\.deps;$Backend'
@@ -24,7 +26,7 @@ Set-Location '$Backend'
 
 $frontendScript = @"
 Set-Location '$Frontend'
-npm run dev -- --host 127.0.0.1 --port 5173
+npm run dev -- --host 127.0.0.1 --port 5173 --force
 "@
 
 Start-Job -Name "ghostbeam-backend" -ScriptBlock ([scriptblock]::Create($backendScript)) | Out-Null

@@ -355,6 +355,45 @@ p {
   box-shadow: 0 18px 50px rgba(0, 0, 0, 0.32);
 }
 
+.backend-offline-banner {
+  position: fixed;
+  top: 136px;
+  left: 224px;
+  right: 452px;
+  z-index: 89;
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-content: flex-start;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 196, 87, 0.32);
+  border-radius: 12px;
+  color: var(--text-primary);
+  background: rgba(45, 30, 10, 0.88);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.28);
+}
+
+.backend-offline-banner span {
+  flex: 1;
+  min-width: 0;
+  color: #ffe2a3;
+  font-size: 13px;
+}
+
+.backend-offline-banner a {
+  flex-shrink: 0;
+  min-height: 30px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 10px;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 9px;
+  color: var(--text-primary);
+  text-decoration: none;
+  background: rgba(255, 255, 255, 0.06);
+}
+
 .app-error-banner span {
   color: #ffd2d7;
   font-size: 13px;
@@ -419,6 +458,12 @@ p {
 .fatal-error-card {
   width: min(680px, 100%);
   height: auto;
+}
+
+.scenario-empty {
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.35;
 }
 
 .judge-mode .workspace {
@@ -2952,5 +2997,11 @@ p {
   .app-error-banner {
     left: 12px;
     right: 12px;
+  }
+
+  .backend-offline-banner {
+    left: 12px;
+    right: 12px;
+    top: 136px;
   }
 }

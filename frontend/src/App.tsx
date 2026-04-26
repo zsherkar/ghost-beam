@@ -71,6 +71,32 @@ type ThemeMode = 'dark' | 'light' | 'system'
 type TwinLightingMode = 'control-room' | 'inspection' | 'presentation'
 type ExperimentEventState = 'evaluating' | 'calibrating' | 'applying' | 'blocked' | null
 
+function safeLocalStorageGet(key: string): string | null {
+  try {
+    return window.localStorage.getItem(key)
+  } catch {
+    return null
+  }
+}
+
+function safeLocalStorageSet(key: string, value: string) {
+  try {
+    window.localStorage.setItem(key, value)
+  } catch {
+    // Local storage is only a convenience; it must never block the control room.
+  }
+}
+
+function clearGhostBeamLocalUiState() {
+  try {
+    Object.keys(window.localStorage)
+      .filter((key) => key.startsWith('ghost-beam'))
+      .forEach((key) => window.localStorage.removeItem(key))
+  } catch {
+    // Ignore storage access failures and reset React state below.
+  }
+}
+
 const guidedDemoSteps = [
   {
     title: 'Nominal Baseline',
@@ -110,12 +136,12 @@ const guidedDemoSteps = [
 ]
 
 function storedThemeMode(): ThemeMode {
-  const value = window.localStorage.getItem('ghost-beam-theme-mode')
+  const value = safeLocalStorageGet('ghost-beam-theme-mode')
   return value === 'light' || value === 'system' ? value : 'dark'
 }
 
 function storedTwinLightingMode(): TwinLightingMode {
-  const value = window.localStorage.getItem('ghost-beam-twin-lighting')
+  const value = safeLocalStorageGet('ghost-beam-twin-lighting')
   if (value === 'inspection' || value === 'presentation') return value
   return 'control-room'
 }
@@ -704,6 +730,20 @@ function App() {
     )
   }
 
+  function clearLocalUiStateFromSettings() {
+    clearGhostBeamLocalUiState()
+    setThemeMode('dark')
+    setTwinLightingMode('control-room')
+    setJudgeMode(false)
+    setGuidedOpen(false)
+    setReplayOpen(false)
+    setBenchmarkOpen(false)
+    setHealthOpen(false)
+    setNavPanel(null)
+    setAppError('')
+    setStatus('Local UI state cleared. Live experiment data was not modified.')
+  }
+
   useEffect(() => {
     async function boot() {
       if (booted.current) return
@@ -745,23 +785,31 @@ function App() {
   }, [])
 
   useEffect(() => {
-    window.localStorage.setItem('ghost-beam-theme-mode', themeMode)
+    safeLocalStorageSet('ghost-beam-theme-mode', themeMode)
     const applyTheme = () => {
-      const resolved = themeMode === 'system'
-        ? (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark')
-        : themeMode
+      let prefersLight = false
+      try {
+        prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches
+      } catch {
+        prefersLight = false
+      }
+      const resolved = themeMode === 'system' ? (prefersLight ? 'light' : 'dark') : themeMode
       document.documentElement.dataset.theme = resolved
       setResolvedTheme(resolved)
       document.documentElement.dataset.themeMode = themeMode
     }
     applyTheme()
-    const query = window.matchMedia('(prefers-color-scheme: light)')
-    query.addEventListener('change', applyTheme)
-    return () => query.removeEventListener('change', applyTheme)
+    try {
+      const query = window.matchMedia('(prefers-color-scheme: light)')
+      query.addEventListener('change', applyTheme)
+      return () => query.removeEventListener('change', applyTheme)
+    } catch {
+      return undefined
+    }
   }, [themeMode])
 
   useEffect(() => {
-    window.localStorage.setItem('ghost-beam-twin-lighting', twinLightingMode)
+    safeLocalStorageSet('ghost-beam-twin-lighting', twinLightingMode)
   }, [twinLightingMode])
 
   useEffect(() => {
@@ -818,6 +866,13 @@ function App() {
         <div className="app-error-banner" role="alert">
           <span>{appError}</span>
           <button type="button" onClick={() => setAppError('')}>Dismiss</button>
+        </div>
+      )}
+      {!backendConnected && (
+        <div className="backend-offline-banner" role="status">
+          <span>Backend disconnected. Start http://127.0.0.1:8000 and reload.</span>
+          <a href="http://127.0.0.1:8000/health" target="_blank" rel="noreferrer">Health</a>
+          <a href="http://127.0.0.1:8000/docs" target="_blank" rel="noreferrer">API Docs</a>
         </div>
       )}
 
@@ -939,6 +994,7 @@ function App() {
         platformCapabilities={platformCapabilities}
         platformVersion={platformVersion}
         syntheticManifest={syntheticManifest}
+        onClearLocalUiState={clearLocalUiStateFromSettings}
         onClose={() => setNavPanel(null)}
         onOpenPolicy={() => {
           setNavPanel(null)

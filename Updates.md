@@ -1054,3 +1054,88 @@ Add the final proof and release-hardening layer: deterministic naive-vs-Ghost-Be
 ### Next recommended step
 Restart the backend and frontend with `scripts/start_ghostbeam.ps1`, run `scripts/run_smoke.ps1`, then rehearse the final click path in `docs/final_demo_click_path.md` once end-to-end before recording or judging.
 --------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+## Update 2026-04-26 13:26 local time - Blank screen recovery and boot hardening
+
+### Objective
+Fix localhost blank white screen, add boot-level fallback, harden localStorage, harden lazy 3D loading, improve backend-offline behavior, and make the local launch script force-refresh Vite's module graph.
+
+### Actual root cause
+Browser console showed the fatal runtime load error:
+`SyntaxError: The requested module '/src/api/client.ts?t=1777210227729' does not provide an export named 'exportEvidenceBundle'`.
+
+The production code already exported `exportEvidenceBundle` and `npm run build` passed, so the white screen was caused by a stale Vite dev/HMR module graph serving an older `client.ts` module to `App.tsx`. Because `main.tsx` statically imported `App`, that import failure happened before the top-level React ErrorBoundary could render a visible fallback. The console also contained an earlier runtime crash in `TopBar`: `TypeError: Cannot read properties of undefined (reading 'map')`, so TopBar/scenario rendering was hardened too.
+
+### Files changed
+- `frontend/src/main.tsx` - Converted `App` to a lazy-loaded boot chunk behind a top-level ErrorBoundary and Suspense fallback; added inline boot diagnostics shell with reload, clear local UI state, backend health, and API docs buttons.
+- `frontend/src/App.tsx` - Added safe localStorage get/set helpers, guarded `matchMedia`, backend disconnected banner with health/docs links, and Settings clear-local-UI-state handler.
+- `frontend/src/components/layout/TopBar.tsx` - Made scenario list defensive, disabled scenario select when scenarios are unavailable, and prevented `scenarios.map` from crashing.
+- `frontend/src/components/panels/ScenarioPicker.tsx` - Added safe empty-state rendering for unavailable scenarios.
+- `frontend/src/components/panels/NavigationPanelDrawer.tsx` - Added Settings action to clear local UI state and made simulation scenario rows defensive.
+- `frontend/src/components/scene/ControlRoom3D.tsx` - Wrapped view-HUD localStorage access so stale/blocked storage cannot crash the 3D chunk.
+- `frontend/src/styles/globals.css` - Added backend-offline banner and scenario empty-state styling.
+- `scripts/start_ghostbeam.ps1` - Now prints Frontend MVP, Backend API, API Docs, and Health URLs, and starts Vite with `--force`.
+
+### Frontend changes
+- The full app is now booted through `React.lazy(() => import('./App'))`; App import failures now render a recovery shell instead of a white page.
+- Boot fallback is inline-styled and independent of backend state, app theme, R3F, localStorage, and lazy 3D loading.
+- Boot fallback shows:
+  - frontend URL
+  - backend health URL
+  - API docs URL
+  - 3D chunk status
+  - local UI state status
+  - last error message
+  - Reload
+  - Clear Local UI State
+  - Open Backend Health
+  - Open API Docs
+- Backend-offline state now renders the normal Ghost Beam shell with a visible disconnected banner.
+- Bad or blocked localStorage cannot crash theme, twin lighting, or view HUD state.
+- 3D scene remains wrapped in its own ErrorBoundary and Suspense loading card, so R3F/chunk failures do not blank the rest of the UI.
+
+### Backend changes
+- None. Backend routes and engine behavior were not changed.
+
+### Scripts changed
+- `scripts/start_ghostbeam.ps1` now prints:
+  - `Frontend MVP: http://127.0.0.1:5173/`
+  - `Backend API:  http://127.0.0.1:8000/`
+  - `API Docs:     http://127.0.0.1:8000/docs`
+  - `Health:       http://127.0.0.1:8000/health`
+- Frontend launch now uses `npm run dev -- --host 127.0.0.1 --port 5173 --force`.
+
+### Commands run
+- `npm run build` from `frontend/` - Passed.
+- Restarted the Vite dev server on `127.0.0.1:5173` with `--force --strictPort`.
+- Stopped backend temporarily to verify backend-offline rendering.
+- Restarted backend on `127.0.0.1:8000` with `python -m uvicorn ghostbeam.api.main:app --reload --host 127.0.0.1 --port 8000`.
+- `$env:PYTHONPATH='D:\Building\Ghost Beam\backend\.deps;D:\Building\Ghost Beam\backend'; python -m pytest tests -q` from `backend/` - Passed, 42 tests.
+- `powershell -ExecutionPolicy Bypass -File .\scripts\run_smoke.ps1` - Passed.
+
+### Validation
+- Browser at `http://127.0.0.1:5173/` no longer shows a blank white page.
+- Before dev-server force restart, the new boot fallback rendered and displayed the stale import error instead of a blank page.
+- After force restart, the full Ghost Beam control room rendered live green-zone state.
+- Backend-offline smoke:
+  - stopped port 8000
+  - reloaded frontend
+  - verified Ghost Beam shell still rendered
+  - verified visible disconnected banner with Health and API Docs links
+- Backend-connected smoke:
+  - restarted backend
+  - reloaded frontend
+  - verified Decision Summary `APPROVE`, green-zone scenario, Experiment Runner, Trust Gate, 3D twin labels, Evidence strip, and Local Time were visible.
+- Frontend build passed.
+- Backend tests passed: 42 passed.
+- Smoke script passed, including health, dry-run health check, benchmark, evidence bundle, and platform version.
+
+### Known limitations
+- Browser console history still includes old stale Vite errors from before the restart; no current blank-screen failure remains.
+- The 3D chunk is still large, but it is isolated behind lazy loading and a scene ErrorBoundary.
+- The boot fallback cannot make a syntactically invalid `main.tsx` render; it protects App chunk failures and React/runtime failures after `main.tsx` loads.
+
+### Next recommended step
+Use `scripts/start_ghostbeam.ps1` for demo startup so Vite always force-refreshes dependencies, then run `scripts/run_smoke.ps1` before opening the app for rehearsal.
+--------------------------------------------------------------------------------
