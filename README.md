@@ -12,6 +12,12 @@ Accelerator user facilities are entering the Genesis Mission era: digital twins 
 
 Ghost Beam is a local, synthetic, no-hardware prototype. It demonstrates the control architecture safely; it does not operate real accelerator hardware.
 
+## Hackathon Result
+
+**Winner, Autonomous Labs track - [Special Competitive Studies Project AI+ Expo Hackathon](https://www.scsp.ai/hackathon/), May 9, 2026.**
+
+Ghost Beam was built and presented as an independent hackathon prototype. The award statement does not imply sponsorship, affiliation, approval, endorsement, safety certification, or deployment authorization by SCSP, AI+ Expo, DOE, Berkeley Lab, ALS/ALS-U, Fermilab, EPICS, Osprey, Materials Project, or any other third-party institution.
+
 ## The Problem
 
 Autonomous accelerator tools can propose machine actions faster than operators can manually inspect every detail. That speed creates a trust problem:
@@ -449,17 +455,65 @@ External data sources cannot apply actions or write to hardware.
 - 3D beamline geometry is procedural, not CAD/GLB.
 - Vite still warns that the lazy-loaded Three/R3F scene chunk is larger than 500 kB.
 
+## Deployment Options
+
+Ghost Beam has two deployment modes:
+
+### 1. Full Live App - Render Web Service
+
+Use this for the complete Ghost Beam experience.
+
+The Render deployment runs the FastAPI backend and serves the React/Three.js frontend from the same service. This mode supports the full experiment runner, guided Drifted Twin Test, benchmark, Mission Report, Decision Record, Diagnosis, Evidence Bundle, recorded fixtures, public data registry, and all backend endpoints.
+
+Expected URL:
+
+`https://<render-service>.onrender.com/`
+
+Health:
+
+`https://<render-service>.onrender.com/health`
+
+API docs:
+
+`https://<render-service>.onrender.com/docs`
+
+Notes:
+
+- This is the deployment closest to localhost.
+- Generated artifacts may be ephemeral unless persistent storage is configured.
+- No real hardware, real EPICS writes, real facility logs, paid APIs, public tunnels, or automatic public dataset downloads are enabled.
+
+### 2. Static Visual Demo - GitHub Pages
+
+Use this for a persistent visual/demo page.
+
+The GitHub Pages deployment serves a static React build at:
+
+`https://zsherkar.github.io/ghost-beam/`
+
+This mode preserves the Ghost Beam UI/UX and uses embedded fixture data for the guided story, diagnosis, benchmark, evidence, and data-source panels. It does not run the FastAPI/JAX backend and cannot generate live backend artifacts.
+
+Use Render for the full backend-powered app.
+
+Deployment details: [DEPLOYMENT.md](DEPLOYMENT.md)
+
 ## Copyright and Use Restrictions
 
-Copyright © 2026 Ziauddin Sherkar. All rights reserved.
+Copyright (c) 2026 Ziauddin Sherkar. All rights reserved.
 
-Ghost Beam is proprietary software and documentation. No license is granted. You may not use, copy, modify, distribute, publish, host, deploy, commercialize, train models on, benchmark, reverse engineer, or create derivative works from this project without prior express written permission from Ziauddin Sherkar.
+Ghost Beam is proprietary software, documentation, product design, UI/UX, architecture, screenshots, diagrams, generated artifacts, synthetic data design, benchmark/report structure, evidence-bundle structure, project name, branding, and implementation. No license is granted.
+
+To the maximum extent permitted by applicable law and any binding event terms, all intellectual property rights, copyrights, database rights, design rights, trade dress rights, trademark rights, patent rights, know-how, moral rights, and all other rights in Ghost Beam are reserved exclusively by Ziauddin Sherkar.
+
+You may not use, copy, reproduce, modify, merge, publish, distribute, redistribute, sublicense, sell, resell, host, deploy, run as a service, commercialize, benchmark, scrape, crawl, index, train models on, generate embeddings from, distill models from, reverse engineer, decompile, disassemble, inspect for competitive use, create derivative works from, incorporate into another project, or otherwise exploit Ghost Beam or any portion of the Materials without prior express written permission from Ziauddin Sherkar.
+
+Public availability of this repository for review does not grant an implied license, open-source license, source-available license, patent license, trademark license, AI/ML training license, deployment license, or right to reuse any code, product concept, UI pattern, documentation, screenshot, artifact, dataset design, or architecture. No waiver, exhaustion, estoppel, or implied permission is created by publication, viewing, forking, cloning, linking, discussion, or hackathon presentation.
 
 This repository is provided only for review and evaluation through GitHub. It is not open source. See [LICENSE](LICENSE), [COPYRIGHT.md](COPYRIGHT.md), [NOTICE.md](NOTICE.md), and [docs/legal_notice.md](docs/legal_notice.md).
 
 ## Safety and Affiliation Disclaimer
 
-Ghost Beam is an independent hackathon prototype. It is not affiliated with, sponsored by, approved by, or endorsed by the U.S. Department of Energy, Lawrence Berkeley National Laboratory, Berkeley Lab, Advanced Light Source, ALS-U, Fermilab, SLAC, EPICS, Osprey, Materials Project, or any other third-party institution.
+Ghost Beam is an independent hackathon prototype. It is not affiliated with, sponsored by, approved by, certified by, or endorsed by the U.S. Department of Energy, Lawrence Berkeley National Laboratory, Berkeley Lab, Advanced Light Source, ALS-U, Fermilab, SLAC, EPICS, Osprey, Materials Project, Special Competitive Studies Project, AI+ Expo, or any other third-party institution.
 
 The system is local-only and synthetic. It does not connect to real accelerator hardware, perform EPICS writes, use real facility eLogs, ingest live camera feeds, open public tunnels, call paid APIs, upload data externally, or auto-download public datasets.
 

@@ -46,6 +46,7 @@ import {
   runDryRunHealthCheck,
   resetExperiment,
   startExperiment,
+  staticDemoMode,
 } from './api/client'
 import Sidebar from './components/layout/Sidebar'
 import TopBar from './components/layout/TopBar'
@@ -1134,6 +1135,11 @@ function App() {
           <a href="http://127.0.0.1:8000/docs" target="_blank" rel="noreferrer">API Docs</a>
         </div>
       )}
+      {staticDemoMode && (
+        <div className="static-demo-banner" role="status">
+          <span>Static GitHub Pages demo: visual/read-only mode with embedded fixtures. Use Render for the full backend-powered app.</span>
+        </div>
+      )}
 
       <section className="workspace">
         <div className="viewport">
@@ -1205,6 +1211,7 @@ function App() {
             onReset={() => void runUiAction('Reset scenario', () => runReset())}
             onExportSession={() => void runUiAction('Export session', () => runExportSession())}
             onStartGuidedDemo={openGuidedDemo}
+            onRunHealthCheck={() => void runDemoHealthCheck()}
             busy={uiBusy}
             guidedConfirmOpen={guidedConfirmOpen}
             modeLabelOverride={currentModeLabel}

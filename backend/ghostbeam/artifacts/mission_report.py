@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -13,6 +14,9 @@ SYNTHETIC_DISCLOSURE = (
 
 
 def report_root() -> Path:
+    artifact_dir = os.getenv("GHOSTBEAM_ARTIFACT_DIR")
+    if artifact_dir:
+        return Path(artifact_dir).expanduser() / "reports"
     return Path(__file__).resolve().parents[2] / "artifacts" / "reports"
 
 

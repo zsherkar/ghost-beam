@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: ghost-beam
+    runtime: docker
+    repo: https://github.com/zsherkar/ghost-beam
+    branch: master
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    envVars:
+      - key: GHOSTBEAM_DEPLOYMENT
+        value: render
+      - key: GHOSTBEAM_ARTIFACT_DIR
+        value: /tmp/ghostbeam-artifacts
+      - key: GHOSTBEAM_FRONTEND_DIST
+        value: /app/frontend/dist
+      - key: GHOSTBEAM_REAL_HARDWARE_WRITES
+        value: "false"

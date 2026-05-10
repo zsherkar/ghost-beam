@@ -61,16 +61,19 @@ function BootDiagnostics({ error, reset }: { error?: Error, reset?: () => void }
   const frontendUrl = window.location.href
   const backendHealthUrl = 'http://127.0.0.1:8000/health'
   const backendDocsUrl = 'http://127.0.0.1:8000/docs'
+  const hasError = Boolean(error)
   return (
     <main style={bootShellStyle}>
       <section style={bootCardStyle} role="alert" aria-live="assertive">
         <div>
           <p style={{ margin: '0 0 6px', color: '#64f4a2', fontSize: 12, fontWeight: 800, letterSpacing: '.08em', textTransform: 'uppercase' }}>
-            Ghost Beam boot recovery
+            {hasError ? 'Ghost Beam boot recovery' : 'Ghost Beam startup'}
           </p>
-          <h1 style={{ margin: 0, fontSize: 28 }}>Ghost Beam failed to boot</h1>
+          <h1 style={{ margin: 0, fontSize: 28 }}>{hasError ? 'Ghost Beam failed to boot' : 'Ghost Beam is starting'}</h1>
           <p style={{ margin: '8px 0 0', color: '#9dacb8', lineHeight: 1.45 }}>
-            The control room hit a startup error before the full UI could render. The fallback shell is active, so the page is not blank.
+            {hasError
+              ? 'The control room hit a startup error before the full UI could render. The fallback shell is active, so the page is not blank.'
+              : 'Loading the control room, 3D twin, and experiment runner. This can take a moment after a fresh local restart.'}
           </p>
         </div>
         <div style={{ display: 'grid', gap: 6, color: '#b9c7d1', fontSize: 13 }}>
@@ -78,9 +81,9 @@ function BootDiagnostics({ error, reset }: { error?: Error, reset?: () => void }
           <span><strong style={{ color: '#e7f0f6' }}>Frontend URL:</strong> {frontendUrl}</span>
           <span><strong style={{ color: '#e7f0f6' }}>Backend health:</strong> {backendHealthUrl}</span>
           <span><strong style={{ color: '#e7f0f6' }}>API docs:</strong> {backendDocsUrl}</span>
-          <span><strong style={{ color: '#e7f0f6' }}>3D chunk status:</strong> not loaded or failed before render</span>
+          <span><strong style={{ color: '#e7f0f6' }}>3D chunk status:</strong> {hasError ? 'not loaded or failed before render' : 'loading'}</span>
           <span><strong style={{ color: '#e7f0f6' }}>Local UI state:</strong> can be cleared below</span>
-          <span><strong style={{ color: '#e7f0f6' }}>Last error:</strong> {error?.message ?? 'App chunk is still loading.'}</span>
+          <span><strong style={{ color: '#e7f0f6' }}>Last error:</strong> {error?.message ?? 'none yet'}</span>
         </div>
         <div style={bootActionsStyle}>
           <button style={bootButtonStyle} type="button" onClick={() => window.location.reload()}>Reload</button>
@@ -107,12 +110,17 @@ function BootDiagnostics({ error, reset }: { error?: Error, reset?: () => void }
 }
 
 const root = document.getElementById('root')
+const rootHost = window as typeof window & {
+  __ghostBeamRoot?: ReturnType<typeof ReactDOM.createRoot>
+}
 
 if (!root) {
   document.body.innerHTML = '<main style="min-height:100vh;display:grid;place-items:center;background:#05070a;color:#dbe6ef;font-family:system-ui,sans-serif"><section style="max-width:680px;padding:24px;border:1px solid rgba(255,255,255,.14);border-radius:16px;background:#101820"><h1>Ghost Beam failed to boot</h1><p>Root element #root was not found.</p></section></main>'
 } else {
   try {
-    ReactDOM.createRoot(root).render(
+    const appRoot = rootHost.__ghostBeamRoot ?? ReactDOM.createRoot(root)
+    rootHost.__ghostBeamRoot = appRoot
+    appRoot.render(
       <React.StrictMode>
         <ErrorBoundary fallback={(error, reset) => <BootDiagnostics error={error} reset={reset} />}>
           <Suspense fallback={<BootDiagnostics />}>

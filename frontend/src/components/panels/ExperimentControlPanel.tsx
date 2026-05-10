@@ -1,4 +1,4 @@
-import { AlertTriangle, CheckCircle2, Download, FileText, FlaskConical, Lock, Pause, Play, Radio, RotateCcw, Send, SkipBack, SkipForward, SlidersHorizontal, X } from 'lucide-react'
+import { AlertTriangle, CheckCircle2, Download, FileText, FlaskConical, Lock, Pause, Play, Radio, RotateCcw, Send, SkipBack, SkipForward, SlidersHorizontal, Stethoscope, X } from 'lucide-react'
 import { useState } from 'react'
 import { DecisionRecord, ExperimentState, MachineSettings, ProposedAction } from '../../api/client'
 import { decisionLabel } from '../../utils/format'
@@ -21,6 +21,7 @@ interface Props {
   onReset: () => void
   onExportSession: () => void
   onStartGuidedDemo: () => void
+  onRunHealthCheck: () => void
   busy?: boolean
   guidedConfirmOpen?: boolean
   modeLabelOverride?: string
@@ -65,6 +66,7 @@ function ExperimentControlPanel({
   onReset,
   onExportSession,
   onStartGuidedDemo,
+  onRunHealthCheck,
   busy = false,
   guidedConfirmOpen = false,
   modeLabelOverride,
@@ -262,6 +264,7 @@ function ExperimentControlPanel({
 
         <div className="experiment-actions">
           {!guidedActive && <button type="button" className="guided-action-button" disabled={busy} onClick={onStartGuidedDemo}><Play size={14} /> Guided: Drifted Twin Test</button>}
+          <button type="button" disabled={busy} onClick={onRunHealthCheck}><Stethoscope size={14} /> Health Check</button>
           <button type="button" disabled={busy || readOnlyMode} onClick={onPropose}><Send size={14} /> Propose</button>
           <button type="button" disabled={busy || readOnlyMode} onClick={onEvaluate}><SlidersHorizontal size={14} /> Evaluate</button>
           <button type="button" disabled={busy || readOnlyMode} className={needsCalibration ? 'needs-attention' : ''} onClick={onCalibrate}>

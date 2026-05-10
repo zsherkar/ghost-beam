@@ -1,6 +1,9 @@
 import axios from 'axios'
+import * as staticDemo from '../staticDemo/demoApi'
 
-const baseURL = import.meta.env.VITE_GHOST_BEAM_API ?? 'http://127.0.0.1:8000'
+export const staticDemoMode = import.meta.env.VITE_STATIC_DEMO_MODE === 'true'
+const configuredBaseURL = import.meta.env.VITE_API_BASE_URL ?? import.meta.env.VITE_GHOST_BEAM_API
+const baseURL = configuredBaseURL ?? (import.meta.env.PROD ? '' : 'http://127.0.0.1:8000')
 
 export const api = axios.create({ baseURL, timeout: 60000 })
 
@@ -404,26 +407,31 @@ export interface DataSourcesRegistryResponse {
 }
 
 export async function fetchHealth(): Promise<{ status: string; service: string }> {
+  if (staticDemoMode) return staticDemo.fetchHealth()
   const response = await api.get('/health')
   return response.data
 }
 
 export async function fetchRegistry(): Promise<Record<string, unknown>> {
+  if (staticDemoMode) return staticDemo.fetchRegistry()
   const response = await api.get('/registry')
   return response.data
 }
 
 export async function fetchScenarios(): Promise<ScenarioSummary[]> {
+  if (staticDemoMode) return staticDemo.fetchScenarios()
   const response = await api.get('/scenarios')
   return response.data.scenarios
 }
 
 export async function loadScenario(scenarioId: string): Promise<ScenarioLoad> {
+  if (staticDemoMode) return staticDemo.loadScenario(scenarioId)
   const response = await api.post('/scenarios/load', { scenario_id: scenarioId })
   return response.data
 }
 
 export async function evaluateScenario(scenario: ScenarioLoad): Promise<DecisionRecord> {
+  if (staticDemoMode) return staticDemo.evaluateScenario(scenario)
   const response = await api.post('/plan/evaluate', {
     scenario_id: scenario.scenario_id,
     current_settings: scenario.current_settings,
@@ -433,6 +441,7 @@ export async function evaluateScenario(scenario: ScenarioLoad): Promise<Decision
 }
 
 export async function applyCalibration(scenario: ScenarioLoad) {
+  if (staticDemoMode) return staticDemo.applyCalibration()
   const response = await api.post('/calibration/apply', {
     scenario_id: scenario.scenario_id,
     current_settings: scenario.current_settings,
@@ -441,26 +450,31 @@ export async function applyCalibration(scenario: ScenarioLoad) {
 }
 
 export async function applySimulated(record: DecisionRecord) {
+  if (staticDemoMode) return staticDemo.applySimulated()
   const response = await api.post('/control/apply-simulated', record)
   return response.data
 }
 
 export async function fetchLatestArtifact() {
+  if (staticDemoMode) return staticDemo.fetchLatestArtifact()
   const response = await api.get('/artifacts/latest')
   return response.data
 }
 
 export async function exportLatestArtifact() {
+  if (staticDemoMode) return staticDemo.exportLatestArtifact()
   const response = await api.post('/artifacts/export')
   return response.data
 }
 
 export async function fetchExperimentState(): Promise<ExperimentState> {
+  if (staticDemoMode) return staticDemo.fetchExperimentState()
   const response = await api.get('/experiment/state')
   return response.data
 }
 
 export async function startExperiment(scenarioId: string): Promise<ExperimentState> {
+  if (staticDemoMode) return staticDemo.startExperiment(scenarioId)
   const response = await api.post('/experiment/start', { scenario_id: scenarioId })
   return response.data
 }
@@ -470,6 +484,7 @@ export async function proposeExperimentAction(request: {
   source?: ProposedAction['source']
   delta_settings?: Record<string, number>
 }): Promise<ProposedAction> {
+  if (staticDemoMode) return staticDemo.proposeExperimentAction(request)
   const response = await api.post('/experiment/propose', {
     intent: request.intent,
     source: request.source ?? 'optimizer',
@@ -479,6 +494,7 @@ export async function proposeExperimentAction(request: {
 }
 
 export async function evaluateExperimentAction(proposedAction: ProposedAction): Promise<DecisionRecord> {
+  if (staticDemoMode) return staticDemo.evaluateExperimentAction(proposedAction)
   const response = await api.post('/experiment/evaluate', {
     proposed_action: proposedAction,
   })
@@ -486,6 +502,7 @@ export async function evaluateExperimentAction(proposedAction: ProposedAction): 
 }
 
 export async function applyExperimentAction(decisionRecordId: string | null, force = false): Promise<ExperimentApplyResult> {
+  if (staticDemoMode) return staticDemo.applyExperimentAction()
   const response = await api.post('/experiment/apply', {
     decision_record_id: decisionRecordId,
     force,
@@ -494,21 +511,25 @@ export async function applyExperimentAction(decisionRecordId: string | null, for
 }
 
 export async function calibrateExperiment(): Promise<{ calibration_applied: boolean; measurement: Record<string, unknown>; state: ExperimentState }> {
+  if (staticDemoMode) return staticDemo.calibrateExperiment()
   const response = await api.post('/experiment/calibrate')
   return response.data
 }
 
 export async function resetExperiment(): Promise<ExperimentState> {
+  if (staticDemoMode) return staticDemo.resetExperiment()
   const response = await api.post('/experiment/reset')
   return response.data
 }
 
 export async function exportExperiment() {
+  if (staticDemoMode) return staticDemo.exportExperiment()
   const response = await api.post('/experiment/export')
   return response.data
 }
 
 export async function runDryRunHealthCheck(): Promise<DemoHealthCheckResult> {
+  if (staticDemoMode) return staticDemo.runDryRunHealthCheck()
   const response = await api.post('/experiment/health-check')
   return response.data
 }
@@ -519,46 +540,55 @@ export async function generateBackendMissionReport(request: {
   session_export: Record<string, unknown> | null
   frontend_metadata?: Record<string, unknown>
 }): Promise<MissionReportResponse> {
+  if (staticDemoMode) return staticDemo.generateBackendMissionReport()
   const response = await api.post('/experiment/report/generate', request)
   return response.data
 }
 
 export async function fetchPlatformAdapters(): Promise<PlatformAdaptersResponse> {
+  if (staticDemoMode) return staticDemo.fetchPlatformAdapters()
   const response = await api.get('/platform/adapters')
   return response.data
 }
 
 export async function fetchPlatformCapabilities(): Promise<PlatformCapabilitiesResponse> {
+  if (staticDemoMode) return staticDemo.fetchPlatformCapabilities()
   const response = await api.get('/platform/capabilities')
   return response.data
 }
 
 export async function fetchSyntheticDataManifest(): Promise<Record<string, unknown>> {
+  if (staticDemoMode) return staticDemo.fetchSyntheticDataManifest()
   const response = await api.get('/platform/data-manifest')
   return response.data
 }
 
 export async function fetchDecisionRecordSchema(): Promise<Record<string, unknown>> {
+  if (staticDemoMode) return staticDemo.fetchDecisionRecordSchema()
   const response = await api.get('/artifacts/schemas/decision-record')
   return response.data
 }
 
 export async function fetchPlatformVersion(): Promise<PlatformVersionResponse> {
+  if (staticDemoMode) return staticDemo.fetchPlatformVersion()
   const response = await api.get('/platform/version')
   return response.data
 }
 
 export async function fetchDataSourcesRegistry(): Promise<DataSourcesRegistryResponse> {
+  if (staticDemoMode) return staticDemo.fetchDataSourcesRegistry()
   const response = await api.get('/data-sources')
   return response.data
 }
 
 export async function fetchDataSourcesSummary(): Promise<DataSourcesSummaryResponse> {
+  if (staticDemoMode) return staticDemo.fetchDataSourcesSummary()
   const response = await api.get('/data-sources/summary')
   return response.data
 }
 
 export async function runBenchmark(totalTrials = 50, seed = 42): Promise<BenchmarkResult> {
+  if (staticDemoMode) return staticDemo.runBenchmark()
   const response = await api.post('/benchmark/run', {
     total_trials: totalTrials,
     seed,
@@ -567,11 +597,13 @@ export async function runBenchmark(totalTrials = 50, seed = 42): Promise<Benchma
 }
 
 export async function fetchLatestBenchmark(): Promise<BenchmarkResult> {
+  if (staticDemoMode) return staticDemo.fetchLatestBenchmark()
   const response = await api.get('/benchmark/latest')
   return response.data
 }
 
 export async function fetchDriftedTwinReplay(): Promise<ReplayArtifact> {
+  if (staticDemoMode) return staticDemo.fetchDriftedTwinReplay()
   const response = await api.get('/experiment/replay/drifted-twin')
   return response.data
 }
@@ -580,36 +612,43 @@ export async function exportEvidenceBundle(request: {
   guided_transcript?: Record<string, unknown>[]
   frontend_metadata?: Record<string, unknown>
 }): Promise<EvidenceBundleResponse> {
+  if (staticDemoMode) return staticDemo.exportEvidenceBundle()
   const response = await api.post('/experiment/evidence-bundle', request)
   return response.data
 }
 
 export async function fetchRecordedRuns(): Promise<RecordedRunsResponse> {
+  if (staticDemoMode) return staticDemo.fetchRecordedRuns()
   const response = await api.get('/recorded-runs')
   return response.data
 }
 
 export async function loadRecordedRun(runId: string): Promise<RecordedRunLoadResponse> {
+  if (staticDemoMode) return staticDemo.loadRecordedRun(runId)
   const response = await api.post('/recorded-runs/load', { run_id: runId })
   return response.data
 }
 
 export async function evaluateRecordedRunStep(runId: string, step: number): Promise<RecordedRunStepResponse> {
+  if (staticDemoMode) return staticDemo.evaluateRecordedRunStep(runId, step)
   const response = await api.post('/recorded-runs/evaluate-step', { run_id: runId, step })
   return response.data
 }
 
 export async function fetchPublicDataSources(): Promise<PublicDataSourcesResponse> {
+  if (staticDemoMode) return staticDemo.fetchPublicDataSources()
   const response = await api.get('/public-data/sources')
   return response.data
 }
 
 export async function importBoostrLocal(path: string): Promise<PublicDataImportResponse> {
+  if (staticDemoMode) return staticDemo.importBoostrLocal()
   const response = await api.post('/public-data/boostr/import-local', { path })
   return response.data
 }
 
 export async function evaluateBoostrWindow(runId: string, startIndex = 0, windowSize = 100): Promise<PublicDataAnalysisArtifact> {
+  if (staticDemoMode) return staticDemo.evaluateBoostrWindow()
   const response = await api.post('/public-data/boostr/evaluate-window', {
     run_id: runId,
     start_index: startIndex,

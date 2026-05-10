@@ -462,6 +462,40 @@ p {
   background: rgba(255, 255, 255, 0.06);
 }
 
+.static-demo-banner {
+  position: fixed;
+  top: 136px;
+  left: 224px;
+  right: 452px;
+  z-index: 88;
+  min-height: 38px;
+  display: flex;
+  align-items: center;
+  padding: 8px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(87, 210, 255, 0.34);
+  background: rgba(9, 23, 32, 0.88);
+  box-shadow: 0 16px 50px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(18px);
+  pointer-events: none;
+}
+
+.static-demo-banner span {
+  color: #99e5ff;
+  font-size: 13px;
+  font-weight: 650;
+}
+
+:root[data-theme="light"] .static-demo-banner {
+  background: rgba(238, 249, 255, 0.92);
+  border-color: rgba(4, 122, 166, 0.24);
+  box-shadow: 0 16px 46px rgba(20, 43, 56, 0.16);
+}
+
+:root[data-theme="light"] .static-demo-banner span {
+  color: #075985;
+}
+
 .app-error-banner span {
   color: #ffd2d7;
   font-size: 13px;
@@ -784,6 +818,13 @@ p {
 .beamline-title {
   top: 25px;
   left: 27px;
+  z-index: 12;
+  max-width: min(360px, calc(100% - 54px));
+  padding: 8px 14px 10px 0;
+  border-radius: 0 14px 14px 0;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--app-bg) 76%, transparent), color-mix(in srgb, var(--app-bg) 42%, transparent) 68%, transparent);
+  pointer-events: none;
+  text-shadow: 0 1px 18px var(--app-bg), 0 1px 8px var(--app-bg);
 }
 
 .beamline-title span {
@@ -819,6 +860,12 @@ p {
   width: 318px;
   padding: 14px;
   border-radius: 12px;
+  z-index: 12;
+}
+
+.view-widget.expanded {
+  z-index: 42;
+  overflow: visible;
 }
 
 .view-widget span {
@@ -1039,6 +1086,7 @@ p {
   bottom: 22px;
   max-width: 560px;
   min-height: 54px;
+  z-index: 12;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1237,10 +1285,13 @@ p {
   bottom: 22px;
   display: flex;
   gap: 10px;
+  align-items: center;
+  z-index: 18;
 }
 
 .viewport-controls > div {
   display: flex;
+  align-items: center;
   gap: 6px;
   padding: 0 8px;
   border-radius: 12px;
@@ -1248,6 +1299,37 @@ p {
 
 .viewport-controls > button {
   border-radius: 12px;
+}
+
+.viewport-controls button {
+  width: auto;
+  min-width: 38px;
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 0 10px;
+  transition: background 140ms ease, border-color 140ms ease, color 140ms ease, box-shadow 140ms ease;
+}
+
+.viewport-controls button[aria-label="Start auto orbit"],
+.viewport-controls button[aria-label="Stop auto orbit"] {
+  min-width: 64px;
+}
+
+.viewport-controls button:hover {
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+  background: color-mix(in srgb, var(--control-bg) 68%, var(--accent-cyan) 10%);
+}
+
+.viewport-controls button.active,
+.viewport-controls button:active {
+  color: var(--accent-green);
+  border-color: rgba(100, 244, 162, 0.42);
+  background: rgba(100, 244, 162, 0.16);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 0 0 1px rgba(100, 244, 162, 0.08);
 }
 
 .viewport-controls span {
@@ -2825,9 +2907,9 @@ p {
 .demo-health-panel {
   position: fixed;
   top: 92px;
-  right: 456px;
+  right: 24px;
   z-index: 70;
-  width: min(420px, calc(100vw - 490px));
+  width: min(360px, calc(100vw - 48px));
   max-height: calc(100dvh - 120px);
   overflow-y: auto;
   display: grid;
@@ -3530,10 +3612,11 @@ p {
 @media (max-width: 1100px) {
   .app-shell {
     grid-template-columns: 1fr;
-    grid-template-rows: 96px minmax(0, 1fr);
-    overflow: hidden;
-    height: 100dvh;
-    min-height: 0;
+    grid-template-rows: 96px auto;
+    overflow-x: hidden;
+    overflow-y: auto;
+    height: auto;
+    min-height: 100dvh;
   }
 
   .sidebar {
@@ -3556,14 +3639,15 @@ p {
   .workspace {
     grid-row: 2;
     grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: minmax(0, 1fr) 210px minmax(220px, 34vh);
-    overflow: hidden;
+    grid-template-rows: minmax(500px, 62vh) auto auto;
+    overflow: visible;
     padding: 12px;
   }
 
   .viewport {
     grid-column: 1;
     grid-row: 1;
+    min-height: 500px;
   }
 
   .evidence-panel {
@@ -3574,10 +3658,13 @@ p {
   .right-rail {
     grid-column: 1;
     grid-row: 3;
+    max-height: none;
+    overflow: visible;
   }
 
   .beamline-card {
     height: 100%;
+    min-height: 500px;
   }
 
 }
@@ -3594,7 +3681,12 @@ p {
   }
 
   .beamline-card {
-    height: 500px;
+    height: 520px;
+    min-height: 520px;
+  }
+
+  .viewport {
+    min-height: 520px;
   }
 
   .view-widget,
@@ -3630,7 +3722,8 @@ p {
     right: 12px;
   }
 
-  .backend-offline-banner {
+  .backend-offline-banner,
+  .static-demo-banner {
     left: 12px;
     right: 12px;
     top: 136px;

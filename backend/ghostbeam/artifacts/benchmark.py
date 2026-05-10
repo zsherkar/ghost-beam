@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import time
 from datetime import datetime, timezone
 from pathlib import Path
@@ -22,6 +23,9 @@ _BENCHMARKS: dict[str, dict[str, Any]] = {}
 
 
 def benchmark_root() -> Path:
+    artifact_dir = os.getenv("GHOSTBEAM_ARTIFACT_DIR")
+    if artifact_dir:
+        return Path(artifact_dir).expanduser() / "benchmarks"
     return Path(__file__).resolve().parents[2] / "artifacts" / "benchmarks"
 
 
