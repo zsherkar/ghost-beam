@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1240" height="620" viewBox="0 0 1240 620" role="img" aria-labelledby="title desc">
+  <title id="title">Ghost Beam decision flow</title>
+  <desc id="desc">Policy path from proposed action through hard limits, diagnostic trust, eLog memory, calibration freshness, and final gate decisions.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#08111b"/>
+      <stop offset="1" stop-color="#111827"/>
+    </linearGradient>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0 0 L 12 6 L 0 12 z" fill="#93c5fd"/>
+    </marker>
+    <style>
+      .node{fill:#111827;stroke:#475569;stroke-width:1.4}
+      .check{fill:#0f172a;stroke:#38bdf8;stroke-width:1.5}
+      .decision{fill:#052e25;stroke:#34d399;stroke-width:1.5}
+      .warn{fill:#3b2609;stroke:#f59e0b;stroke-width:1.5}
+      .block{fill:#3f1019;stroke:#fb7185;stroke-width:1.5}
+      .title{font:700 28px Arial, sans-serif;fill:#f8fafc}
+      .label{font:700 16px Arial, sans-serif;fill:#f8fafc}
+      .small{font:500 13px Arial, sans-serif;fill:#cbd5e1}
+      .route{fill:none;stroke:#93c5fd;stroke-width:2.2;marker-end:url(#arrow)}
+      .amberline{fill:none;stroke:#f59e0b;stroke-width:2;marker-end:url(#arrow)}
+      .redline{fill:none;stroke:#fb7185;stroke-width:2;marker-end:url(#arrow)}
+    </style>
+  </defs>
+  <rect width="1240" height="620" rx="24" fill="url(#bg)"/>
+  <text x="42" y="52" class="title">Decision Flow</text>
+  <text x="42" y="78" class="small">Ghost Beam chooses approval, smaller-step approval, calibration, review, or block.</text>
+
+  <rect x="60" y="140" width="170" height="74" rx="16" class="node"/>
+  <text x="145" y="172" text-anchor="middle" class="label">Proposed</text>
+  <text x="145" y="194" text-anchor="middle" class="label">Action</text>
+
+  <rect x="285" y="140" width="180" height="74" rx="16" class="check"/>
+  <text x="375" y="172" text-anchor="middle" class="label">Hard PV</text>
+  <text x="375" y="194" text-anchor="middle" class="label">Limit Check</text>
+
+  <rect x="520" y="140" width="185" height="74" rx="16" class="check"/>
+  <text x="612" y="172" text-anchor="middle" class="label">Virtual</text>
+  <text x="612" y="194" text-anchor="middle" class="label">Diagnostic</text>
+
+  <rect x="760" y="140" width="185" height="74" rx="16" class="check"/>
+  <text x="852" y="172" text-anchor="middle" class="label">Uncertainty</text>
+  <text x="852" y="194" text-anchor="middle" class="label">and OOD</text>
+
+  <rect x="1000" y="140" width="180" height="74" rx="16" class="check"/>
+  <text x="1090" y="172" text-anchor="middle" class="label">eLog Memory</text>
+  <text x="1090" y="194" text-anchor="middle" class="label">Retrieval</text>
+
+  <path d="M230 177 H285" class="route"/>
+  <path d="M465 177 H520" class="route"/>
+  <path d="M705 177 H760" class="route"/>
+  <path d="M945 177 H1000" class="route"/>
+
+  <rect x="280" y="310" width="190" height="74" rx="16" class="block"/>
+  <text x="375" y="342" text-anchor="middle" class="label">BLOCK</text>
+  <text x="375" y="364" text-anchor="middle" class="small">hard-limit violation</text>
+  <path d="M375 214 V310" class="redline"/>
+
+  <rect x="715" y="310" width="220" height="74" rx="16" class="warn"/>
+  <text x="825" y="342" text-anchor="middle" class="label">REQUEST</text>
+  <text x="825" y="364" text-anchor="middle" class="label">CALIBRATION</text>
+  <path d="M852 214 V310" class="amberline"/>
+
+  <rect x="990" y="310" width="205" height="74" rx="16" class="warn"/>
+  <text x="1092" y="342" text-anchor="middle" class="label">REQUIRE</text>
+  <text x="1092" y="364" text-anchor="middle" class="label">HUMAN REVIEW</text>
+  <path d="M1090 214 V310" class="amberline"/>
+
+  <rect x="515" y="310" width="185" height="74" rx="16" class="check"/>
+  <text x="607" y="342" text-anchor="middle" class="label">Calibration</text>
+  <text x="607" y="364" text-anchor="middle" class="label">Freshness</text>
+  <path d="M1090 214 C1010 265 720 270 607 310" class="route"/>
+  <path d="M607 384 C650 410 730 410 770 384" class="amberline"/>
+
+  <rect x="515" y="455" width="185" height="74" rx="16" class="decision"/>
+  <text x="607" y="487" text-anchor="middle" class="label">Policy Gate</text>
+  <text x="607" y="510" text-anchor="middle" class="small">final decision</text>
+  <path d="M607 384 V455" class="route"/>
+
+  <rect x="760" y="450" width="165" height="64" rx="15" class="decision"/>
+  <text x="842" y="488" text-anchor="middle" class="label">APPROVE</text>
+  <rect x="955" y="450" width="190" height="64" rx="15" class="decision"/>
+  <text x="1050" y="478" text-anchor="middle" class="label">APPROVE</text>
+  <text x="1050" y="500" text-anchor="middle" class="label">SMALL STEP</text>
+  <path d="M700 492 H760" class="route"/>
+  <path d="M700 492 C790 545 910 545 955 514" class="route"/>
+</svg>

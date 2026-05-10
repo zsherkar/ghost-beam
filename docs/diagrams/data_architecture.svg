@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1240" height="650" viewBox="0 0 1240 650" role="img" aria-labelledby="title desc">
+  <title id="title">Ghost Beam data source architecture</title>
+  <desc id="desc">Core demo layer, public data layer, facility connector stubs, and artifact standards layer.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#071017"/>
+      <stop offset="1" stop-color="#111827"/>
+    </linearGradient>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0 0 L 12 6 L 0 12 z" fill="#7dd3fc"/>
+    </marker>
+    <style>
+      .layer{fill:#111827;stroke:#334155;stroke-width:1.5}
+      .core{fill:#052e25;stroke:#34d399}
+      .public{fill:#082f49;stroke:#38bdf8}
+      .stub{fill:#3b2609;stroke:#f59e0b}
+      .standard{fill:#221a3d;stroke:#a78bfa}
+      .title{font:700 28px Arial, sans-serif;fill:#f8fafc}
+      .head{font:700 18px Arial, sans-serif;fill:#f8fafc}
+      .text{font:500 13px Arial, sans-serif;fill:#cbd5e1}
+      .pill{font:700 12px Arial, sans-serif;fill:#e2e8f0}
+      .line{fill:none;stroke:#7dd3fc;stroke-width:2.2;marker-end:url(#arrow);opacity:.86}
+    </style>
+  </defs>
+  <rect width="1240" height="650" rx="24" fill="url(#bg)"/>
+  <text x="42" y="52" class="title">Core vs External Data Architecture</text>
+  <text x="42" y="78" class="text">External sources stay read-only and cannot hijack the synthetic live demo loop.</text>
+
+  <rect x="42" y="120" width="260" height="420" rx="18" class="layer core"/>
+  <text x="172" y="154" text-anchor="middle" class="head">Core Demo Layer</text>
+  <text x="70" y="200" class="text">Synthetic JAX Twin</text>
+  <text x="70" y="235" class="text">Local Scenarios</text>
+  <text x="70" y="270" class="text">Guided Drifted Twin Test</text>
+  <text x="70" y="305" class="text">Benchmark</text>
+  <text x="70" y="340" class="text">Decision Record</text>
+  <text x="70" y="375" class="text">Diagnosis + Mission Report</text>
+  <text x="70" y="410" class="text">Evidence Bundle</text>
+  <rect x="70" y="455" width="204" height="42" rx="21" fill="#064e3b"/>
+  <text x="172" y="482" text-anchor="middle" class="pill">ACTIVE LIVE DEMO</text>
+
+  <rect x="350" y="120" width="260" height="420" rx="18" class="layer public"/>
+  <text x="480" y="154" text-anchor="middle" class="head">Public Data Layer</text>
+  <text x="378" y="205" class="text">BOOSTR adapter</text>
+  <text x="378" y="240" class="text">Local slice only</text>
+  <text x="378" y="295" class="text">Fermilab BPM/IPM manifest</text>
+  <text x="378" y="330" class="text">Future local-slice path</text>
+  <text x="378" y="390" class="text">PublicDataAnalysisRecord</text>
+  <text x="378" y="425" class="text">Read-only analysis</text>
+  <rect x="378" y="455" width="204" height="42" rx="21" fill="#075985"/>
+  <text x="480" y="482" text-anchor="middle" class="pill">NO WRITES</text>
+
+  <rect x="658" y="120" width="260" height="420" rx="18" class="layer stub"/>
+  <text x="788" y="154" text-anchor="middle" class="head">Facility Connector Stubs</text>
+  <text x="686" y="205" class="text">EPICS Archiver Stub</text>
+  <text x="686" y="240" class="text">disabled read-only shape</text>
+  <text x="686" y="300" class="text">pyarchappl-compatible Stub</text>
+  <text x="686" y="335" class="text">future retrieval interface</text>
+  <text x="686" y="395" class="text">No network scanning</text>
+  <text x="686" y="430" class="text">No live PV writes</text>
+  <rect x="686" y="455" width="204" height="42" rx="21" fill="#92400e"/>
+  <text x="788" y="482" text-anchor="middle" class="pill">DISABLED BY DEFAULT</text>
+
+  <rect x="966" y="120" width="232" height="420" rx="18" class="layer standard"/>
+  <text x="1082" y="154" text-anchor="middle" class="head">Standards Layer</text>
+  <text x="994" y="205" class="text">Decision Record Schema</text>
+  <text x="994" y="240" class="text">Frictionless status</text>
+  <text x="994" y="275" class="text">RO-Crate metadata</text>
+  <text x="994" y="310" class="text">openPMD manifest</text>
+  <text x="994" y="345" class="text">WorkflowHub manifest</text>
+  <text x="994" y="380" class="text">Materials context manifest</text>
+  <rect x="994" y="455" width="176" height="42" rx="21" fill="#4c1d95"/>
+  <text x="1082" y="482" text-anchor="middle" class="pill">PROVENANCE</text>
+
+  <path d="M302 330 H350" class="line"/>
+  <path d="M610 330 H658" class="line"/>
+  <path d="M918 330 H966" class="line"/>
+  <path d="M172 540 C360 610 875 610 1082 540" class="line"/>
+</svg>

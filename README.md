@@ -73,90 +73,19 @@ Guided Demo is intentionally the Drifted Twin Test. Normal scenario selection re
 
 ## Architecture
 
-```text
-User / Optimizer
-  -> Ghost Beam UI (React + TypeScript + React Three Fiber)
-  -> FastAPI Backend
-  -> Stateful Experiment Runner
-      -> Synthetic JAX Digital Twin
-      -> Virtual Diagnostic
-          -> Uncertainty + OOD Scoring
-      -> Beam Profile / Vision Diagnostic
-      -> Synthetic eLog Memory (TF-IDF Retrieval)
-      -> Deterministic Policy Gate
-          -> Decision Record JSON
-          -> Human Diagnosis Markdown
-          -> Mission Report
-          -> Evidence Bundle
-```
+![Ghost Beam system architecture](docs/diagrams/system_architecture.svg)
 
 ### Decision Flow
 
-```text
-Proposed Action
-  -> Hard PV Limit Check
-      -> violation: BLOCK
-      -> within limits: Virtual Diagnostic
-  -> Uncertainty + OOD
-      -> outside trust envelope: REQUEST_CALIBRATION
-      -> trusted enough: eLog Memory Retrieval
-  -> eLog Memory Retrieval
-      -> conflicting evidence: REQUIRE_HUMAN_REVIEW
-      -> no conflict: Calibration Freshness
-  -> Calibration Freshness
-      -> stale or missing: REQUEST_CALIBRATION
-      -> fresh: Policy Gate
-  -> Policy Gate
-      -> APPROVE
-      -> APPROVE_SMALL_STEP
-      -> REQUIRE_HUMAN_REVIEW
-      -> BLOCK
-```
+![Ghost Beam decision flow](docs/diagrams/decision_flow.svg)
 
 ### Core vs External Data Architecture
 
-```text
-Core / Manual / Live Demo Layer
-  - Synthetic JAX Twin (active)
-  - Local Scenarios: green, drifted, conflict, unsafe, recovery
-  - Guided Drifted Twin Test
-  - Naive-vs-Ghost-Beam Benchmark
-  - Decision Record + Diagnosis + Mission Report + Evidence Bundle
-
-External Public Data Layer
-  - BOOSTR adapter (local slice only)
-  - Fermilab BPM/IPM manifest (local slice future path)
-  - PublicDataAnalysisRecord (read-only)
-
-Facility Connector Layer
-  - EPICS Archiver Stub (disabled, read-only shape)
-  - pyarchappl-compatible Stub (disabled)
-
-Artifact / Provenance / Standards Layer
-  - Decision Record Schema
-  - Frictionless Validation Status
-  - RO-Crate Evidence Metadata
-  - openPMD Compatibility Manifest
-  - WorkflowHub Compatibility Manifest
-```
+![Ghost Beam data source architecture](docs/diagrams/data_architecture.svg)
 
 ### Evidence Bundle Composition
 
-```text
-Evidence Bundle
-  - Session Export
-  - Decision Record JSON
-  - Human Diagnosis Markdown
-  - Mission Report JSON/Markdown
-  - Benchmark Result
-  - Synthetic Data Manifest
-  - Data Sources Registry
-  - BOOSTR + BPM/IPM Manifests
-  - Decision Record Schema
-  - RO-Crate Metadata
-  - Frictionless Validation Status
-  - openPMD + WorkflowHub Manifests
-```
+![Ghost Beam evidence bundle composition](docs/diagrams/evidence_bundle.svg)
 
 ## Features
 
