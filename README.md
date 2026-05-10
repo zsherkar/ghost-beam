@@ -176,6 +176,14 @@ Evidence Bundle
 - Local launch and smoke scripts.
 - Local-only safety boundary.
 
+## Demo Video
+
+The recorded demo below shows the Ghost Beam control-room UI, 3D digital twin, guided Drifted Twin Test, diagnosis/evidence flow, and benchmark/reporting surfaces.
+
+<video src="docs/demo/CNO_Ghost_Beam.mp4" controls width="100%" title="Ghost Beam demo video"></video>
+
+If the embedded player does not render in your browser, open the file directly: [CNO_Ghost_Beam.mp4](docs/demo/CNO_Ghost_Beam.mp4).
+
 ## Screenshots
 
 These are the release screenshots currently embedded in the README.
@@ -283,57 +291,17 @@ Ghost Beam exports:
 
 Evidence Bundle contents are documented in [docs/artifact_schema.md](docs/artifact_schema.md). Local generated evidence bundles are intentionally ignored by git by default.
 
-## Quickstart
+## Demo Access
 
-Clone the repository and run everything from the repository root.
+This public repository is provided for review and evaluation only. It is not a public run package, public deployment package, or open-source starter kit. No license is granted to clone, run, host, deploy, benchmark, train on, reuse, or modify Ghost Beam without prior express written permission from Ziauddin Sherkar.
 
-```powershell
-git clone https://github.com/zsherkar/ghost-beam.git
-cd ghost-beam
-```
+For public review, use the recorded demo video and screenshots above. Author-managed live demo links may be shared separately when available.
 
-Local preview URLs after launch:
-
-- Frontend: `http://127.0.0.1:5173/`
-- Backend API: `http://127.0.0.1:8000/`
-- API docs: `http://127.0.0.1:8000/docs`
-- Health: `http://127.0.0.1:8000/health`
-
-One-command local launch:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\start_ghostbeam.ps1
-```
-
-Backend:
-
-```powershell
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-python -m pip install --upgrade pip
-pip install -r requirements.txt
-cd backend
-python -m pytest tests -q
-python -m uvicorn ghostbeam.api.main:app --reload --host 127.0.0.1 --port 8000
-```
-
-Frontend:
-
-```powershell
-cd frontend
-npm install
-npm run dev -- --host 127.0.0.1 --port 5173
-```
-
-Smoke test:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\run_smoke.ps1
-```
+Localhost URLs such as `127.0.0.1` only work on the machine that is already running the services. They are not public demo links, and they are intentionally not listed here as a public setup path.
 
 ## Demo Flow
 
-1. Open `http://127.0.0.1:5173/`.
+1. Start from the Ghost Beam control-room UI in the recorded demo or an author-managed live demo.
 2. Run Health Check and state that it is non-mutating.
 3. Show Live Scenario Mode.
 4. Start **Guided: Drifted Twin Test**.
@@ -448,47 +416,11 @@ External data sources cannot apply actions or write to hardware.
 - 3D beamline geometry is procedural, not CAD/GLB.
 - Vite still warns that the lazy-loaded Three/R3F scene chunk is larger than 500 kB.
 
-## Deployment Options
+## Deployment Status
 
-Ghost Beam has two deployment modes:
+Deployment targets are maintained by the author. The repository includes deployment scaffolding for author-managed review environments, but the public README does not provide a self-deployment path and does not grant anyone permission to host or deploy Ghost Beam.
 
-### 1. Full Live App - Render Web Service
-
-Use this for the complete Ghost Beam experience.
-
-The Render deployment runs the FastAPI backend and serves the React/Three.js frontend from the same service. This mode supports the full experiment runner, guided Drifted Twin Test, benchmark, Mission Report, Decision Record, Diagnosis, Evidence Bundle, recorded fixtures, public data registry, and all backend endpoints.
-
-Expected URL:
-
-`https://<render-service>.onrender.com/`
-
-Health:
-
-`https://<render-service>.onrender.com/health`
-
-API docs:
-
-`https://<render-service>.onrender.com/docs`
-
-Notes:
-
-- This is the deployment closest to localhost.
-- Generated artifacts may be ephemeral unless persistent storage is configured.
-- No real hardware, real EPICS writes, real facility logs, paid APIs, public tunnels, or automatic public dataset downloads are enabled.
-
-### 2. Static Visual Demo - GitHub Pages
-
-Use this for a persistent visual/demo page.
-
-The GitHub Pages deployment serves a static React build at:
-
-`https://zsherkar.github.io/ghost-beam/`
-
-This mode preserves the Ghost Beam UI/UX and uses embedded fixture data for the guided story, diagnosis, benchmark, evidence, and data-source panels. It does not run the FastAPI/JAX backend and cannot generate live backend artifacts.
-
-Use Render for the full backend-powered app.
-
-Deployment details: [DEPLOYMENT.md](DEPLOYMENT.md)
+The previously planned GitHub Pages visual demo URL is not advertised here because it is not currently live. A public static-demo link can be added only after GitHub Pages is enabled, the deployment workflow completes successfully, and the URL is verified.
 
 ## Copyright and Use Restrictions
 
