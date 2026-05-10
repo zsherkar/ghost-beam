@@ -73,100 +73,89 @@ Guided Demo is intentionally the Drifted Twin Test. Normal scenario selection re
 
 ## Architecture
 
-```mermaid
-flowchart LR
-    U["User / Optimizer"] --> UI["Ghost Beam UI<br/>React + TypeScript + R3F"]
-    UI --> API["FastAPI Backend"]
-    API --> RUN["Stateful Experiment Runner"]
-    RUN --> TWIN["Synthetic JAX Digital Twin"]
-    RUN --> VD["Virtual Diagnostic"]
-    VD --> UQ["Uncertainty + OOD Scoring"]
-    RUN --> VISION["Beam Profile / Vision Diagnostic"]
-    RUN --> ELOG["Synthetic eLog Memory<br/>TF-IDF Retrieval"]
-    RUN --> POLICY["Deterministic Policy Gate"]
-    UQ --> POLICY
-    VISION --> POLICY
-    ELOG --> POLICY
-    POLICY --> DEC["Decision Record JSON"]
-    POLICY --> DX["Human Diagnosis Markdown"]
-    POLICY --> REPORT["Mission Report"]
-    POLICY --> BUNDLE["Evidence Bundle"]
+```text
+User / Optimizer
+  -> Ghost Beam UI (React + TypeScript + React Three Fiber)
+  -> FastAPI Backend
+  -> Stateful Experiment Runner
+      -> Synthetic JAX Digital Twin
+      -> Virtual Diagnostic
+          -> Uncertainty + OOD Scoring
+      -> Beam Profile / Vision Diagnostic
+      -> Synthetic eLog Memory (TF-IDF Retrieval)
+      -> Deterministic Policy Gate
+          -> Decision Record JSON
+          -> Human Diagnosis Markdown
+          -> Mission Report
+          -> Evidence Bundle
 ```
 
 ### Decision Flow
 
-```mermaid
-flowchart TD
-    A["Proposed Action"] --> B["Hard PV Limit Check"]
-    B -->|violation| BLOCK["BLOCK"]
-    B -->|within limits| C["Virtual Diagnostic"]
-    C --> D["Uncertainty + OOD"]
-    D -->|outside trust envelope| CAL["REQUEST_CALIBRATION"]
-    D -->|trusted enough| E["eLog Memory Retrieval"]
-    E -->|conflicting evidence| REVIEW["REQUIRE_HUMAN_REVIEW"]
-    E -->|no conflict| F["Calibration Freshness"]
-    F -->|stale or missing| CAL
-    F -->|fresh| G["Policy Gate"]
-    G --> APPROVE["APPROVE"]
-    G --> SMALL["APPROVE_SMALL_STEP"]
-    G --> REVIEW
-    G --> BLOCK
+```text
+Proposed Action
+  -> Hard PV Limit Check
+      -> violation: BLOCK
+      -> within limits: Virtual Diagnostic
+  -> Uncertainty + OOD
+      -> outside trust envelope: REQUEST_CALIBRATION
+      -> trusted enough: eLog Memory Retrieval
+  -> eLog Memory Retrieval
+      -> conflicting evidence: REQUIRE_HUMAN_REVIEW
+      -> no conflict: Calibration Freshness
+  -> Calibration Freshness
+      -> stale or missing: REQUEST_CALIBRATION
+      -> fresh: Policy Gate
+  -> Policy Gate
+      -> APPROVE
+      -> APPROVE_SMALL_STEP
+      -> REQUIRE_HUMAN_REVIEW
+      -> BLOCK
 ```
 
 ### Core vs External Data Architecture
 
-```mermaid
-flowchart TB
-    subgraph CORE["Core / Manual / Live Demo Layer"]
-        SJT["Synthetic JAX Twin<br/>active"]
-        SCEN["Local Scenarios<br/>green, drifted, conflict, unsafe, recovery"]
-        GUIDE["Guided Drifted Twin Test"]
-        BENCH["Naive-vs-Ghost-Beam Benchmark"]
-        ART["Decision Record + Diagnosis + Mission Report + Evidence Bundle"]
-    end
+```text
+Core / Manual / Live Demo Layer
+  - Synthetic JAX Twin (active)
+  - Local Scenarios: green, drifted, conflict, unsafe, recovery
+  - Guided Drifted Twin Test
+  - Naive-vs-Ghost-Beam Benchmark
+  - Decision Record + Diagnosis + Mission Report + Evidence Bundle
 
-    subgraph PUBLIC["External Public Data Layer"]
-        BOOSTR["BOOSTR Adapter<br/>local slice only"]
-        BPM["Fermilab BPM/IPM Manifest<br/>local slice future path"]
-        PDR["PublicDataAnalysisRecord<br/>read-only"]
-    end
+External Public Data Layer
+  - BOOSTR adapter (local slice only)
+  - Fermilab BPM/IPM manifest (local slice future path)
+  - PublicDataAnalysisRecord (read-only)
 
-    subgraph FACILITY["Facility Connector Layer"]
-        EPICS["EPICS Archiver Stub<br/>disabled, read-only shape"]
-        PYARCH["pyarchappl-compatible Stub<br/>disabled"]
-    end
+Facility Connector Layer
+  - EPICS Archiver Stub (disabled, read-only shape)
+  - pyarchappl-compatible Stub (disabled)
 
-    subgraph PROV["Artifact / Provenance / Standards Layer"]
-        SCHEMA["Decision Record Schema"]
-        FRICTION["Frictionless Validation Status"]
-        ROC["RO-Crate Evidence Metadata"]
-        OPENPMD["openPMD Compatibility Manifest"]
-        WF["WorkflowHub Compatibility Manifest"]
-    end
-
-    CORE --> PROV
-    PUBLIC --> PROV
-    FACILITY --> PROV
-    BOOSTR --> PDR
-    BPM --> PDR
+Artifact / Provenance / Standards Layer
+  - Decision Record Schema
+  - Frictionless Validation Status
+  - RO-Crate Evidence Metadata
+  - openPMD Compatibility Manifest
+  - WorkflowHub Compatibility Manifest
 ```
 
 ### Evidence Bundle Composition
 
-```mermaid
-flowchart LR
-    SESSION["Session Export"] --> BUNDLE["Evidence Bundle"]
-    DECISION["Decision Record JSON"] --> BUNDLE
-    DIAG["Human Diagnosis Markdown"] --> BUNDLE
-    REPORT["Mission Report JSON/MD"] --> BUNDLE
-    BENCH["Benchmark Result"] --> BUNDLE
-    MANIFEST["Synthetic Data Manifest"] --> BUNDLE
-    SOURCES["Data Sources Registry"] --> BUNDLE
-    PUBLIC["BOOSTR + BPM/IPM Manifests"] --> BUNDLE
-    SCHEMA["Decision Record Schema"] --> BUNDLE
-    ROC["RO-Crate Metadata"] --> BUNDLE
-    VALID["Frictionless Validation Status"] --> BUNDLE
-    STANDARDS["openPMD + WorkflowHub Manifests"] --> BUNDLE
+```text
+Evidence Bundle
+  - Session Export
+  - Decision Record JSON
+  - Human Diagnosis Markdown
+  - Mission Report JSON/Markdown
+  - Benchmark Result
+  - Synthetic Data Manifest
+  - Data Sources Registry
+  - BOOSTR + BPM/IPM Manifests
+  - Decision Record Schema
+  - RO-Crate Metadata
+  - Frictionless Validation Status
+  - openPMD + WorkflowHub Manifests
 ```
 
 ## Features
@@ -296,7 +285,14 @@ Evidence Bundle contents are documented in [docs/artifact_schema.md](docs/artifa
 
 ## Quickstart
 
-Local preview URLs:
+Clone the repository and run everything from the repository root.
+
+```powershell
+git clone https://github.com/zsherkar/ghost-beam.git
+cd ghost-beam
+```
+
+Local preview URLs after launch:
 
 - Frontend: `http://127.0.0.1:5173/`
 - Backend API: `http://127.0.0.1:8000/`
@@ -306,14 +302,12 @@ Local preview URLs:
 One-command local launch:
 
 ```powershell
-cd "D:\Building\Ghost Beam"
 powershell -ExecutionPolicy Bypass -File .\scripts\start_ghostbeam.ps1
 ```
 
 Backend:
 
 ```powershell
-cd "D:\Building\Ghost Beam"
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
@@ -326,7 +320,7 @@ python -m uvicorn ghostbeam.api.main:app --reload --host 127.0.0.1 --port 8000
 Frontend:
 
 ```powershell
-cd "D:\Building\Ghost Beam\frontend"
+cd frontend
 npm install
 npm run dev -- --host 127.0.0.1 --port 5173
 ```
@@ -334,7 +328,6 @@ npm run dev -- --host 127.0.0.1 --port 5173
 Smoke test:
 
 ```powershell
-cd "D:\Building\Ghost Beam"
 powershell -ExecutionPolicy Bypass -File .\scripts\run_smoke.ps1
 ```
 
